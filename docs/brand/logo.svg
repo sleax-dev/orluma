@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="44%" r="70%">
+      <stop offset="0" stop-color="#23262d"/>
+      <stop offset="1" stop-color="#060607"/>
+    </radialGradient>
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#e3e6eb"/>
+      <stop offset="1" stop-color="#b9bec8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="230" fill="url(#bg)"/>
+  <!-- the ring: a backup going round, open where the new copy comes in -->
+  <path d="M 512 222 A 290 290 0 1 0 717.1 306.9" fill="none" stroke="url(#ink)" stroke-width="78" stroke-linecap="butt"/>
+  <!-- its arrowhead, sharp like Zanrei's mark -->
+  <path d="M 611.0 200.9 L 811.1 252.5 L 662.6 401.0 Z" fill="url(#ink)"/>
+  <!-- what is kept safe -->
+  <path d="M 512 404 L 620 512 L 512 620 L 404 512 Z" fill="url(#ink)"/>
+</svg>

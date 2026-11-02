@@ -1,0 +1,124 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+env:
+  LINUX_DEPS: libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libssl-dev
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version: lts/*, cache: npm }
+      - uses: dtolnay/rust-toolchain@v1
+        with: { toolchain: stable, components: "rustfmt, clippy" }
+      - uses: Swatinem/rust-cache@v2
+      - run: sudo apt-get update && sudo apt-get install -y $LINUX_DEPS
+      - run: npm ci
+      - run: npm run build # type-check and bundle the UI (the Tauri shell embeds dist/)
+      - run: npm run check:i18n # every UI string exists in every language, with the plural forms it needs
+      - run: cargo fmt --all --check
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo test --workspace
+
+  # The desktop app. Windows ships one installer for x64; macOS and Linux build for their own architecture.
+  desktop:
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, bundles: nsis, args: "" }
+          - { os: macos-latest, bundles: dmg, args: "--target aarch64-apple-darwin", rust_target: aarch64-apple-darwin }
+          - { os: macos-15-intel, bundles: dmg, args: "--target x86_64-apple-darwin", rust_target: x86_64-apple-darwin }
+          - { os: ubuntu-22.04, bundles: "deb,appimage", args: "" }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version: lts/*, cache: npm }
+      - uses: dtolnay/rust-toolchain@v1
+        with: { toolchain: stable, targets: "${{ matrix.rust_target }}" }
+      - uses: Swatinem/rust-cache@v2
+      - if: startsWith(matrix.os, 'ubuntu')
+        run: sudo apt-get update && sudo apt-get install -y $LINUX_DEPS
+      - run: npm ci
+
+      # Signed update packages (and latest.json) need the private key from the repository secrets.
+      # Without it the release still builds, but installed copies cannot update to it.
+      - name: Check for the updater signing key
+        id: updater
+        shell: bash
+        env:
+          KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        run: |
+          if [ -n "$KEY" ]; then
+            echo "args=--config src-tauri/tauri.updater.json" >> "$GITHUB_OUTPUT"
+          else
+            echo "args=" >> "$GITHUB_OUTPUT"
+            echo "::warning::TAURI_SIGNING_PRIVATE_KEY is not set. This release will not be offered as an automatic update."
+          fi
+
+      - uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: Orluma ${{ github.ref_name }}
+          releaseBody: |
+            **Desktop:** Windows (`*-setup.exe`), macOS (`.dmg`), Linux (`.deb`, `.AppImage`).
+            **Servers:** nothing to download. Add a server in the app and it installs the matching signed agent over SSH.
+            Installers are not code-signed yet, so Windows SmartScreen or macOS Gatekeeper may warn on first run.
+            Installed copies update themselves; see CHANGELOG.md for what changed.
+          releaseDraft: false
+          prerelease: false
+          uploadUpdaterJson: true
+          args: --bundles ${{ matrix.bundles }} ${{ matrix.args }} ${{ steps.updater.outputs.args }}
+
+  # The server agent, signed with the same key as the desktop updates. Built on the oldest runner image that
+  # is still maintained so the binary runs on older distributions (glibc 2.35 or newer).
+  agent:
+    needs: desktop
+    if: startsWith(github.ref, 'refs/tags/v')
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runner: ubuntu-22.04, asset: orluma-agent-x86_64-linux }
+          - { runner: ubuntu-22.04-arm, asset: orluma-agent-aarch64-linux }
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version: lts/*, cache: npm }
+      - uses: dtolnay/rust-toolchain@v1
+        with: { toolchain: stable }
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release -p orluma-agent
+      - name: Sign and upload
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          cp target/release/orluma-agent "${{ matrix.asset }}"
+          npm ci --ignore-scripts
+          npx tauri signer sign "${{ matrix.asset }}"
+          gh release upload "${{ github.ref_name }}" "${{ matrix.asset }}" "${{ matrix.asset }}.sig" --clobber

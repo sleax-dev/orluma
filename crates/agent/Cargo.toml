@@ -1,0 +1,30 @@
+[package]
+name = "orluma-agent"
+description = "Orluma's server agent: runs the backups, keeps their history, sends the alerts."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+orluma-core = { path = "../core" }
+axum = { version = "0.8", default-features = false, features = ["http1", "json", "tokio", "query"] }
+base64 = "0.22"
+bzip2 = "0.6"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde", "std"] }
+clap = { version = "4", features = ["derive"] }
+futures-util = "0.3"
+hex = "0.4"
+hmac = "0.12"
+libc = "0.2"
+lettre = { version = "0.11", default-features = false, features = ["builder", "smtp-transport", "tokio1-rustls", "ring", "webpki-roots"] }
+minisign-verify = "0.3"
+reqwest = { version = "0.13", default-features = false, features = ["json", "form", "stream", "rustls-no-provider", "http2"] }
+rusqlite = { version = "0.41", features = ["bundled"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+tokio = { version = "1", features = ["full"] }
+tokio-stream = { version = "0.1", features = ["sync"] }
+tokio-util = { version = "0.7", features = ["io"] }
