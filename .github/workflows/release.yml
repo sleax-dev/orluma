@@ -44,8 +44,8 @@ jobs:
       matrix:
         include:
           - { os: windows-latest, bundles: nsis, args: "" }
-          - { os: macos-latest, bundles: dmg, args: "--target aarch64-apple-darwin", rust_target: aarch64-apple-darwin }
-          - { os: macos-15-intel, bundles: dmg, args: "--target x86_64-apple-darwin", rust_target: x86_64-apple-darwin }
+          - { os: macos-latest, bundles: "app,dmg", args: "--target aarch64-apple-darwin", rust_target: aarch64-apple-darwin }
+          - { os: macos-15-intel, bundles: "app,dmg", args: "--target x86_64-apple-darwin", rust_target: x86_64-apple-darwin }
           - { os: ubuntu-22.04, bundles: "deb,appimage", args: "" }
     runs-on: ${{ matrix.os }}
     steps:
