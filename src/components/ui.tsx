@@ -126,7 +126,7 @@ export function LiveRun({ p, title, onCancel }: { p: RunProgress; title: string;
         )}
       </div>
       <div className={`bar${known ? "" : " indeterminate"}`}>
-        <i style={{ width: `${Math.round(p.percent * 100)}%` }} />
+        <i style={{ transform: `scaleX(${Math.min(1, Math.max(0, p.percent))})` }} />
       </div>
       <div className="live-nums">
         {known && <span>{percent(p.percent)}</span>}
