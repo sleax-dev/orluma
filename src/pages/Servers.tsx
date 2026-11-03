@@ -9,9 +9,9 @@ import {
   DismissCircle16Filled,
   Edit16Regular,
   MoreHorizontal20Regular,
-  Server20Regular,
+  ServerMultiple20Regular,
   ShieldCheckmark16Regular,
-  Sparkle16Regular,
+  SearchSparkle16Regular,
 } from "@fluentui/react-icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -199,7 +199,7 @@ export function Servers() {
         }
       />
       {servers.length === 0 ? (
-        <Empty icon={<Server20Regular />} title={t("overview.noServers")} text={t("overview.noServersText")} />
+        <Empty icon={<ServerMultiple20Regular />} title={t("overview.noServers")} text={t("overview.noServersText")} />
       ) : (
         <div className="rows">
           {servers.map((s) => {
@@ -208,7 +208,7 @@ export function Servers() {
             return (
               <div className="row" key={s.id} style={{ alignItems: "flex-start" }}>
                 <span className="icon">
-                  <Server20Regular />
+                  <ServerMultiple20Regular />
                 </span>
                 <div className="info">
                   <div className="gap-s">
@@ -245,7 +245,7 @@ export function Servers() {
                   </div>
                 </div>
                 <div className="ctl">
-                  <Button size="small" icon={<Sparkle16Regular />} disabled={!st} onClick={() => setFirst(s.id)}>
+                  <Button size="small" icon={<SearchSparkle16Regular />} disabled={!st} onClick={() => setFirst(s.id)}>
                     {t("servers.whatToBackUp")}
                   </Button>
                   <Menu>

@@ -236,6 +236,10 @@ export async function mock(cmd: string, args: Record<string, unknown> = {}): Pro
       return agentCall(String(args.server), String(args.path), (args.body ?? {}) as Record<string, unknown>);
     case "pc_usage":
       return { root: settings.pc_storage_dir, free: 812 * GB, repos: [["s_web", 6.3 * GB], ["s_mail", 2.8 * GB]] };
+    case "lan_scan":
+      return [{ name: "LAPTOP-OFFICE", addr: "192.168.1.24:41873" }];
+    case "lan_share_start":
+      return { code: "48201937", port: 41873, ip: "192.168.1.20", name: "DESKTOP" };
     case "update_status":
     case "check_update":
       return { current: "0.1.0", available: null, checking: false, installing: false, downloaded: 0, total: null, error: null, last_checked: Math.floor(now / 1000) - 3600 };

@@ -5,6 +5,7 @@ import type {
   AgentEvent,
   AgentStatus,
   AppInfo,
+  DbConn,
   Destination,
   Discovery,
   FsNode,
@@ -102,6 +103,15 @@ export const api = {
   forget: (s: string, destination: string, snapshots: string[]) => agent<null>(s, "snapshots/forget", { destination, snapshots }),
   restore: (s: string, req: { destination: string; snapshot: string; include: string[]; target: string; overwrite: boolean }) =>
     agent<{ run_id: string }>(s, "restore", req),
+  restoreDb: (s: string, req: { destination: string; snapshot: string; kind: string; file: string; conn: DbConn; uri: string; database: string; replace: boolean }) =>
+    agent<{ run_id: string }>(s, "restore-db", req),
+  transfer: (s: string, req: { from: string; job_id: string; init: boolean; to?: string; to_destination?: Destination }) =>
+    agent<{ run_id: string }>(s, "copy", req),
+  pcPush: (server: string, folder: string, destination: string) => call<string>("pc_push", { server, folder, destination }),
+  lanShareStart: (folders: string[]) => call<{ code: string; port: number; ip: string | null; name: string }>("lan_share_start", { folders }),
+  lanShareStop: () => call<void>("lan_share_stop"),
+  lanScan: () => call<{ name: string; addr: string }[]>("lan_scan"),
+  lanReceive: (addr: string, code: string) => call<string[]>("lan_receive", { addr, code }),
   discover: (s: string) => agent<Discovery>(s, "discover"),
   testNotifier: (s: string, n: Notifier) => agent<TestResult>(s, "notifiers/test", n),
   agentUpdateCheck: (s: string) => agent<string>(s, "agent/update-check"),

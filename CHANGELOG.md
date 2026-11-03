@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.1
+
+- The macOS app bundle is built and published, so Macs can update themselves.
+- The progress bar animates smoothly.
+- Restore a database backup straight into a running database (PostgreSQL, MySQL/MariaDB, SQLite, MongoDB, ClickHouse). It goes into a new database by default; replacing an existing one needs a tick, and a replaced SQLite file is kept next to the new one.
+- Transfer page: copy snapshots between destinations and servers, load a backup kept on this PC onto a server, and send backups to another PC on the same network (pairing code, SPAKE2, encrypted and verified).
+- MariaDB 11 containers work again (their dump tools only have the new names).
+- Clearer icons: one tinted mark per database engine, a bell for alerts, a server icon that no longer looks like a phone.
+
 ## 0.1.0
 
 First release.

@@ -155,6 +155,23 @@ impl Store {
         Ok(pw)
     }
 
+    /// The password of one backup folder on this PC: the PC's own, unless the folder came from another PC.
+    pub fn repo_password(&self, folder: &str) -> std::io::Result<String> {
+        let imported: std::collections::HashMap<String, String> =
+            read_json(&self.dir.join("imported-repositories.json"));
+        match imported.get(folder) {
+            Some(p) => Ok(p.clone()),
+            None => self.pc_password(),
+        }
+    }
+
+    pub fn save_repo_password(&self, folder: &str, password: &str) -> std::io::Result<()> {
+        let path = self.dir.join("imported-repositories.json");
+        let mut imported: std::collections::HashMap<String, String> = read_json(&path);
+        imported.insert(folder.to_string(), password.to_string());
+        write_private(&path, &serde_json::to_vec_pretty(&imported)?)
+    }
+
     pub fn pc_root(&self, s: &Settings) -> PathBuf {
         if s.pc_storage_dir.trim().is_empty() {
             self.dir.join("pc-backups")

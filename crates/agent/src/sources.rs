@@ -32,7 +32,11 @@ pub struct Planned {
 }
 
 /// How to run a database tool: inside a container, as another OS user, or directly.
-fn wrap(conn: &DbConn, argv: Vec<String>, env: Vec<(String, String)>) -> (Vec<String>, Vec<(String, String)>) {
+pub(crate) fn wrap(
+    conn: &DbConn,
+    argv: Vec<String>,
+    env: Vec<(String, String)>,
+) -> (Vec<String>, Vec<(String, String)>) {
     if !conn.container.is_empty() {
         let mut a = vec!["docker".to_string(), "exec".into(), "-i".into()];
         for (k, v) in &env {
@@ -44,7 +48,20 @@ fn wrap(conn: &DbConn, argv: Vec<String>, env: Vec<(String, String)>) -> (Vec<St
             a.push(conn.os_user.clone());
         }
         a.push(conn.container.clone());
-        a.extend(argv);
+        // MariaDB 11 images ship only the new tool names: try the old one, then the new, inside the container.
+        match argv.first().map(String::as_str) {
+            Some(old @ ("mysqldump" | "mysql")) => {
+                let new = if old == "mysql" { "mariadb" } else { "mariadb-dump" };
+                a.extend([
+                    "sh".into(),
+                    "-c".into(),
+                    format!("exec \"$(command -v {old} || command -v {new})\" \"$@\""),
+                    "sh".into(),
+                ]);
+                a.extend(argv.into_iter().skip(1));
+            }
+            _ => a.extend(argv),
+        }
         return (a, Vec::new());
     }
     if !conn.os_user.is_empty() {
@@ -55,11 +72,11 @@ fn wrap(conn: &DbConn, argv: Vec<String>, env: Vec<(String, String)>) -> (Vec<St
     (argv, env)
 }
 
-fn s(v: &str) -> String {
+pub(crate) fn s(v: &str) -> String {
     v.to_string()
 }
 
-fn conn_flags(conn: &DbConn, host: &str, port: &str, user: &str) -> Vec<String> {
+pub(crate) fn conn_flags(conn: &DbConn, host: &str, port: &str, user: &str) -> Vec<String> {
     let mut f = Vec::new();
     if !conn.host.is_empty() {
         f.extend([s(host), conn.host.clone()]);
@@ -73,7 +90,7 @@ fn conn_flags(conn: &DbConn, host: &str, port: &str, user: &str) -> Vec<String> 
     f
 }
 
-async fn query(argv: &[String], env: &[(String, String)]) -> Result<String> {
+pub(crate) async fn query(argv: &[String], env: &[(String, String)]) -> Result<String> {
     let o = Command::new(&argv[0])
         .args(&argv[1..])
         .envs(env.iter().map(|(k, v)| (k.as_str(), v.as_str())))
@@ -90,7 +107,7 @@ async fn query(argv: &[String], env: &[(String, String)]) -> Result<String> {
     Ok(String::from_utf8_lossy(&o.stdout).into_owned())
 }
 
-fn safe_name(s: &str) -> String {
+pub(crate) fn safe_name(s: &str) -> String {
     s.chars()
         .map(|c| {
             if c.is_ascii_alphanumeric() || "._-".contains(c) {
@@ -104,7 +121,7 @@ fn safe_name(s: &str) -> String {
 
 // ---- Postgres
 
-fn pg_env(conn: &DbConn) -> Vec<(String, String)> {
+pub(crate) fn pg_env(conn: &DbConn) -> Vec<(String, String)> {
     if conn.password.is_empty() {
         Vec::new()
     } else {
@@ -133,8 +150,8 @@ pub async fn postgres_databases(conn: &DbConn) -> Result<Vec<String>> {
 
 // ---- MySQL / MariaDB
 
-fn mysql_tool(base: &str, conn: &DbConn) -> String {
-    // MariaDB 11 renamed the tools; inside a container we cannot look, so the old names (still shipped as links) win there.
+pub(crate) fn mysql_tool(base: &str, conn: &DbConn) -> String {
+    // MariaDB 11 renamed the tools; inside a container `wrap` tries both names.
     let maria = match base {
         "mysqldump" => "mariadb-dump",
         _ => "mariadb",
@@ -146,7 +163,7 @@ fn mysql_tool(base: &str, conn: &DbConn) -> String {
     }
 }
 
-fn mysql_env(conn: &DbConn) -> Vec<(String, String)> {
+pub(crate) fn mysql_env(conn: &DbConn) -> Vec<(String, String)> {
     if conn.password.is_empty() {
         Vec::new()
     } else {
@@ -170,7 +187,7 @@ pub async fn mysql_databases(conn: &DbConn) -> Result<Vec<String>> {
 
 // ---- ClickHouse
 
-fn ch_client(conn: &DbConn) -> Vec<String> {
+pub(crate) fn ch_client(conn: &DbConn) -> Vec<String> {
     let mut a = if !conn.container.is_empty() || which("clickhouse-client") {
         vec![s("clickhouse-client")]
     } else {

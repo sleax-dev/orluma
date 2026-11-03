@@ -14,6 +14,7 @@ import { RestorePage } from "./pages/Restore";
 import { Servers } from "./pages/Servers";
 import { SettingsPage } from "./pages/SettingsPage";
 import { Setup } from "./pages/Setup";
+import { Transfer } from "./pages/Transfer";
 import { Storage } from "./pages/Storage";
 import { AppProvider, useApp } from "./state";
 import { theme } from "./theme";
@@ -47,6 +48,8 @@ function PageView({ page }: { page: Page }) {
       return <Storage />;
     case "restore":
       return <RestorePage />;
+    case "transfer":
+      return <Transfer />;
     case "activity":
       return <Activity />;
     case "alerts":

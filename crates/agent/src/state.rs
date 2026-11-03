@@ -27,6 +27,8 @@ pub struct Agent {
     pub busy_repos: Mutex<HashMap<String, String>>,
     pub http: reqwest::Client,
     pub update_available: Mutex<Option<String>>,
+    /// Repositories attached for this process only (see `AttachRequest`).
+    pub attached: Mutex<HashMap<String, Repo>>,
     restic: tokio::sync::Mutex<Option<Restic>>,
 }
 
@@ -57,6 +59,7 @@ impl Agent {
             busy_repos: Mutex::new(HashMap::new()),
             http,
             update_available: Mutex::new(None),
+            attached: Mutex::new(HashMap::new()),
             restic: tokio::sync::Mutex::new(None),
         }))
     }
@@ -92,6 +95,9 @@ impl Agent {
     }
 
     pub fn repo(&self, id: &str) -> Result<Repo> {
+        if let Some(r) = lock(&self.attached).get(id) {
+            return Ok(r.clone());
+        }
         Repo::of(&self.destination(id)?, &self.paths)
     }
 

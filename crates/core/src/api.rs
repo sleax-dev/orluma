@@ -224,6 +224,35 @@ pub struct RestoreRequest {
     pub overwrite: bool,
 }
 
+/// Load a database dump out of a snapshot into a live database server.
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct RestoreDbRequest {
+    pub destination: String,
+    pub snapshot: String,
+    /// postgres, mysql, sqlite, mongo or clickhouse: the `kind:` tag of the snapshot.
+    pub kind: String,
+    /// The dump inside the snapshot (`/postgres/app.dump`); for ClickHouse its folder (`/clickhouse/analytics`).
+    pub file: String,
+    /// How to reach the database server (not used for SQLite).
+    pub conn: crate::model::DbConn,
+    pub uri: String,
+    /// Into this database; a SQLite file path. Empty means the original name.
+    pub database: String,
+    /// Allow overwriting what is there. Off refuses to touch an existing database.
+    pub replace: bool,
+}
+
+/// Make a repository the agent does not keep in its config usable as a destination until the agent restarts
+/// (a copy on the PC reached through a tunnel): the id then works wherever a destination id does.
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct AttachRequest {
+    pub id: String,
+    pub repository: String,
+    pub password: String,
+}
+
 /// Copy snapshots to a repository the agent does not keep in its config (the PC's, through a tunnel).
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
@@ -235,6 +264,10 @@ pub struct CopyRequest {
     pub job_id: String,
     /// Create the repository when it does not exist yet.
     pub init: bool,
+    /// Copy into one of the app's own destinations (another server's, say) instead of `to_repository`.
+    pub to_destination: Option<crate::model::Destination>,
+    /// Or into a destination in the agent's own config.
+    pub to: String,
     /// Apply this retention to the job's snapshots in the target after copying (then prune).
     pub retention: Option<crate::model::Retention>,
 }

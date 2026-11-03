@@ -36,6 +36,8 @@ Storage is [restic](https://restic.net): deduplicated, compressed, encrypted, an
 - **Restore without a terminal.** Browse any snapshot like a folder, download a file or a whole folder as a zip to this PC, or restore to the server into a folder you choose. Never over live files unless you say so.
 - **Alerts that come from the server.** Discord, Telegram, Slack, Microsoft Teams, email (SMTP), ntfy, Gotify, Pushover and signed webhooks, per job and per event, plus health-check pings (healthchecks.io, Uptime Kuma, Cronitor) that also catch a backup that stopped running at all. Desktop notifications on top.
 - **Hooks.** Commands before and after a backup, for stopping a service or taking a snapshot of something Orluma does not know about.
+- **Restore into a database.** A database backup loads straight into a running PostgreSQL, MySQL/MariaDB, SQLite, MongoDB or ClickHouse, into a new database by default.
+- **Move backups anywhere.** Copy between servers and clouds, put a backup kept on this PC onto a server, or send backups to another PC on the same Wi-Fi with a one-time code. Nothing leaves your network.
 - **A recovery kit.** One file with every server, destination and password, so you can restore with restic alone even if the servers and this PC are gone.
 - **Updates itself.** The desktop app and the agents install signed releases from GitHub; the signature is checked before anything is replaced.
 - **Ten languages**, right-to-left included.

@@ -13,7 +13,7 @@ import {
   LockOpen16Regular,
   MoreHorizontal20Regular,
   PlugConnected16Regular,
-  Server20Regular,
+  ServerLink20Regular,
   ShieldTask16Regular,
 } from "@fluentui/react-icons";
 import { useEffect, useState } from "react";
@@ -32,7 +32,7 @@ function DestIcon({ d }: { d: Destination }) {
       return <HardDrive20Regular />;
     case "sftp":
     case "rest":
-      return <Server20Regular />;
+      return <ServerLink20Regular />;
     default:
       return <Cloud20Regular />;
   }

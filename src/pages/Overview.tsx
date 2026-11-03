@@ -1,5 +1,5 @@
 import { Button } from "@fluentui/react-components";
-import { Add16Regular, CheckmarkCircle20Regular, ErrorCircle16Regular, Server20Regular, Warning16Regular } from "@fluentui/react-icons";
+import { Add16Regular, CheckmarkCircle20Regular, ErrorCircle16Regular, ServerMultiple20Regular, Warning16Regular } from "@fluentui/react-icons";
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Empty, LiveRun, Skeleton, Status } from "../components/ui";
@@ -63,7 +63,7 @@ export function Overview() {
           <p>{t("overview.welcomeText")}</p>
         </div>
         <Empty
-          icon={<Server20Regular />}
+          icon={<ServerMultiple20Regular />}
           title={t("overview.noServers")}
           text={t("overview.noServersText")}
           action={
@@ -174,7 +174,7 @@ export function Overview() {
               <button key={s.id} className="card" onClick={() => setPage("jobs", { server: s.id })}>
                 <div className="card-head">
                   <span className="avatar">
-                    <Server20Regular />
+                    <ServerMultiple20Regular />
                   </span>
                   <div className="ellipsis">
                     <div className="name ellipsis">{s.name}</div>

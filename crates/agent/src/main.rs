@@ -6,6 +6,7 @@ mod discover;
 mod notify;
 mod paths;
 mod restic;
+mod restore_db;
 mod runner;
 mod scheduler;
 mod server;

@@ -18,6 +18,7 @@ const shots = [
   { name: "jobs", page: "jobs" },
   { name: "storage", page: "storage" },
   { name: "restore", page: "restore" },
+  { name: "transfer", page: "transfer" },
   { name: "activity", page: "activity" },
   { name: "alerts", page: "alerts" },
   { name: "setup", page: "overview", query: "&setup=1" },

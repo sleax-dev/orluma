@@ -228,9 +228,33 @@ async fn restore(State(a): State<Shared>, Json(r): Json<RestoreRequest>) -> R<St
     Ok(Json(StartedRun { run_id }))
 }
 
+async fn restore_db(State(a): State<Shared>, Json(r): Json<RestoreDbRequest>) -> R<StartedRun> {
+    let repo = a.repo(&r.destination)?;
+    let run_id = runner::start_task(
+        &a,
+        "restore-db",
+        RunKind::Restore,
+        r.destination.clone(),
+        move |a, _| async move { crate::restore_db::run(&a.restic().await?, &repo, &r).await },
+    )?;
+    Ok(Json(StartedRun { run_id }))
+}
+
+async fn attach(State(a): State<Shared>, Json(r): Json<AttachRequest>) -> R<()> {
+    if !r.id.starts_with("tmp:") || r.id.len() > 64 {
+        return Err(ApiErr(StatusCode::BAD_REQUEST, "attached ids start with tmp:".into()));
+    }
+    lock(&a.attached).insert(r.id, Repo::raw(&r.repository, &r.password));
+    Ok(Json(()))
+}
+
 async fn copy(State(a): State<Shared>, Json(r): Json<CopyRequest>) -> R<StartedRun> {
     let from = a.repo(&r.from)?;
-    let to = Repo::raw(&r.to_repository, &r.to_password);
+    let to = match &r.to_destination {
+        Some(d) => Repo::of(d, &a.paths)?,
+        None if !r.to.is_empty() => a.repo(&r.to)?,
+        None => Repo::raw(&r.to_repository, &r.to_password),
+    };
     let label = if r.job_id.is_empty() {
         format!("dest:{}", r.from)
     } else {
@@ -347,6 +371,8 @@ pub fn router(agent: Shared) -> axum::Router {
         .route("/v1/snapshots/forget", post(snapshot_forget))
         .route("/v1/restore", post(restore))
         .route("/v1/copy", post(copy))
+        .route("/v1/restore-db", post(restore_db))
+        .route("/v1/destinations/attach", post(attach))
         .route("/v1/dump", get(dump))
         .route("/v1/discover", post(discover))
         .route("/v1/notifiers/test", post(notifier_test))

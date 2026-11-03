@@ -3,6 +3,7 @@ import {
   ArrowCounterclockwise16Regular,
   ArrowDownload16Regular,
   ArrowUp16Regular,
+  DatabaseArrowRight16Regular,
   Delete16Regular,
   Document16Regular,
   Folder16Filled,
@@ -13,6 +14,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Confirm, Empty, PageHead, ServerPicker, Skeleton, TextField, useAction } from "../components/ui";
 import { api, errText } from "../lib/api";
+import { RestoreDb, dbRestorable } from "../components/RestoreDb";
 import { newId } from "../lib/defaults";
 import { bytes, dateTime, num, relative } from "../lib/format";
 import type { FsNode, Snapshot } from "../lib/types";
@@ -35,6 +37,7 @@ export function RestorePage() {
   const [filter, setFilter] = useState("");
   const [restoring, setRestoring] = useState<{ include: string[]; target: string; overwrite: boolean } | null>(null);
   const [forgetting, setForgetting] = useState<Snapshot | null>(null);
+  const [toDb, setToDb] = useState(false);
   const { busy, run } = useAction();
 
   useEffect(() => {
@@ -154,7 +157,12 @@ export function RestorePage() {
                       <Button size="small" icon={busy === `dl${path}` ? <Spinner size="extra-tiny" /> : <ArrowDownload16Regular />} onClick={() => void download(null)}>
                         {t("restore.downloadFolder")}
                       </Button>
-                      <Button size="small" appearance="primary" icon={<ArrowCounterclockwise16Regular />} onClick={() => setRestoring({ include: path === "/" ? [] : [path], target: `/var/tmp/orluma-restore/${sel.short_id}`, overwrite: false })}>
+                      {dbRestorable(sourceType(sel), sel) && (
+                        <Button size="small" appearance="primary" icon={<DatabaseArrowRight16Regular />} onClick={() => setToDb(true)}>
+                          {t("restore.db.button")}
+                        </Button>
+                      )}
+                      <Button size="small" appearance={dbRestorable(sourceType(sel), sel) ? "secondary" : "primary"} icon={<ArrowCounterclockwise16Regular />} onClick={() => setRestoring({ include: path === "/" ? [] : [path], target: `/var/tmp/orluma-restore/${sel.short_id}`, overwrite: false })}>
                         {t("restore.toServer")}
                       </Button>
                     </div>
@@ -191,6 +199,9 @@ export function RestorePage() {
         </div>
       )}
 
+      {toDb && sel && (
+        <RestoreDb server={server!} destination={dest} snapshot={sel} kind={sourceType(sel)} source={cfg?.jobs.find((j) => j.id === sel.job)?.sources.find((x) => x.id === sel.source)} onClose={() => setToDb(false)} />
+      )}
       {restoring && sel && (
         <Dialog open onOpenChange={(_, d) => !d.open && setRestoring(null)}>
           <DialogSurface className="dialog-wide">

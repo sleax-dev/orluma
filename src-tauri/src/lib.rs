@@ -3,6 +3,7 @@
 //! from signed releases.
 
 mod install;
+mod lan;
 mod pcrepo;
 mod ssh;
 mod store;
@@ -32,6 +33,7 @@ pub struct Inner {
     conns: tokio::sync::Mutex<HashMap<String, Arc<Conn>>>,
     listening: Mutex<std::collections::HashSet<String>>,
     pc: tokio::sync::Mutex<Option<pcrepo::Server>>,
+    lan: tokio::sync::Mutex<Option<lan::Share>>,
     http: reqwest::Client,
     update: Mutex<UpdateStatus>,
     pending_update: Mutex<Option<tauri_plugin_updater::Update>>,
@@ -630,6 +632,117 @@ async fn pc_sync_now(app: AppHandle, s: State<'_, AppState>, id: String) -> Res<
     run_pc_sync(app, s.0.clone(), sync).await
 }
 
+// ---------------------------------------------------------------- moving backups around
+
+/// Puts a backup folder of this PC onto one of a server's destinations: the PC's copy is the source, so an old
+/// backup (or one received from another PC) can be loaded back into any server and restored there.
+#[tauri::command]
+async fn pc_push(s: State<'_, AppState>, server: String, folder: String, destination: String) -> Res<String> {
+    let st = &s.0;
+    if !st.pc_folders().contains(&folder) {
+        return Err("that backup folder is not on this PC".into());
+    }
+    let (addr, user, pw) = st.pc_server().await?;
+    let conn = st.conn(&server).await?;
+    let port = conn.reverse_tunnel(addr).await.map_err(|e| e.0)?;
+    let password = st.store.repo_password(&folder).map_err(|e| e.to_string())?;
+    let id = format!("tmp:pc-{folder}");
+    st.call(
+        &server,
+        "destinations/attach",
+        &serde_json::json!({"id": id, "repository": format!("rest:http://{user}:{pw}@127.0.0.1:{port}/{folder}/"), "password": password}),
+    )
+    .await?;
+    let r = st
+        .call(
+            &server,
+            "copy",
+            &serde_json::json!({"from": id, "to": destination, "init": true}),
+        )
+        .await?;
+    Ok(r.get("run_id").and_then(Value::as_str).unwrap_or_default().to_string())
+}
+
+#[derive(Serialize)]
+struct ShareInfo {
+    code: String,
+    port: u16,
+    ip: Option<String>,
+    name: String,
+}
+
+#[tauri::command]
+async fn lan_share_start(app: AppHandle, s: State<'_, AppState>, folders: Vec<String>) -> Res<ShareInfo> {
+    let st = &s.0;
+    let known = st.pc_folders();
+    let mut repos = Vec::new();
+    for f in folders {
+        if !known.contains(&f) {
+            return Err(format!("{f} is not a backup folder on this PC"));
+        }
+        repos.push((f.clone(), st.store.repo_password(&f).map_err(|e| e.to_string())?));
+    }
+    let root = st.store.pc_root(&lock(&st.settings));
+    let name = store::hostname();
+    let mut slot = st.lan.lock().await;
+    if let Some(old) = slot.take() {
+        old.stop();
+    }
+    let a = app.clone();
+    let share = lan::share(&root, repos, &name, move |p| {
+        let _ = a.emit("lan-progress", p);
+    })
+    .await?;
+    let info = ShareInfo {
+        code: share.code.clone(),
+        port: share.port,
+        ip: lan::local_ip(),
+        name,
+    };
+    *slot = Some(share);
+    Ok(info)
+}
+
+#[tauri::command]
+async fn lan_share_stop(s: State<'_, AppState>) -> Res<()> {
+    if let Some(old) = s.0.lan.lock().await.take() {
+        old.stop();
+    }
+    Ok(())
+}
+
+#[tauri::command]
+async fn lan_scan() -> Vec<lan::Peer> {
+    lan::scan().await
+}
+
+/// Takes what another PC offers into this PC's backup folder; returns the folders it made.
+#[tauri::command]
+async fn lan_receive(app: AppHandle, s: State<'_, AppState>, addr: String, code: String) -> Res<Vec<String>> {
+    let st = &s.0;
+    let root = st.store.pc_root(&lock(&st.settings));
+    tokio::fs::create_dir_all(&root).await.map_err(|e| e.to_string())?;
+    let a = app.clone();
+    let got = lan::receive(&addr, &code, &root, move |p| {
+        let _ = a.emit("lan-progress", p);
+    })
+    .await?;
+    for (folder, password) in &got.repos {
+        st.store
+            .save_repo_password(folder, password)
+            .map_err(|e| e.to_string())?;
+    }
+    Ok(got.repos.into_iter().map(|(f, _)| f).collect())
+}
+
+impl Inner {
+    /// Backup folders on this PC: one repository each.
+    fn pc_folders(&self) -> Vec<String> {
+        let root = self.store.pc_root(&lock(&self.settings));
+        pcrepo::usage(&root).into_iter().map(|(n, _)| n).collect()
+    }
+}
+
 #[derive(Serialize)]
 struct PcUsage {
     root: String,
@@ -1002,6 +1115,7 @@ pub fn run() {
                 conns: tokio::sync::Mutex::new(HashMap::new()),
                 listening: Mutex::new(Default::default()),
                 pc: tokio::sync::Mutex::new(None),
+                lan: tokio::sync::Mutex::new(None),
                 http,
                 update: Mutex::new(UpdateStatus {
                     current: app.package_info().version.to_string(),
@@ -1040,6 +1154,11 @@ pub fn run() {
             download,
             pc_sync_now,
             pc_usage,
+            pc_push,
+            lan_share_start,
+            lan_share_stop,
+            lan_scan,
+            lan_receive,
             recovery_kit,
             update_status,
             check_update,

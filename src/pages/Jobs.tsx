@@ -2,21 +2,19 @@ import { Button, Menu, MenuItem, MenuList, MenuPopover, MenuTrigger, Spinner, Sw
 import {
   Add16Regular,
   ArrowRight12Regular,
-  ArrowSync20Regular,
+  ShieldCheckmark20Regular,
   Calendar12Regular,
   Copy16Regular,
-  Database20Regular,
   Delete16Regular,
-  Document20Regular,
   Edit16Regular,
-  Folder20Regular,
   History16Regular,
   MoreHorizontal20Regular,
   Play16Filled,
-  Sparkle16Regular,
+  SearchSparkle16Regular,
 } from "@fluentui/react-icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { JobIcon } from "../components/SourceIcon";
 import { FirstBackup } from "../components/FirstBackup";
 import { JobEditor } from "../components/JobEditor";
 import { DestinationEditor } from "../components/DestinationEditor";
@@ -41,14 +39,6 @@ export function sourceLabel(s: Source): string {
     default:
       return [s.container || s.host || "local", "databases" in s && s.databases.length ? s.databases.join(", ") : ""].filter(Boolean).join(" · ");
   }
-}
-
-function JobIcon({ job }: { job: Job }) {
-  const first = job.sources[0]?.type;
-  if (!first) return <ArrowSync20Regular />;
-  if (first === "paths") return <Folder20Regular />;
-  if (first === "command") return <Document20Regular />;
-  return <Database20Regular />;
 }
 
 export function Jobs() {
@@ -98,7 +88,7 @@ export function Jobs() {
         desc={t("jobs.desc")}
         actions={
           <>
-            <Button icon={<Sparkle16Regular />} disabled={!st} onClick={() => setFirst(true)}>
+            <Button icon={<SearchSparkle16Regular />} disabled={!st} onClick={() => setFirst(true)}>
               {t("servers.whatToBackUp")}
             </Button>
             <Button appearance="primary" icon={<Add16Regular />} disabled={!cfg} onClick={() => setEditing(newJob({ destination: cfg?.destinations[0]?.id ?? "" }))}>
@@ -119,11 +109,11 @@ export function Jobs() {
         )
       ) : cfg.jobs.length === 0 ? (
         <Empty
-          icon={<ArrowSync20Regular />}
+          icon={<ShieldCheckmark20Regular />}
           title={t("jobs.none")}
           text={t("jobs.noneText")}
           action={
-            <Button appearance="primary" icon={<Sparkle16Regular />} onClick={() => setFirst(true)}>
+            <Button appearance="primary" icon={<SearchSparkle16Regular />} onClick={() => setFirst(true)}>
               {t("servers.whatToBackUp")}
             </Button>
           }
@@ -144,11 +134,13 @@ export function Jobs() {
                     <div className="gap-s">
                       <span className="name">{job.name}</span>
                       <div className="tags">
-                        {job.sources.map((s) => (
-                          <span className="tag" key={s.id} title={sourceLabel(s)}>
-                            {t(`source.type.${s.type}`)}
-                          </span>
-                        ))}
+                        {job.sources
+                          .filter((s) => t(`source.type.${s.type}`).toLowerCase() !== job.name.trim().toLowerCase())
+                          .map((s) => (
+                            <span className="tag" key={s.id} title={sourceLabel(s)}>
+                              {t(`source.type.${s.type}`)}
+                            </span>
+                          ))}
                       </div>
                     </div>
                     <div className="meta">
