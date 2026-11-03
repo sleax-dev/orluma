@@ -12,6 +12,7 @@ import {
 } from "@fluentui/react-icons";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { NoServer } from "../components/guide";
 import { Confirm, Empty, PageHead, ServerPicker, Skeleton, TextField, useAction } from "../components/ui";
 import { api, errText } from "../lib/api";
 import { RestoreDb, dbRestorable } from "../components/RestoreDb";
@@ -27,7 +28,7 @@ function parentOf(p: string) {
 
 export function RestorePage() {
   const { t } = useTranslation();
-  const { server, configs, loadConfig, params, toast } = useApp();
+  const { server, servers, configs, loadConfig, params, toast, setPage } = useApp();
   const [dest, setDest] = useState(params.destination ?? "");
   const [snaps, setSnaps] = useState<Snapshot[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -105,6 +106,7 @@ export function RestorePage() {
       <PageHead
         title={t("nav.restore")}
         desc={t("restore.desc")}
+        info={t("restore.info")}
         actions={
           cfg && cfg.destinations.length > 0 ? (
             <Dropdown value={cfg.destinations.find((d) => d.id === dest)?.name ?? ""} selectedOptions={[dest]} onOptionSelect={(_, o) => setDest(o.optionValue ?? "")}>
@@ -113,8 +115,16 @@ export function RestorePage() {
           ) : undefined
         }
       />
+      {servers.length === 0 && <NoServer page="restore" />}
       <ServerPicker />
-      {cfg && cfg.destinations.length === 0 && <Empty icon={<History20Regular />} title={t("storage.none")} text={t("storage.noneText")} />}
+      {cfg && cfg.destinations.length === 0 && (
+        <Empty
+          icon={<History20Regular />}
+          title={t("guide.noBackups")}
+          text={t("guide.noBackupsText")}
+          action={<Button appearance="primary" onClick={() => setPage("jobs", { server: server! })}>{t("servers.whatToBackUp")}</Button>}
+        />
+      )}
       {error && <p className="bad-text selectable">{error}</p>}
       {cfg && cfg.destinations.length > 0 && !error && (
         <div className="split">

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2
+
+- First run is guided: the Overview opens with a short "Set up your backups" list (connect a server, choose what to back up, run the first backup, optionally keep a copy on this PC) with one button on the current step. Pages that need a server say so and point back to step 1 instead of showing nothing.
+- Explanations moved behind small (i) tooltips; page descriptions are one short line.
+- Transfer page: tabs (servers and clouds, PC to server, another PC) with a from-to layout; Send and Receive panels no longer stretch into empty space.
+- Server rows show the system and free space; agent, restic, uptime and host key sit behind a tooltip.
+- Removed the light glow at the top of the window. Icons inside buttons on empty screens are no longer drawn in the accent colour.
+
 ## 0.1.1
 
 - The macOS app bundle is built and published, so Macs can update themselves.

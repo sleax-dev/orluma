@@ -27,6 +27,7 @@ export default {
   live: { step: "Adım {{index}}/{{count}}", eta: "yaklaşık {{time}} kaldı" },
 
   overview: {
+    fact: { online: "çevrimiçi", ok: "24 saatte başarılı", failed: "24 saatte başarısız", protected: "korunuyor" },
     welcome: "Orluma'ya hoş geldin",
     welcomeText: "Sunucularının yedekleri tek yerden: şifreli, zamanlanmış, doğrulanmış ve istediğin yere gönderilmiş.",
     noServers: "Henüz sunucu yok",
@@ -53,7 +54,8 @@ export default {
   },
 
   servers: {
-    desc: "Her sunucuda Orluma ajanı çalışır; Orluma ona SSH üzerinden ulaşır. Ağda hiçbir şey dinlemez.",
+    info: "Her sunucuda küçük bir Orluma ajanı çalışır. Orluma ona SSH ile ulaşır, bu yüzden sunucuda port açılmaz.",
+    desc: "Orluma'nın yedeklediği sunucular.",
     add: "Sunucu ekle",
     whatToBackUp: "Neyi yedekleyelim",
     agent: "Ajan {{version}}", restic: "restic {{version}}", noRestic: "restic henüz kurulmadı", uptime: "{{time}} açık",
@@ -99,7 +101,8 @@ export default {
   },
 
   jobs: {
-    desc: "Her sunucu neyi, ne zaman, nereye ve ne kadar süreyle yedekliyor.",
+    info: "Bir yedek; korunacak şeylerin (klasör, veritabanı), saklanacağı yerin, çalışma zamanının ve eski kopyaların ne kadar tutulacağının listesidir.",
+    desc: "Her sunucunun neyi ne zaman yedeklediği.",
     new: "Yeni yedek", none: "Bu sunucuda henüz yedek yok", noneText: "Orluma sunucuya baksın ve neyin yedekleneceğini önersin.",
     offline: "{{server}} yanıt vermiyor", runNow: "Şimdi çalıştır", next: "sıradaki {{when}}", history: "Geçmiş",
     duplicate: "Kopyasını oluştur", copyOf: "{{name}} (kopya)", deleteTitle: "{{name}} silinsin mi?",
@@ -170,7 +173,8 @@ export default {
   },
 
   storage: {
-    desc: "Yedeklerin gittiği yerler. Her şey sunucudan çıkmadan önce şifrelenir.",
+    info: "Hedef, yedek kopyalarının durduğu yerdir. Her şey sunucudan çıkmadan şifrelenir ve kopyaları birden fazla yerde tutabilirsin.",
+    desc: "Yedek kopyalarının durduğu yerler.",
     add: "Hedef ekle", none: "Henüz hedef yok", noneText: "Bir disk, başka bir sunucu ya da bir bulut deposu ekle.",
     snapshots_one: "{{count}} snapshot", snapshots_other: "{{count}} snapshot", stored: "{{size}} depolanmış",
     saving: "verinin {{ratio}} katı küçük", usedBy: "Kullanan: {{jobs}}", unused: "Hiçbir yedek kullanmıyor",
@@ -223,7 +227,8 @@ export default {
     addHint: "Yalnızca son seferden beri yeni olanı kopyalar; ilk kopyadan sonrası hızlıdır.",
   },
   restore: {
-    desc: "Herhangi bir snapshot'a göz at, dosyaları bu bilgisayara indir ya da sunucuya geri koy.",
+    info: "Bir yedek seç; dosyaları bu bilgisayara indir ya da sunucuya geri koy. Veritabanı yedekleri doğrudan veritabanına yüklenebilir. Sen söylemedikçe hiçbir şeyin üzerine yazılmaz.",
+    desc: "Bir yedekten dosya ya da veritabanı geri getir.",
     allJobs: "Tüm yedekler", empty: "Burada henüz snapshot yok.", manual: "Diğer",
     pick: "Bir snapshot seç", up: "Yukarı",
     snapshotInfo: "{{host}} üzerinden {{id}} snapshot'ı · {{files}} dosya · {{size}}",
@@ -257,6 +262,11 @@ export default {
     },
   },
   transfer: {
+    info: "Yedekler şifreli dosyalardır; açılmadan sunucular, bulutlar ve bilgisayarlar arasında serbestçe kopyalanabilir.",
+    tab: { servers: "Sunucu ve bulut", pc: "PC'den sunucuya", lan: "Başka bilgisayar" },
+    thisPc: "Bu bilgisayar",
+    emptyPc: "Bu bilgisayarda henüz yedek yok.",
+    copyHere: "Bir sunucunun yedeklerini buraya kopyala",
     desc: "Yedekleri sunucular, bulutlar ve bilgisayarlar arasında taşı.",
     server: "Sunucu",
     destination: "Hedef",
@@ -285,7 +295,7 @@ export default {
     scan: "Tekrar ara",
     scanning: "Ağda aranıyor…",
     noPeers: "Şu anda gönderen bilgisayar yok. Önce diğer bilgisayarda Gönder'e bas.",
-    manual: "Ya da diğer bilgisayarda görünen adres",
+    manual: "Diğer bilgisayar listede yoksa onda görünen adresi yaz.",
     enterCode: "Diğer bilgisayarda görünen kod",
     receiveStart: "Yedekleri al",
     wrongCode: "Kod doğru değil.",
@@ -293,8 +303,50 @@ export default {
     done: "Bitti · {{done}}",
     received: "Alındı. Bir sunucuya yükleyip geri yüklemek için “Bu bilgisayardan sunucuya” bölümünü kullan.",
   },
+  help: {
+    what: "Daha fazla bilgi",
+  },
+  guide: {
+    noBackups: "Geri yüklenecek bir şey yok",
+    noBackupsText: "Önce bir yedek al; sonra buradan geri getirirsin.",
+    noServer: "İlk sunucunu ekle",
+    purpose: {
+      servers: "Sunucuyu adresi ve şifresiyle bağla. Orluma kendini üzerine kurar.",
+      jobs: "Her sunucunun neyi ne zaman yedekleyeceğini seç.",
+      storage: "Yedeklerin nerede duracağını seç: disk, başka sunucu ya da bulut.",
+      restore: "Herhangi bir yedekten dosyaları ya da veritabanını geri getir.",
+      transfer: "Yedekleri sunucular, bulutlar ve bilgisayarlar arasında taşı.",
+      activity: "Her yedekleme çalışması ve kaydı burada görünür.",
+      alerts: "Bir yedek başarısız olursa Discord, Telegram veya e-postayla haber al.",
+    },
+  },
+  start: {
+    title: "Yedeklemeni kur",
+    progress: "{{done}}/{{total}} tamam",
+    optional: "İsteğe bağlı",
+    s1: {
+      title: "Sunucu bağla",
+      text: "Adresini ve şifresini gir. Şifre bir kez kullanılır, saklanmaz.",
+    },
+    s2: {
+      title: "Neyin yedekleneceğini seç",
+      text: "Orluma veritabanlarını ve klasörleri bulur. Sen sadece işaretlersin.",
+      action: "Verilerimi bul",
+    },
+    s3: {
+      title: "İlk yedeği çalıştır",
+      text: "Şimdi bir deneme yapmak her şeyin çalıştığını kanıtlar.",
+      action: "Şimdi yedekle",
+    },
+    s4: {
+      title: "Bu bilgisayarda bir kopya tut",
+      text: "Sunucu kaybolursa diye evde çevrimdışı bir kopya.",
+      action: "Kur",
+    },
+  },
   activity: {
-    desc: "Her sunucudaki her çalışma, tam loguyla.",
+    info: "Her sunucudaki her çalışma, tam kaydıyla.",
+    desc: "Her yedekleme çalışması, kaydıyla.",
     allServers: "Tüm sunucular", all: "Tümü",
     kind: { backup: "Yedek", verify: "Doğrulama", prune: "Temizlik", copy: "Kopyalama", restore: "Geri yükleme" },
     trigger: { schedule: "zamanlanmış", manual: "elle başlatıldı", catch_up: "telafi" },
@@ -303,7 +355,8 @@ export default {
     restore: "Geri yükleme", copyLog: "Logu kopyala",
   },
   alerts: {
-    desc: "Her sunucu kendisi gönderir; bu bilgisayar kapalıyken bile ulaşır.",
+    info: "Uyarıları her sunucu kendisi gönderir; bu yüzden bu bilgisayar kapalıyken de ulaşırlar.",
+    desc: "Yedek başarısız olunca haber al.",
     add: "Uyarı ekle", none: "Bu sunucuda uyarı yok", noneText: "Hatalardan haberin olsun diye Discord, Telegram, e-posta ya da bir webhook ekle.",
     allJobs: "tüm yedekler", someJobs_one: "{{count}} yedek", someJobs_other: "{{count}} yedek",
     deleteTitle: "{{name}} silinsin mi?",

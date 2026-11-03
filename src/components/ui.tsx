@@ -10,7 +10,7 @@ import {
   Input,
   type InputProps,
 } from "@fluentui/react-components";
-import { Dismiss16Regular, Subtract16Regular, Maximize16Regular, ArrowClockwise16Regular } from "@fluentui/react-icons";
+import { ArrowClockwise16Regular, Dismiss16Regular, Info16Regular, Maximize16Regular, Subtract16Regular } from "@fluentui/react-icons";
 import { AnimatePresence, motion } from "motion/react";
 import type { ReactNode } from "react";
 import { useState } from "react";
@@ -18,6 +18,7 @@ import { useTranslation } from "react-i18next";
 import logo from "../assets/logo.svg";
 import { api } from "../lib/api";
 import { bytes, duration, percent } from "../lib/format";
+import { Guide, Info } from "./guide";
 import type { RunProgress, RunStatus } from "../lib/types";
 import { useApp } from "../state";
 
@@ -53,11 +54,14 @@ export function TitleBar() {
   );
 }
 
-export function PageHead({ title, desc, actions }: { title: string; desc?: string; actions?: ReactNode }) {
+export function PageHead({ title, desc, info, actions }: { title: string; desc?: string; info?: string; actions?: ReactNode }) {
   return (
     <header className="page-head">
       <div>
-        <h1>{title}</h1>
+        <h1>
+          {title}
+          {info && <Info text={info} />}
+        </h1>
         {desc && <p>{desc}</p>}
       </div>
       {actions && <div className="actions">{actions}</div>}
@@ -71,14 +75,7 @@ export function Status({ status }: { status: RunStatus | "online" | "offline" | 
 }
 
 export function Empty({ icon, title, text, action }: { icon?: ReactNode; title: string; text?: string; action?: ReactNode }) {
-  return (
-    <div className="empty">
-      {icon}
-      <h3>{title}</h3>
-      {text && <p>{text}</p>}
-      {action}
-    </div>
-  );
+  return <Guide icon={icon ?? <Info16Regular />} title={title} text={text} actions={action} />;
 }
 
 export function Skeleton({ h = 18, w = "100%", r = 6 }: { h?: number; w?: number | string; r?: number }) {

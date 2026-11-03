@@ -27,6 +27,7 @@ export default {
   live: { step: "Étape {{index}} sur {{count}}", eta: "encore environ {{time}}" },
 
   overview: {
+    fact: { online: "en ligne", ok: "réussies en 24 h", failed: "échouées en 24 h", protected: "protégés" },
     welcome: "Bienvenue dans Orluma",
     welcomeText: "Les sauvegardes de tes serveurs, d'ici : chiffrées, planifiées, vérifiées et envoyées où tu veux.",
     noServers: "Pas encore de serveur",
@@ -53,7 +54,8 @@ export default {
   },
 
   servers: {
-    desc: "Chaque serveur exécute l'agent Orluma, qu'Orluma joint par SSH. Rien n'écoute sur le réseau.",
+    info: "Chaque serveur exécute un petit agent Orluma. Orluma l'atteint par SSH, donc aucun port n'est ouvert sur le serveur.",
+    desc: "Les serveurs que Orluma sauvegarde.",
     add: "Ajouter un serveur",
     whatToBackUp: "Quoi sauvegarder",
     agent: "Agent {{version}}", restic: "restic {{version}}", noRestic: "restic pas encore installé", uptime: "Démarré depuis {{time}}",
@@ -99,7 +101,8 @@ export default {
   },
 
   jobs: {
-    desc: "Ce que chaque serveur sauvegarde, quand, où et pour combien de temps.",
+    info: "Une sauvegarde est une liste de choses à protéger (dossiers, bases de données), où les garder, quand l'exécuter et combien de temps garder les anciennes copies.",
+    desc: "Ce que chaque serveur sauvegarde, et quand.",
     new: "Nouvelle sauvegarde", none: "Aucune sauvegarde sur ce serveur", noneText: "Laisse Orluma examiner le serveur et proposer quoi sauvegarder.",
     offline: "{{server}} ne répond pas", runNow: "Lancer maintenant", next: "prochaine {{when}}", history: "Historique",
     duplicate: "Dupliquer", copyOf: "{{name}} (copie)", deleteTitle: "Supprimer {{name}} ?",
@@ -170,7 +173,8 @@ export default {
   },
 
   storage: {
-    desc: "Où vont les sauvegardes. Tout est chiffré sur le serveur avant de le quitter.",
+    info: "Une destination est l'endroit où sont gardées les copies. Tout est chiffré sur le serveur avant de le quitter, et vous pouvez garder des copies à plusieurs endroits.",
+    desc: "Où sont gardées les copies.",
     add: "Ajouter une destination", none: "Pas encore de destination", noneText: "Ajoute un disque, un autre serveur ou un bucket cloud.",
     snapshots_one: "{{count}} instantané", snapshots_many: "{{count}} instantanés", snapshots_other: "{{count}} instantanés", stored: "{{size}} stockés",
     saving: "{{ratio}}× plus petit que les données", usedBy: "Utilisée par {{jobs}}", unused: "Utilisée par aucune sauvegarde",
@@ -223,7 +227,8 @@ export default {
     addHint: "Ne copie que ce qui est nouveau depuis la dernière fois ; après la première copie, c'est rapide.",
   },
   restore: {
-    desc: "Parcours n'importe quel instantané, télécharge des fichiers sur ce PC ou remets-les sur le serveur.",
+    info: "Choisissez une sauvegarde, puis téléchargez des fichiers sur ce PC ou remettez-les sur le serveur. Les sauvegardes de base de données se chargent directement dans une base. Rien n'est écrasé sans votre accord.",
+    desc: "Récupérez des fichiers ou bases depuis une sauvegarde.",
     allJobs: "Toutes les sauvegardes", empty: "Pas encore d'instantané ici.", manual: "Autres",
     pick: "Choisis un instantané", up: "Monter",
     snapshotInfo: "Instantané {{id}} de {{host}} · {{files}} fichiers · {{size}}",
@@ -257,6 +262,11 @@ export default {
     },
   },
   transfer: {
+    info: "Les sauvegardes sont des fichiers chiffrés : elles se copient librement entre serveurs, clouds et PC sans être ouvertes.",
+    tab: { servers: "Serveurs et clouds", pc: "PC vers serveur", lan: "Autre PC" },
+    thisPc: "Ce PC",
+    emptyPc: "Ce PC ne garde encore aucune sauvegarde.",
+    copyHere: "Copier ici les sauvegardes d'un serveur",
     desc: "Déplacez des sauvegardes entre serveurs, clouds et PC.",
     server: "Serveur",
     destination: "Destination",
@@ -285,7 +295,7 @@ export default {
     scan: "Chercher à nouveau",
     scanning: "Recherche sur le réseau…",
     noPeers: "Aucun PC n'envoie en ce moment. Appuyez d'abord sur Envoyer sur l'autre PC.",
-    manual: "Ou l'adresse affichée sur l'autre PC",
+    manual: "Si l'autre PC n'apparaît pas, saisissez l'adresse qu'il affiche.",
     enterCode: "Code affiché sur l'autre PC",
     receiveStart: "Recevoir les sauvegardes",
     wrongCode: "Ce code n'est pas le bon.",
@@ -293,8 +303,50 @@ export default {
     done: "Terminé · {{done}}",
     received: "Reçu. Utilisez « De ce PC vers un serveur » pour le charger sur un serveur et le restaurer.",
   },
+  help: {
+    what: "Plus d'infos",
+  },
+  guide: {
+    noBackups: "Rien à restaurer pour l'instant",
+    noBackupsText: "Faites d'abord une sauvegarde, puis restaurez-la d'ici.",
+    noServer: "Ajoutez votre premier serveur",
+    purpose: {
+      servers: "Connectez un serveur avec son adresse et son mot de passe. Orluma s'y installe tout seul.",
+      jobs: "Choisissez ce que chaque serveur sauvegarde, et quand.",
+      storage: "Choisissez où sont gardées les sauvegardes : un disque, un autre serveur ou un cloud.",
+      restore: "Récupérez des fichiers ou toute une base de données depuis n'importe quelle sauvegarde.",
+      transfer: "Déplacez des sauvegardes entre serveurs, clouds et PC.",
+      activity: "Chaque exécution de sauvegarde et son journal apparaissent ici.",
+      alerts: "Recevez un message sur Discord, Telegram ou par e-mail quand une sauvegarde échoue.",
+    },
+  },
+  start: {
+    title: "Configurez vos sauvegardes",
+    progress: "{{done}} sur {{total}} faits",
+    optional: "Facultatif",
+    s1: {
+      title: "Connecter un serveur",
+      text: "Utilisez son adresse et son mot de passe. Le mot de passe sert une fois et n'est pas conservé.",
+    },
+    s2: {
+      title: "Choisir quoi sauvegarder",
+      text: "Orluma trouve vos bases de données et dossiers. Vous n'avez qu'à les cocher.",
+      action: "Trouver mes données",
+    },
+    s3: {
+      title: "Lancer la première sauvegarde",
+      text: "Un essai maintenant prouve que tout fonctionne.",
+      action: "Sauvegarder maintenant",
+    },
+    s4: {
+      title: "Garder une copie sur ce PC",
+      text: "Une copie hors ligne chez vous, au cas où le serveur serait perdu.",
+      action: "Configurer",
+    },
+  },
   activity: {
-    desc: "Chaque exécution sur chaque serveur, avec son journal complet.",
+    info: "Chaque exécution de chaque serveur, avec son journal complet.",
+    desc: "Chaque sauvegarde, avec son journal.",
     allServers: "Tous les serveurs", all: "Toutes",
     kind: { backup: "Sauvegarde", verify: "Vérification", prune: "Nettoyage", copy: "Copie", restore: "Restauration" },
     trigger: { schedule: "planifiée", manual: "lancée à la main", catch_up: "rattrapage" },
@@ -303,7 +355,8 @@ export default {
     restore: "Restauration", copyLog: "Copier le journal",
   },
   alerts: {
-    desc: "Envoyées par chaque serveur lui-même, elles arrivent même quand ce PC est éteint.",
+    info: "Les alertes sont envoyées par chaque serveur lui-même : elles arrivent même quand ce PC est éteint.",
+    desc: "Soyez prévenu quand une sauvegarde échoue.",
     add: "Ajouter une alerte", none: "Aucune alerte sur ce serveur", noneText: "Ajoute Discord, Telegram, un e-mail ou un webhook pour être prévenu des échecs.",
     allJobs: "toutes les sauvegardes", someJobs_one: "{{count}} sauvegarde", someJobs_many: "{{count}} sauvegardes", someJobs_other: "{{count}} sauvegardes",
     deleteTitle: "Supprimer {{name}} ?",

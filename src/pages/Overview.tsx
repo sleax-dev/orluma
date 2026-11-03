@@ -1,8 +1,9 @@
 import { Button } from "@fluentui/react-components";
-import { Add16Regular, CheckmarkCircle20Regular, ErrorCircle16Regular, ServerMultiple20Regular, Warning16Regular } from "@fluentui/react-icons";
+import { Add16Regular, CheckmarkCircle16Regular, CheckmarkCircle20Regular, ErrorCircle16Regular, ServerMultiple20Regular, ShieldCheckmark16Regular, Warning16Regular } from "@fluentui/react-icons";
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Empty, LiveRun, Skeleton, Status } from "../components/ui";
+import { GetStarted } from "../components/guide";
+import { LiveRun, Skeleton, Status } from "../components/ui";
 import { api } from "../lib/api";
 import { bytes, relative } from "../lib/format";
 import type { RunSummary } from "../lib/types";
@@ -45,6 +46,7 @@ export function Overview() {
     return {
       online,
       jobs: states.length,
+      ran: last.length > 0,
       ok24: recent.filter((r) => r.status === "success" || r.status === "warning").length,
       bad24: recent.filter((r) => r.status === "failed").length,
       protectedBytes,
@@ -62,16 +64,7 @@ export function Overview() {
           <h1>{t("overview.welcome")}</h1>
           <p>{t("overview.welcomeText")}</p>
         </div>
-        <Empty
-          icon={<ServerMultiple20Regular />}
-          title={t("overview.noServers")}
-          text={t("overview.noServersText")}
-          action={
-            <Button appearance="primary" icon={<Add16Regular />} onClick={() => setPage("servers", { add: "1" })}>
-              {t("servers.add")}
-            </Button>
-          }
-        />
+        <GetStarted />
       </div>
     );
   }
@@ -81,39 +74,20 @@ export function Overview() {
   return (
     <div className="page">
       <div className="lead">
-        <h1>{facts.problems.length === 0 ? t("overview.allGood") : t("overview.attention", { count: facts.problems.length })}</h1>
-        <p>{facts.next ? t("overview.nextBackup", { when: relative(facts.next) }) : t("overview.noSchedule")}</p>
+        <h1>{!facts.ran ? t("overview.welcome") : facts.problems.length === 0 ? t("overview.allGood") : t("overview.attention", { count: facts.problems.length })}</h1>
+        <p>{!facts.ran ? t("overview.welcomeText") : facts.next ? t("overview.nextBackup", { when: relative(facts.next) }) : t("overview.noSchedule")}</p>
       </div>
 
-      <div className="stats five">
-        <div className="stat">
-          <span className="label">{t("overview.stat.servers")}</span>
-          <b className={facts.online < servers.length ? "bad" : undefined}>
-            {loading ? <Skeleton h={22} w={60} /> : `${facts.online}/${servers.length}`}
-          </b>
-          <span className="sub">{t("overview.stat.online")}</span>
-        </div>
-        <div className="stat">
-          <span className="label">{t("overview.stat.jobs")}</span>
-          <b>{facts.jobs}</b>
-          <span className="sub">{t("overview.stat.scheduled")}</span>
-        </div>
-        <div className="stat">
-          <span className="label">{t("overview.stat.day")}</span>
-          <b className="ok">{facts.ok24}</b>
-          <span className="sub">{t("overview.stat.succeeded")}</span>
-        </div>
-        <div className="stat">
-          <span className="label">{t("overview.stat.failed")}</span>
-          <b className={facts.bad24 > 0 ? "bad" : undefined}>{facts.bad24}</b>
-          <span className="sub">{t("overview.stat.lastDay")}</span>
-        </div>
-        <div className="stat">
-          <span className="label">{t("overview.stat.protected")}</span>
-          <b>{bytes(facts.protectedBytes)}</b>
-          <span className="sub">{t("overview.stat.sources")}</span>
-        </div>
-      </div>
+      <GetStarted compact />
+
+      {facts.ran && <div className="facts">
+        <span className={`fact${facts.online < servers.length ? " bad" : " ok"}`}>
+          {loading ? <Skeleton h={16} w={90} /> : <><CheckmarkCircle16Regular /><span><b>{facts.online}/{servers.length}</b> {t("overview.fact.online")}</span></>}
+        </span>
+        <span className="fact ok"><ShieldCheckmark16Regular /><span><b>{facts.ok24}</b> {t("overview.fact.ok")}</span></span>
+        {facts.bad24 > 0 && <span className="fact bad"><ErrorCircle16Regular /><span><b>{facts.bad24}</b> {t("overview.fact.failed")}</span></span>}
+        <span className="fact"><span><b>{bytes(facts.protectedBytes)}</b> {t("overview.fact.protected")}</span></span>
+      </div>}
 
       {running.length > 0 && (
         <section className="block">

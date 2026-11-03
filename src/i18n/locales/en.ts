@@ -26,6 +26,7 @@ const en = {
   live: { step: "Step {{index}} of {{count}}", eta: "about {{time}} left" },
 
   overview: {
+    fact: { online: "online", ok: "ok in 24 h", failed: "failed in 24 h", protected: "protected" },
     welcome: "Welcome to Orluma",
     welcomeText: "Backups for your servers, run from here: encrypted, scheduled, checked, and sent wherever you want them.",
     noServers: "No servers yet",
@@ -52,7 +53,8 @@ const en = {
   },
 
   servers: {
-    desc: "Each server runs the Orluma agent, which Orluma reaches over SSH. Nothing listens on the network.",
+    info: "Each server runs a small Orluma agent. Orluma reaches it over SSH, so no port is opened on the server.",
+    desc: "The servers Orluma backs up.",
     add: "Add server",
     whatToBackUp: "What to back up",
     agent: "Agent {{version}}", restic: "restic {{version}}", noRestic: "restic not installed yet", uptime: "Up {{time}}",
@@ -98,7 +100,8 @@ const en = {
   },
 
   jobs: {
-    desc: "What each server backs up, when, where to and for how long.",
+    info: "A backup is a list of things to protect (folders, databases), where to keep them, when to run, and how long to keep old copies.",
+    desc: "What each server backs up, and when.",
     new: "New backup", none: "No backups on this server yet", noneText: "Let Orluma look at the server and suggest what to back up.",
     offline: "{{server}} does not answer", runNow: "Run now", next: "next {{when}}", history: "History",
     duplicate: "Duplicate", copyOf: "{{name}} (copy)", deleteTitle: "Delete {{name}}?",
@@ -169,7 +172,8 @@ const en = {
   },
 
   storage: {
-    desc: "Where backups go. Everything is encrypted on the server before it leaves.",
+    info: "A destination is where backup copies are kept. Everything is encrypted on the server before it leaves, and you can keep copies in more than one place.",
+    desc: "Where backup copies are kept.",
     add: "Add destination", none: "No destinations yet", noneText: "Add a disk, another server, or a cloud bucket.",
     snapshots_one: "{{count}} snapshot", snapshots_other: "{{count}} snapshots", stored: "{{size}} stored",
     saving: "{{ratio}}× smaller than the data", usedBy: "Used by {{jobs}}", unused: "Not used by any backup",
@@ -222,7 +226,8 @@ const en = {
     addHint: "Copies only what is new since the last time, so after the first copy they are quick.",
   },
   restore: {
-    desc: "Browse any snapshot, download files to this PC or put them back on the server.",
+    info: "Pick a backup, then download files to this PC or put them back on the server. Database backups can be loaded straight into a database. Nothing is overwritten unless you say so.",
+    desc: "Bring back files or databases from a backup.",
     allJobs: "All backups", empty: "No snapshots here yet.", manual: "Other",
     pick: "Pick a snapshot", up: "Up",
     snapshotInfo: "Snapshot {{id}} from {{host}} · {{files}} files · {{size}}",
@@ -256,6 +261,11 @@ const en = {
     },
   },
   transfer: {
+    info: "Backups are encrypted files, so they can be copied freely between servers, clouds and PCs without being opened.",
+    tab: { servers: "Servers & clouds", pc: "PC to server", lan: "Another PC" },
+    thisPc: "This PC",
+    emptyPc: "This PC holds no backups yet.",
+    copyHere: "Copy a server's backups here",
     desc: "Move backups between servers, clouds and PCs.",
     server: "Server",
     destination: "Destination",
@@ -284,7 +294,7 @@ const en = {
     scan: "Look again",
     scanning: "Looking on the network…",
     noPeers: "No PC is sending right now. Press Send on the other PC first.",
-    manual: "Or the address shown on the other PC",
+    manual: "If the other PC is not listed, type the address shown on it.",
     enterCode: "Code shown on the other PC",
     receiveStart: "Receive backups",
     wrongCode: "That code is not right.",
@@ -292,8 +302,50 @@ const en = {
     done: "Done · {{done}}",
     received: "Received. Use “From this PC to a server” to load it into a server and restore it.",
   },
+  help: {
+    what: "More info",
+  },
+  guide: {
+    noBackups: "Nothing to restore yet",
+    noBackupsText: "Run a backup first, then bring it back from here.",
+    noServer: "Add your first server",
+    purpose: {
+      servers: "Connect a server by its address and password. Orluma sets itself up on it.",
+      jobs: "Choose what each server backs up, and when.",
+      storage: "Choose where backups are kept: a disk, another server or a cloud.",
+      restore: "Bring back files or a whole database from any backup.",
+      transfer: "Move backups between servers, clouds and PCs.",
+      activity: "Every backup run and its log shows up here.",
+      alerts: "Get a message on Discord, Telegram or email when a backup fails.",
+    },
+  },
+  start: {
+    title: "Set up your backups",
+    progress: "{{done}} of {{total}} done",
+    optional: "Optional",
+    s1: {
+      title: "Connect a server",
+      text: "Use its address and password. The password is used once and not kept.",
+    },
+    s2: {
+      title: "Choose what to back up",
+      text: "Orluma finds your databases and folders. You just tick them.",
+      action: "Find my data",
+    },
+    s3: {
+      title: "Run the first backup",
+      text: "A test run now proves everything works.",
+      action: "Back up now",
+    },
+    s4: {
+      title: "Keep a copy on this PC",
+      text: "An offline copy at home, in case the server is lost.",
+      action: "Set up",
+    },
+  },
   activity: {
-    desc: "Every run on every server, with its full log.",
+    info: "Every run on every server, with its full log.",
+    desc: "Every backup run, with its log.",
     allServers: "All servers", all: "All",
     kind: { backup: "Backup", verify: "Verify", prune: "Prune", copy: "Copy", restore: "Restore" },
     trigger: { schedule: "scheduled", manual: "started by hand", catch_up: "catch-up" },
@@ -302,7 +354,8 @@ const en = {
     restore: "Restore", copyLog: "Copy log",
   },
   alerts: {
-    desc: "Sent by each server itself, so they arrive even when this PC is off.",
+    info: "Alerts are sent by each server itself, so they arrive even when this PC is off.",
+    desc: "Get told when a backup fails.",
     add: "Add alert", none: "No alerts on this server", noneText: "Add Discord, Telegram, email or a webhook to hear about failures.",
     allJobs: "all backups", someJobs_one: "{{count}} backup", someJobs_other: "{{count}} backups",
     deleteTitle: "Delete {{name}}?",

@@ -1,7 +1,8 @@
 import { Button, Checkbox, Dialog, DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle, Dropdown, Field, Menu, MenuItem, MenuList, MenuPopover, MenuTrigger, Option, Spinner, Switch, Textarea } from "@fluentui/react-components";
-import { Add16Regular, AlertUrgent20Regular, CheckmarkCircle16Filled, Delete16Regular, DismissCircle16Filled, Edit16Regular, MoreHorizontal20Regular, Send16Regular } from "@fluentui/react-icons";
+import { Add16Regular, Alert20Regular, CheckmarkCircle16Filled, Delete16Regular, DismissCircle16Filled, Edit16Regular, MoreHorizontal20Regular, Send16Regular } from "@fluentui/react-icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { NoServer } from "../components/guide";
 import { Confirm, Empty, PageHead, ServerPicker, Skeleton, TextField, useAction } from "../components/ui";
 import { api, errText } from "../lib/api";
 import { newNotifier, newNotifierKind, NOTIFIER_TYPES } from "../lib/defaults";
@@ -149,7 +150,7 @@ function NotifierEditor({ server, initial, onClose, onSave }: { server: string; 
 
 export function Alerts() {
   const { t } = useTranslation();
-  const { server, configs, loadConfig, saveConfig, settings, saveSettings, live } = useApp();
+  const { server, servers, configs, loadConfig, saveConfig, settings, saveSettings, live } = useApp();
   const [editing, setEditing] = useState<Notifier | null>(null);
   const [deleting, setDeleting] = useState<Notifier | null>(null);
   const { busy, run } = useAction();
@@ -170,21 +171,23 @@ export function Alerts() {
       <PageHead
         title={t("nav.alerts")}
         desc={t("alerts.desc")}
+        info={`${t("alerts.info")}\n\n${t("alerts.healthcheckNote")}`}
         actions={
           <Button appearance="primary" icon={<Add16Regular />} disabled={!cfg} onClick={() => setEditing(newNotifier("discord", t("alert.type.discord")))}>
             {t("alerts.add")}
           </Button>
         }
       />
+      {servers.length === 0 && <NoServer page="alerts" />}
       <ServerPicker />
       {server && !cfg && live[server]?.online !== false && <Skeleton h={70} r={12} />}
-      {cfg && cfg.notifiers.length === 0 && <Empty icon={<AlertUrgent20Regular />} title={t("alerts.none")} text={t("alerts.noneText")} />}
+      {cfg && cfg.notifiers.length === 0 && <Empty icon={<Alert20Regular />} title={t("alerts.none")} text={t("alerts.noneText")} />}
       {cfg && cfg.notifiers.length > 0 && (
         <div className="rows">
           {cfg.notifiers.map((n) => (
             <div className={`row${n.enabled ? "" : " off"}`} key={n.id}>
               <span className="icon">
-                <AlertUrgent20Regular />
+                <Alert20Regular />
               </span>
               <div className="info">
                 <div className="gap-s">
@@ -238,7 +241,6 @@ export function Alerts() {
             <Switch checked={settings.notify_success} disabled={!settings.notify_desktop} onChange={(_, d) => void saveSettings({ ...settings, notify_success: d.checked })} />
           </div>
         </div>
-        <p className="small muted" style={{ margin: 0 }}>{t("alerts.healthcheckNote")}</p>
       </section>
 
       {editing && server && <NotifierEditor server={server} initial={editing} onClose={() => setEditing(null)} onSave={save} />}

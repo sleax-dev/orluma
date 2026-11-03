@@ -2,6 +2,7 @@ import { Button, Dialog, DialogActions, DialogBody, DialogContent, DialogSurface
 import { Pulse20Regular } from "@fluentui/react-icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { NoServer } from "../components/guide";
 import { Empty, LiveRun, PageHead, RefreshButton, Skeleton, Status } from "../components/ui";
 import { api } from "../lib/api";
 import { between, bytes, dateTime, num, relative, time } from "../lib/format";
@@ -49,7 +50,7 @@ export function Activity() {
 
   return (
     <div className="page">
-      <PageHead title={t("nav.activity")} desc={t("activity.desc")} actions={<RefreshButton onClick={load} />} />
+      <PageHead title={t("nav.activity")} desc={t("activity.desc")} info={t("activity.info")} actions={<RefreshButton onClick={load} />} />
       <div className="logbar">
         <div className="gap-s">
           <Dropdown size="small" value={srv ? name(srv) : t("activity.allServers")} selectedOptions={[srv]} onOptionSelect={(_, o) => { setSrv(o.optionValue ?? ""); setJob(""); }}>
@@ -77,7 +78,9 @@ export function Activity() {
         <LiveRun key={p.run_id} p={p} title={`${jobName(s, p.job_id)} · ${name(s)} · ${t(`activity.kind.${p.kind}`)}`} onCancel={() => void api.cancelRun(s, p.run_id)} />
       ))}
 
-      {rows === null ? (
+      {servers.length === 0 ? (
+        <NoServer page="activity" />
+      ) : rows === null ? (
         <div className="stack">
           <Skeleton h={52} r={12} />
           <Skeleton h={52} r={12} />

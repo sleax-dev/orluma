@@ -27,6 +27,7 @@ export default {
   live: { step: "Etapa {{index}} de {{count}}", eta: "faltam cerca de {{time}}" },
 
   overview: {
+    fact: { online: "online", ok: "ok em 24 h", failed: "falhas em 24 h", protected: "protegidos" },
     welcome: "Boas-vindas ao Orluma",
     welcomeText: "Os backups dos seus servidores, daqui: criptografados, agendados, verificados e enviados para onde você quiser.",
     noServers: "Nenhum servidor ainda",
@@ -53,7 +54,8 @@ export default {
   },
 
   servers: {
-    desc: "Cada servidor roda o agente do Orluma, que o Orluma alcança por SSH. Nada fica escutando na rede.",
+    info: "Cada servidor executa um pequeno agente do Orluma. O Orluma o alcança por SSH, então nenhuma porta é aberta no servidor.",
+    desc: "Os servidores que o Orluma copia.",
     add: "Adicionar servidor",
     whatToBackUp: "O que copiar",
     agent: "Agente {{version}}", restic: "restic {{version}}", noRestic: "restic ainda não instalado", uptime: "Ligado há {{time}}",
@@ -99,7 +101,8 @@ export default {
   },
 
   jobs: {
-    desc: "O que cada servidor copia, quando, para onde e por quanto tempo.",
+    info: "Um backup é uma lista do que proteger (pastas, bancos de dados), onde guardar, quando executar e por quanto tempo manter cópias antigas.",
+    desc: "O que cada servidor copia e quando.",
     new: "Novo backup", none: "Nenhum backup neste servidor ainda", noneText: "Deixe o Orluma examinar o servidor e sugerir o que copiar.",
     offline: "{{server}} não responde", runNow: "Executar agora", next: "próximo {{when}}", history: "Histórico",
     duplicate: "Duplicar", copyOf: "{{name}} (cópia)", deleteTitle: "Excluir {{name}}?",
@@ -170,7 +173,8 @@ export default {
   },
 
   storage: {
-    desc: "Para onde vão os backups. Tudo é criptografado no servidor antes de sair.",
+    info: "Um destino é onde as cópias ficam. Tudo é criptografado no servidor antes de sair, e você pode manter cópias em mais de um lugar.",
+    desc: "Onde ficam as cópias dos backups.",
     add: "Adicionar destino", none: "Nenhum destino ainda", noneText: "Adicione um disco, outro servidor ou um bucket na nuvem.",
     snapshots_one: "{{count}} snapshot", snapshots_many: "{{count}} snapshots", snapshots_other: "{{count}} snapshots", stored: "{{size}} armazenados",
     saving: "{{ratio}}× menor que os dados", usedBy: "Usado por {{jobs}}", unused: "Nenhum backup usa",
@@ -223,7 +227,8 @@ export default {
     addHint: "Copia só o que é novo desde a última vez, então depois da primeira é rápido.",
   },
   restore: {
-    desc: "Navegue por qualquer snapshot, baixe arquivos para este PC ou devolva-os ao servidor.",
+    info: "Escolha um backup e baixe arquivos para este PC ou devolva-os ao servidor. Backups de banco de dados podem ser carregados direto em um banco. Nada é sobrescrito sem você permitir.",
+    desc: "Recupere arquivos ou bancos de um backup.",
     allJobs: "Todos os backups", empty: "Ainda não há snapshots aqui.", manual: "Outros",
     pick: "Escolha um snapshot", up: "Subir",
     snapshotInfo: "Snapshot {{id}} de {{host}} · {{files}} arquivos · {{size}}",
@@ -257,6 +262,11 @@ export default {
     },
   },
   transfer: {
+    info: "Backups são arquivos criptografados, então podem ser copiados livremente entre servidores, nuvens e PCs sem serem abertos.",
+    tab: { servers: "Servidores e nuvens", pc: "PC para servidor", lan: "Outro PC" },
+    thisPc: "Este PC",
+    emptyPc: "Este PC ainda não guarda backups.",
+    copyHere: "Copiar para cá os backups de um servidor",
     desc: "Mova backups entre servidores, nuvens e PCs.",
     server: "Servidor",
     destination: "Destino",
@@ -285,7 +295,7 @@ export default {
     scan: "Procurar de novo",
     scanning: "Procurando na rede…",
     noPeers: "Nenhum PC está enviando agora. Toque em Enviar no outro PC primeiro.",
-    manual: "Ou o endereço mostrado no outro PC",
+    manual: "Se o outro PC não aparecer, digite o endereço mostrado nele.",
     enterCode: "Código mostrado no outro PC",
     receiveStart: "Receber backups",
     wrongCode: "Esse código não está certo.",
@@ -293,8 +303,50 @@ export default {
     done: "Concluído · {{done}}",
     received: "Recebido. Use “Deste PC para um servidor” para carregá-lo em um servidor e restaurá-lo.",
   },
+  help: {
+    what: "Mais informações",
+  },
+  guide: {
+    noBackups: "Nada para restaurar ainda",
+    noBackupsText: "Faça um backup primeiro e depois recupere-o aqui.",
+    noServer: "Adicione seu primeiro servidor",
+    purpose: {
+      servers: "Conecte um servidor com endereço e senha. O Orluma se instala sozinho nele.",
+      jobs: "Escolha o que cada servidor copia e quando.",
+      storage: "Escolha onde os backups ficam: um disco, outro servidor ou uma nuvem.",
+      restore: "Recupere arquivos ou um banco de dados inteiro de qualquer backup.",
+      transfer: "Mova backups entre servidores, nuvens e PCs.",
+      activity: "Cada execução de backup e seu registro aparecem aqui.",
+      alerts: "Receba uma mensagem no Discord, Telegram ou e-mail quando um backup falhar.",
+    },
+  },
+  start: {
+    title: "Configure seus backups",
+    progress: "{{done}} de {{total}} feitos",
+    optional: "Opcional",
+    s1: {
+      title: "Conectar um servidor",
+      text: "Use o endereço e a senha. A senha é usada uma vez e não é guardada.",
+    },
+    s2: {
+      title: "Escolher o que copiar",
+      text: "O Orluma encontra seus bancos de dados e pastas. Você só marca.",
+      action: "Encontrar meus dados",
+    },
+    s3: {
+      title: "Executar o primeiro backup",
+      text: "Um teste agora prova que tudo funciona.",
+      action: "Fazer backup agora",
+    },
+    s4: {
+      title: "Guardar uma cópia neste PC",
+      text: "Uma cópia offline em casa, caso o servidor se perca.",
+      action: "Configurar",
+    },
+  },
   activity: {
-    desc: "Cada execução em cada servidor, com o log completo.",
+    info: "Cada execução de cada servidor, com o registro completo.",
+    desc: "Cada execução de backup, com o registro.",
     allServers: "Todos os servidores", all: "Todas",
     kind: { backup: "Backup", verify: "Verificação", prune: "Limpeza", copy: "Cópia", restore: "Restauração" },
     trigger: { schedule: "agendado", manual: "iniciado à mão", catch_up: "recuperação" },
@@ -303,7 +355,8 @@ export default {
     restore: "Restauração", copyLog: "Copiar log",
   },
   alerts: {
-    desc: "Enviados pelo próprio servidor, então chegam mesmo com este PC desligado.",
+    info: "Os alertas são enviados por cada servidor, então chegam mesmo com este PC desligado.",
+    desc: "Saiba quando um backup falhar.",
     add: "Adicionar alerta", none: "Nenhum alerta neste servidor", noneText: "Adicione Discord, Telegram, e-mail ou um webhook para saber das falhas.",
     allJobs: "todos os backups", someJobs_one: "{{count}} backup", someJobs_many: "{{count}} backups", someJobs_other: "{{count}} backups",
     deleteTitle: "Excluir {{name}}?",

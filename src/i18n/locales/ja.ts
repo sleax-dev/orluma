@@ -27,6 +27,7 @@ export default {
   live: { step: "ステップ {{index}}/{{count}}", eta: "残り約 {{time}}" },
 
   overview: {
+    fact: { online: "オンライン", ok: "24 時間で成功", failed: "24 時間で失敗", protected: "保護済み" },
     welcome: "Orluma へようこそ",
     welcomeText: "サーバーのバックアップをここから。暗号化し、スケジュールし、検証して、好きな場所へ送ります。",
     noServers: "サーバーがまだありません",
@@ -53,7 +54,8 @@ export default {
   },
 
   servers: {
-    desc: "各サーバーでは Orluma エージェントが動き、Orluma は SSH で接続します。ネットワークで待ち受けるものはありません。",
+    info: "各サーバーでは小さな Orluma エージェントが動きます。Orluma は SSH で接続するので、サーバーでポートは開きません。",
+    desc: "Orluma がバックアップするサーバー。",
     add: "サーバーを追加",
     whatToBackUp: "何をバックアップするか",
     agent: "エージェント {{version}}", restic: "restic {{version}}", noRestic: "restic は未インストール", uptime: "稼働 {{time}}",
@@ -99,7 +101,8 @@ export default {
   },
 
   jobs: {
-    desc: "各サーバーが何を、いつ、どこへ、どれだけの期間バックアップするか。",
+    info: "バックアップとは、守るもの（フォルダー、データベース）、保存先、実行時刻、古いコピーの保持期間の一覧です。",
+    desc: "各サーバーが何をいつバックアップするか。",
     new: "新しいバックアップ", none: "このサーバーにはまだバックアップがありません", noneText: "Orluma にサーバーを調べさせ、バックアップ対象を提案してもらいましょう。",
     offline: "{{server}} が応答しません", runNow: "今すぐ実行", next: "次回 {{when}}", history: "履歴",
     duplicate: "複製", copyOf: "{{name}}（コピー）", deleteTitle: "{{name}} を削除しますか？",
@@ -170,7 +173,8 @@ export default {
   },
 
   storage: {
-    desc: "バックアップの保存先。すべてサーバーを出る前に暗号化されます。",
+    info: "保存先とはバックアップのコピーを置く場所です。すべてサーバーを出る前に暗号化され、複数の場所にコピーを置けます。",
+    desc: "バックアップのコピーの保存先。",
     add: "保存先を追加", none: "保存先がまだありません", noneText: "ディスク、別のサーバー、またはクラウドのバケットを追加してください。",
     snapshots_other: "スナップショット {{count}} 件", stored: "{{size}} 保存済み",
     saving: "データの {{ratio}} 分の 1 に圧縮", usedBy: "使用中: {{jobs}}", unused: "どのバックアップも使っていません",
@@ -223,7 +227,8 @@ export default {
     addHint: "前回以降の新しい分だけをコピーするので、最初のあとは速く終わります。",
   },
   restore: {
-    desc: "スナップショットを閲覧し、ファイルをこの PC にダウンロードするか、サーバーへ戻します。",
+    info: "バックアップを選び、ファイルをこの PC にダウンロードするかサーバーに戻します。データベースのバックアップはそのままデータベースに読み込めます。許可しない限り何も上書きされません。",
+    desc: "バックアップからファイルやデータベースを戻します。",
     allJobs: "すべてのバックアップ", empty: "ここにはまだスナップショットがありません。", manual: "その他",
     pick: "スナップショットを選択", up: "上へ",
     snapshotInfo: "{{host}} のスナップショット {{id}} · {{files}} ファイル · {{size}}",
@@ -257,6 +262,11 @@ export default {
     },
   },
   transfer: {
+    info: "バックアップは暗号化されたファイルなので、開かずにサーバー、クラウド、PC の間で自由にコピーできます。",
+    tab: { servers: "サーバーとクラウド", pc: "PC からサーバーへ", lan: "別の PC" },
+    thisPc: "この PC",
+    emptyPc: "この PC にはまだバックアップがありません。",
+    copyHere: "サーバーのバックアップをここにコピー",
     desc: "バックアップをサーバー、クラウド、PC の間で移します。",
     server: "サーバー",
     destination: "保存先",
@@ -285,7 +295,7 @@ export default {
     scan: "もう一度探す",
     scanning: "ネットワークを探しています…",
     noPeers: "現在送信中の PC はありません。先にもう一方の PC で「送信」を押してください。",
-    manual: "またはもう一方の PC に表示されたアドレス",
+    manual: "もう一方の PC が表示されない場合は、その PC に表示されたアドレスを入力します。",
     enterCode: "もう一方の PC に表示されたコード",
     receiveStart: "バックアップを受信",
     wrongCode: "コードが正しくありません。",
@@ -293,8 +303,50 @@ export default {
     done: "完了 · {{done}}",
     received: "受信しました。「この PC からサーバーへ」でサーバーに読み込み、復元してください。",
   },
+  help: {
+    what: "詳細",
+  },
+  guide: {
+    noBackups: "まだ復元するものがありません",
+    noBackupsText: "先にバックアップを取ると、ここから戻せます。",
+    noServer: "最初のサーバーを追加",
+    purpose: {
+      servers: "アドレスとパスワードでサーバーに接続します。Orluma は自分で設定を済ませます。",
+      jobs: "各サーバーが何をいつバックアップするか選びます。",
+      storage: "バックアップの保存先を選びます：ディスク、別のサーバー、クラウド。",
+      restore: "任意のバックアップからファイルやデータベース全体を取り戻します。",
+      transfer: "バックアップをサーバー、クラウド、PC の間で移します。",
+      activity: "バックアップの実行とログがここに表示されます。",
+      alerts: "バックアップが失敗したら Discord、Telegram、メールで通知します。",
+    },
+  },
+  start: {
+    title: "バックアップを設定",
+    progress: "{{done}} / {{total}} 完了",
+    optional: "任意",
+    s1: {
+      title: "サーバーを接続",
+      text: "アドレスとパスワードを入力します。パスワードは一度だけ使われ、保存されません。",
+    },
+    s2: {
+      title: "バックアップする内容を選ぶ",
+      text: "Orluma がデータベースとフォルダーを見つけます。チェックするだけです。",
+      action: "データを探す",
+    },
+    s3: {
+      title: "最初のバックアップを実行",
+      text: "今テスト実行すれば、すべて動くことが確認できます。",
+      action: "今すぐバックアップ",
+    },
+    s4: {
+      title: "この PC にコピーを残す",
+      text: "サーバーが失われたときのための、自宅のオフラインコピー。",
+      action: "設定",
+    },
+  },
   activity: {
-    desc: "すべてのサーバーのすべての実行を、完全なログとともに。",
+    info: "すべてのサーバーのすべての実行を、完全なログ付きで。",
+    desc: "すべてのバックアップ実行とログ。",
     allServers: "すべてのサーバー", all: "すべて",
     kind: { backup: "バックアップ", verify: "検証", prune: "クリーンアップ", copy: "コピー", restore: "復元" },
     trigger: { schedule: "スケジュール", manual: "手動開始", catch_up: "取り戻し" },
@@ -303,7 +355,8 @@ export default {
     restore: "復元", copyLog: "ログをコピー",
   },
   alerts: {
-    desc: "各サーバー自身が送信するので、この PC の電源が切れていても届きます。",
+    info: "通知は各サーバー自身が送るので、この PC の電源が切れていても届きます。",
+    desc: "バックアップ失敗を通知します。",
     add: "通知を追加", none: "このサーバーには通知がありません", noneText: "Discord、Telegram、メール、Webhook を追加して失敗を知らせてもらいましょう。",
     allJobs: "すべてのバックアップ", someJobs_other: "バックアップ {{count}} 件",
     deleteTitle: "{{name}} を削除しますか？",

@@ -27,6 +27,7 @@ export default {
   live: { step: "Schritt {{index}} von {{count}}", eta: "noch etwa {{time}}" },
 
   overview: {
+    fact: { online: "online", ok: "erfolgreich in 24 h", failed: "fehlgeschlagen in 24 h", protected: "geschützt" },
     welcome: "Willkommen bei Orluma",
     welcomeText: "Die Sicherungen deiner Server, von hier aus: verschlüsselt, geplant, geprüft und dorthin geschickt, wo du sie haben willst.",
     noServers: "Noch keine Server",
@@ -53,7 +54,8 @@ export default {
   },
 
   servers: {
-    desc: "Auf jedem Server läuft der Orluma-Agent, den Orluma per SSH erreicht. Nichts lauscht im Netzwerk.",
+    info: "Auf jedem Server läuft ein kleiner Orluma-Agent. Orluma erreicht ihn über SSH, daher wird auf dem Server kein Port geöffnet.",
+    desc: "Die Server, die Orluma sichert.",
     add: "Server hinzufügen",
     whatToBackUp: "Was sichern",
     agent: "Agent {{version}}", restic: "restic {{version}}", noRestic: "restic noch nicht installiert", uptime: "Läuft seit {{time}}",
@@ -99,7 +101,8 @@ export default {
   },
 
   jobs: {
-    desc: "Was jeder Server sichert, wann, wohin und wie lange.",
+    info: "Ein Backup ist eine Liste dessen, was geschützt wird (Ordner, Datenbanken), wo es liegt, wann es läuft und wie lange alte Kopien bleiben.",
+    desc: "Was jeder Server wann sichert.",
     new: "Neue Sicherung", none: "Noch keine Sicherungen auf diesem Server", noneText: "Lass Orluma den Server ansehen und vorschlagen, was gesichert werden sollte.",
     offline: "{{server}} antwortet nicht", runNow: "Jetzt ausführen", next: "nächster Lauf {{when}}", history: "Verlauf",
     duplicate: "Duplizieren", copyOf: "{{name}} (Kopie)", deleteTitle: "{{name}} löschen?",
@@ -170,7 +173,8 @@ export default {
   },
 
   storage: {
-    desc: "Wohin Sicherungen gehen. Alles wird auf dem Server verschlüsselt, bevor es ihn verlässt.",
+    info: "Ein Ziel ist der Ort, an dem Backup-Kopien liegen. Alles wird auf dem Server verschlüsselt, bevor es ihn verlässt, und du kannst Kopien an mehreren Orten halten.",
+    desc: "Wo Backup-Kopien liegen.",
     add: "Ziel hinzufügen", none: "Noch keine Ziele", noneText: "Füge eine Platte, einen anderen Server oder einen Cloud-Bucket hinzu.",
     snapshots_one: "{{count}} Snapshot", snapshots_other: "{{count}} Snapshots", stored: "{{size}} gespeichert",
     saving: "{{ratio}}× kleiner als die Daten", usedBy: "Genutzt von {{jobs}}", unused: "Von keiner Sicherung genutzt",
@@ -223,7 +227,8 @@ export default {
     addHint: "Kopiert nur, was seit dem letzten Mal neu ist; nach der ersten Kopie geht es schnell.",
   },
   restore: {
-    desc: "Durchsuche jeden Snapshot, lade Dateien auf diesen PC oder lege sie auf dem Server zurück.",
+    info: "Wähle ein Backup und lade Dateien auf diesen PC oder spiele sie auf den Server zurück. Datenbank-Backups lassen sich direkt in eine Datenbank laden. Nichts wird überschrieben, wenn du es nicht erlaubst.",
+    desc: "Dateien oder Datenbanken aus einem Backup zurückholen.",
     allJobs: "Alle Sicherungen", empty: "Hier gibt es noch keine Snapshots.", manual: "Andere",
     pick: "Snapshot wählen", up: "Nach oben",
     snapshotInfo: "Snapshot {{id}} von {{host}} · {{files}} Dateien · {{size}}",
@@ -257,6 +262,11 @@ export default {
     },
   },
   transfer: {
+    info: "Backups sind verschlüsselte Dateien und lassen sich ungeöffnet frei zwischen Servern, Clouds und PCs kopieren.",
+    tab: { servers: "Server & Clouds", pc: "PC zu Server", lan: "Anderer PC" },
+    thisPc: "Dieser PC",
+    emptyPc: "Dieser PC hat noch keine Backups.",
+    copyHere: "Backups eines Servers hierher kopieren",
     desc: "Backups zwischen Servern, Clouds und PCs verschieben.",
     server: "Server",
     destination: "Ziel",
@@ -285,7 +295,7 @@ export default {
     scan: "Erneut suchen",
     scanning: "Suche im Netzwerk…",
     noPeers: "Kein PC sendet gerade. Drücke zuerst am anderen PC auf Senden.",
-    manual: "Oder die Adresse, die der andere PC anzeigt",
+    manual: "Wenn der andere PC nicht erscheint, gib die dort angezeigte Adresse ein.",
     enterCode: "Code, den der andere PC anzeigt",
     receiveStart: "Backups empfangen",
     wrongCode: "Dieser Code stimmt nicht.",
@@ -293,8 +303,50 @@ export default {
     done: "Fertig · {{done}}",
     received: "Empfangen. Nutze „Von diesem PC auf einen Server“, um es auf einen Server zu laden und wiederherzustellen.",
   },
+  help: {
+    what: "Mehr Infos",
+  },
+  guide: {
+    noBackups: "Noch nichts wiederherzustellen",
+    noBackupsText: "Erstelle zuerst ein Backup und hole es dann von hier zurück.",
+    noServer: "Füge deinen ersten Server hinzu",
+    purpose: {
+      servers: "Verbinde einen Server mit Adresse und Passwort. Orluma richtet sich selbst darauf ein.",
+      jobs: "Wähle, was jeder Server wann sichert.",
+      storage: "Wähle, wo Backups liegen: auf einer Platte, einem anderen Server oder in einer Cloud.",
+      restore: "Hole Dateien oder eine ganze Datenbank aus jedem Backup zurück.",
+      transfer: "Verschiebe Backups zwischen Servern, Clouds und PCs.",
+      activity: "Jeder Backup-Lauf und sein Protokoll erscheinen hier.",
+      alerts: "Erhalte eine Nachricht per Discord, Telegram oder E-Mail, wenn ein Backup fehlschlägt.",
+    },
+  },
+  start: {
+    title: "Backups einrichten",
+    progress: "{{done}} von {{total}} erledigt",
+    optional: "Optional",
+    s1: {
+      title: "Server verbinden",
+      text: "Nutze Adresse und Passwort. Das Passwort wird einmal verwendet und nicht gespeichert.",
+    },
+    s2: {
+      title: "Wähle, was gesichert wird",
+      text: "Orluma findet deine Datenbanken und Ordner. Du hakst sie nur ab.",
+      action: "Meine Daten finden",
+    },
+    s3: {
+      title: "Erstes Backup starten",
+      text: "Ein Testlauf zeigt jetzt, dass alles funktioniert.",
+      action: "Jetzt sichern",
+    },
+    s4: {
+      title: "Eine Kopie auf diesem PC behalten",
+      text: "Eine Offline-Kopie zu Hause, falls der Server verloren geht.",
+      action: "Einrichten",
+    },
+  },
   activity: {
-    desc: "Jeder Lauf auf jedem Server, mit vollständigem Protokoll.",
+    info: "Jeder Lauf auf jedem Server, mit vollständigem Protokoll.",
+    desc: "Jeder Backup-Lauf mit Protokoll.",
     allServers: "Alle Server", all: "Alle",
     kind: { backup: "Sicherung", verify: "Prüfung", prune: "Aufräumen", copy: "Kopie", restore: "Wiederherstellung" },
     trigger: { schedule: "geplant", manual: "manuell gestartet", catch_up: "nachgeholt" },
@@ -303,7 +355,8 @@ export default {
     restore: "Wiederherstellung", copyLog: "Protokoll kopieren",
   },
   alerts: {
-    desc: "Jeder Server sendet sie selbst, also kommen sie auch an, wenn dieser PC aus ist.",
+    info: "Warnungen sendet jeder Server selbst, sie kommen also auch an, wenn dieser PC aus ist.",
+    desc: "Erfahre, wenn ein Backup fehlschlägt.",
     add: "Benachrichtigung hinzufügen", none: "Keine Benachrichtigungen auf diesem Server", noneText: "Füge Discord, Telegram, E-Mail oder einen Webhook hinzu, um von Fehlern zu erfahren.",
     allJobs: "alle Sicherungen", someJobs_one: "{{count}} Sicherung", someJobs_other: "{{count}} Sicherungen",
     deleteTitle: "{{name}} löschen?",

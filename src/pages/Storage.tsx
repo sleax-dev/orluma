@@ -18,6 +18,7 @@ import {
 } from "@fluentui/react-icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Info, NoServer } from "../components/guide";
 import { DestinationEditor } from "../components/DestinationEditor";
 import { Confirm, Empty, PageHead, ServerPicker, Skeleton, Status, TextField, useAction } from "../components/ui";
 import { api, errText } from "../lib/api";
@@ -60,7 +61,7 @@ function PcSection() {
   return (
     <section className="block">
       <div className="sect-head">
-        <h2>{t("pc.title")}</h2>
+        <h2>{t("pc.title")}<Info text={t("pc.text")} /></h2>
         <Button size="small" icon={<Add16Regular />} disabled={servers.length === 0} onClick={() => setAdding({ id: newId("pc"), server_id: servers[0]?.id ?? "", destination_id: "", job_id: "", every_hours: 24, enabled: true, apply_retention: true, last_run: null, last_status: null, last_error: null })}>
           {t("pc.add")}
         </Button>
@@ -82,7 +83,6 @@ function PcSection() {
             {t("pc.open")}
           </Button>
         </div>
-        <p className="small muted">{t("pc.text")}</p>
         {settings.pc_syncs.length === 0 ? (
           <p className="small">{t("pc.none")}</p>
         ) : (
@@ -168,7 +168,7 @@ function PcSection() {
 
 export function Storage() {
   const { t } = useTranslation();
-  const { server, configs, loadConfig, saveConfig, live, setPage } = useApp();
+  const { server, servers, configs, loadConfig, saveConfig, live, setPage } = useApp();
   const [stats, setStats] = useState<Record<string, RepoStats | string>>({});
   const [editing, setEditing] = useState<Destination | null>(null);
   const [deleting, setDeleting] = useState<Destination | null>(null);
@@ -198,15 +198,26 @@ export function Storage() {
       <PageHead
         title={t("nav.storage")}
         desc={t("storage.desc")}
+        info={t("storage.info")}
         actions={
-          <Button appearance="primary" icon={<Add16Regular />} disabled={!cfg} onClick={() => setEditing(newDestination("local", t("dest.type.local")))}>
-            {t("storage.add")}
-          </Button>
+          cfg && cfg.destinations.length > 0 ? (
+            <Button appearance="primary" icon={<Add16Regular />} onClick={() => setEditing(newDestination("local", t("dest.type.local")))}>
+              {t("storage.add")}
+            </Button>
+          ) : undefined
         }
       />
+      {servers.length === 0 && <NoServer page="storage" />}
       <ServerPicker />
       {server && !cfg && live[server]?.online !== false && <Skeleton h={80} r={12} />}
-      {cfg && cfg.destinations.length === 0 && <Empty icon={<Database20Regular />} title={t("storage.none")} text={t("storage.noneText")} />}
+      {cfg && cfg.destinations.length === 0 && (
+        <Empty
+          icon={<Database20Regular />}
+          title={t("storage.none")}
+          text={t("storage.noneText")}
+          action={<Button appearance="primary" icon={<Add16Regular />} onClick={() => setEditing(newDestination("local", t("dest.type.local")))}>{t("storage.add")}</Button>}
+        />
+      )}
       {cfg && cfg.destinations.length > 0 && (
         <div className="rows">
           {cfg.destinations.map((d) => {
@@ -263,7 +274,7 @@ export function Storage() {
           })}
         </div>
       )}
-      <PcSection />
+      {servers.length > 0 && <PcSection />}
       {editing && server && cfg && (
         <DestinationEditor
           open

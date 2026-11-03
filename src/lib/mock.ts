@@ -7,11 +7,14 @@ const iso = (msAgo: number) => new Date(now - msAgo).toISOString();
 const ahead = (ms: number) => new Date(now + ms).toISOString();
 const GB = 1e9;
 
-const servers: Server[] = [
+// ?empty=1: nothing added yet. ?empty=2: one server, no backups or storage yet. Screenshots of the first-run screens use these.
+const EMPTY = new URLSearchParams(location.search).get("empty");
+const allServers: Server[] = [
   { id: "s_web", name: "web-01", host: "web-01.example.net", port: 22, user: "root", host_key: "SHA256:q2V4Wm0rQk3ZcY7oF1t9xLr8UuKe0n5aPjB6dHsT1wM", added: iso(40 * 24 * H) },
   { id: "s_db", name: "db-main", host: "10.20.0.4", port: 22, user: "root", host_key: "SHA256:Zx3pL0aY6mK2rT8qW1eV9uN5cB7dF4gH0jS2kQ6oP3", added: iso(32 * 24 * H) },
   { id: "s_mail", name: "mail", host: "mail.example.net", port: 2222, user: "root", host_key: "SHA256:Hk7Q0r1T3yU5iO8pA2sD4fG6hJ9kL1zX3cV5bN7mQ0", added: iso(9 * 24 * H) },
 ];
+const servers: Server[] = EMPTY === "1" ? [] : EMPTY === "2" ? allServers.slice(0, 1) : allServers;
 
 const retention = { last: 3, hourly: 0, daily: 7, weekly: 4, monthly: 12, yearly: 2, prune_every_days: 7 };
 const job = (p: Partial<AgentConfig["jobs"][number]>): AgentConfig["jobs"][number] => ({
@@ -78,6 +81,12 @@ function run(id: string, job_id: string, status: RunSummary["status"], hoursAgo:
   };
 }
 
+if (EMPTY === "2") {
+  configs.s_web.jobs = [];
+  configs.s_web.destinations = [];
+  configs.s_web.notifiers = [];
+}
+
 const runs: Record<string, RunSummary[]> = {
   s_web: [
     run("r1", "j_site", "success", 2, 4, 182e6, 18.4 * GB),
@@ -96,6 +105,8 @@ const running = {
   run_id: "r_live", job_id: "j_ch", kind: "backup" as const, step: "clickhouse analytics.events", step_index: 3, step_count: 7,
   percent: 0.64, bytes_done: 9.8 * GB, bytes_total: 15.3 * GB, files_done: 1, files_total: 1, seconds_remaining: 312, started: iso(0.2 * H),
 };
+
+if (EMPTY === "2") runs.s_web = [];
 
 function status(id: string): AgentStatus {
   const cfg = configs[id];
@@ -166,7 +177,7 @@ let settings: Settings = {
   notify_desktop: true,
   notify_success: false,
   pc_storage_dir: "D:\\Backups\\Orluma",
-  pc_syncs: [
+  pc_syncs: EMPTY ? [] : [
     { id: "pc1", server_id: "s_web", destination_id: "d_local", job_id: "j_pg", every_hours: 24, enabled: true, apply_retention: true, last_run: iso(6 * H), last_status: "success", last_error: null },
     { id: "pc2", server_id: "s_mail", destination_id: "d_local", job_id: "", every_hours: 12, enabled: true, apply_retention: false, last_run: iso(2 * H), last_status: "success", last_error: null },
   ],
@@ -235,9 +246,9 @@ export async function mock(cmd: string, args: Record<string, unknown> = {}): Pro
     case "agent":
       return agentCall(String(args.server), String(args.path), (args.body ?? {}) as Record<string, unknown>);
     case "pc_usage":
-      return { root: settings.pc_storage_dir, free: 812 * GB, repos: [["s_web", 6.3 * GB], ["s_mail", 2.8 * GB]] };
+      return { root: settings.pc_storage_dir, free: 812 * GB, repos: EMPTY ? [] : [["s_web", 6.3 * GB], ["s_mail", 2.8 * GB]] };
     case "lan_scan":
-      return [{ name: "LAPTOP-OFFICE", addr: "192.168.1.24:41873" }];
+      return EMPTY ? [] : [{ name: "LAPTOP-OFFICE", addr: "192.168.1.24:41873" }];
     case "lan_share_start":
       return { code: "48201937", port: 41873, ip: "192.168.1.20", name: "DESKTOP" };
     case "update_status":

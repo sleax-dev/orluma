@@ -27,6 +27,7 @@ export default {
   live: { step: "第 {{index}}/{{count}} 步", eta: "约剩 {{time}}" },
 
   overview: {
+    fact: { online: "在线", ok: "24 小时内成功", failed: "24 小时内失败", protected: "已保护" },
     welcome: "欢迎使用 Orluma",
     welcomeText: "在这里管理所有服务器的备份：加密、定时、校验，并发送到你想要的任何地方。",
     noServers: "还没有服务器",
@@ -53,7 +54,8 @@ export default {
   },
 
   servers: {
-    desc: "每台服务器都运行 Orluma 代理，Orluma 通过 SSH 与其通信。不会在网络上监听任何端口。",
+    info: "每台服务器上运行一个小型 Orluma 代理。Orluma 通过 SSH 连接它，所以服务器上不会开放任何端口。",
+    desc: "Orluma 备份的服务器。",
     add: "添加服务器",
     whatToBackUp: "备份什么",
     agent: "代理 {{version}}", restic: "restic {{version}}", noRestic: "尚未安装 restic", uptime: "已运行 {{time}}",
@@ -99,7 +101,8 @@ export default {
   },
 
   jobs: {
-    desc: "每台服务器备份什么、何时备份、备份到哪里、保留多久。",
+    info: "备份就是一份清单：要保护什么（文件夹、数据库）、存到哪里、何时运行，以及旧副本保留多久。",
+    desc: "每台服务器备份什么、何时备份。",
     new: "新建备份", none: "这台服务器还没有备份", noneText: "让 Orluma 检查服务器并建议要备份的内容。",
     offline: "{{server}} 没有响应", runNow: "立即运行", next: "下次 {{when}}", history: "历史",
     duplicate: "复制", copyOf: "{{name}}（副本）", deleteTitle: "删除 {{name}}？",
@@ -170,7 +173,8 @@ export default {
   },
 
   storage: {
-    desc: "备份的存放位置。所有数据在离开服务器前都会加密。",
+    info: "目的地就是存放备份副本的地方。所有内容在离开服务器前都已加密，你还可以把副本放在多个地方。",
+    desc: "备份副本存放的位置。",
     add: "添加目标", none: "还没有目标", noneText: "添加一块磁盘、另一台服务器或云存储桶。",
     snapshots_other: "{{count}} 个快照", stored: "已存储 {{size}}",
     saving: "比原数据小 {{ratio}} 倍", usedBy: "使用者：{{jobs}}", unused: "没有备份在使用",
@@ -223,7 +227,8 @@ export default {
     addHint: "只复制上次以来的新内容，所以首次之后会很快。",
   },
   restore: {
-    desc: "浏览任何快照，把文件下载到这台电脑，或放回服务器。",
+    info: "选择一个备份，然后把文件下载到这台电脑，或放回服务器。数据库备份可以直接载入数据库。未经你允许不会覆盖任何内容。",
+    desc: "从备份中找回文件或数据库。",
     allJobs: "所有备份", empty: "这里还没有快照。", manual: "其他",
     pick: "选择一个快照", up: "上一级",
     snapshotInfo: "来自 {{host}} 的快照 {{id}} · {{files}} 个文件 · {{size}}",
@@ -257,6 +262,11 @@ export default {
     },
   },
   transfer: {
+    info: "备份是加密文件，可以在服务器、云和电脑之间随意复制，无需打开。",
+    tab: { servers: "服务器和云", pc: "电脑到服务器", lan: "另一台电脑" },
+    thisPc: "这台电脑",
+    emptyPc: "这台电脑还没有备份。",
+    copyHere: "把服务器的备份复制到这里",
     desc: "在服务器、云和电脑之间转移备份。",
     server: "服务器",
     destination: "目标",
@@ -285,7 +295,7 @@ export default {
     scan: "重新查找",
     scanning: "正在网络中查找…",
     noPeers: "目前没有电脑在发送。请先在另一台电脑上点“发送”。",
-    manual: "或另一台电脑上显示的地址",
+    manual: "如果列表中没有另一台电脑，请输入它上面显示的地址。",
     enterCode: "另一台电脑上显示的代码",
     receiveStart: "接收备份",
     wrongCode: "代码不正确。",
@@ -293,8 +303,50 @@ export default {
     done: "完成 · {{done}}",
     received: "已接收。请用“从这台电脑到服务器”把它载入服务器并恢复。",
   },
+  help: {
+    what: "更多信息",
+  },
+  guide: {
+    noBackups: "还没有可恢复的内容",
+    noBackupsText: "先做一次备份，然后在这里恢复。",
+    noServer: "添加你的第一台服务器",
+    purpose: {
+      servers: "用地址和密码连接服务器。Orluma 会自行安装到上面。",
+      jobs: "选择每台服务器备份什么、何时备份。",
+      storage: "选择备份存放的位置：磁盘、另一台服务器或云。",
+      restore: "从任意备份中找回文件或整个数据库。",
+      transfer: "在服务器、云和电脑之间移动备份。",
+      activity: "每次备份运行及其日志都会显示在这里。",
+      alerts: "备份失败时，通过 Discord、Telegram 或邮件收到通知。",
+    },
+  },
+  start: {
+    title: "设置你的备份",
+    progress: "已完成 {{done}}/{{total}}",
+    optional: "可选",
+    s1: {
+      title: "连接服务器",
+      text: "填写地址和密码。密码只使用一次，不会保存。",
+    },
+    s2: {
+      title: "选择要备份的内容",
+      text: "Orluma 会找到你的数据库和文件夹，你只需勾选。",
+      action: "查找我的数据",
+    },
+    s3: {
+      title: "运行第一次备份",
+      text: "现在试运行一次，就能确认一切正常。",
+      action: "立即备份",
+    },
+    s4: {
+      title: "在这台电脑上保留一份副本",
+      text: "在家里保存一份离线副本，以防服务器丢失。",
+      action: "设置",
+    },
+  },
   activity: {
-    desc: "每台服务器上的每次运行，附完整日志。",
+    info: "每台服务器的每次运行，附完整日志。",
+    desc: "每次备份运行及其日志。",
     allServers: "所有服务器", all: "全部",
     kind: { backup: "备份", verify: "校验", prune: "清理", copy: "复制", restore: "恢复" },
     trigger: { schedule: "定时", manual: "手动启动", catch_up: "补跑" },
@@ -303,7 +355,8 @@ export default {
     restore: "恢复", copyLog: "复制日志",
   },
   alerts: {
-    desc: "由每台服务器自己发送，所以即使这台电脑关机也能收到。",
+    info: "警报由每台服务器自己发送，所以即使这台电脑关机也能收到。",
+    desc: "备份失败时收到通知。",
     add: "添加告警", none: "这台服务器没有告警", noneText: "添加 Discord、Telegram、邮件或 webhook，以便在失败时收到通知。",
     allJobs: "所有备份", someJobs_other: "{{count}} 个备份",
     deleteTitle: "删除 {{name}}？",

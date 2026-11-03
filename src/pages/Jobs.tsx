@@ -14,6 +14,7 @@ import {
 } from "@fluentui/react-icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { NoServer } from "../components/guide";
 import { JobIcon } from "../components/SourceIcon";
 import { FirstBackup } from "../components/FirstBackup";
 import { JobEditor } from "../components/JobEditor";
@@ -54,7 +55,7 @@ export function Jobs() {
     if (server) void loadConfig(server);
   }, [server, loadConfig]);
 
-  if (!server) return <div className="page"><PageHead title={t("nav.jobs")} /><Empty title={t("overview.noServers")} text={t("overview.noServersText")} /></div>;
+  if (!server) return <div className="page"><PageHead title={t("nav.jobs")} desc={t("jobs.desc")} info={t("jobs.info")} /><NoServer page="jobs" /></div>;
   const cfg = configs[server];
   const st = live[server]?.status;
   const dests = Object.fromEntries((cfg?.destinations ?? []).map((d) => [d.id, d.name]));
@@ -86,7 +87,9 @@ export function Jobs() {
       <PageHead
         title={t("nav.jobs")}
         desc={t("jobs.desc")}
+        info={t("jobs.info")}
         actions={
+          cfg && cfg.jobs.length === 0 ? undefined : (
           <>
             <Button icon={<SearchSparkle16Regular />} disabled={!st} onClick={() => setFirst(true)}>
               {t("servers.whatToBackUp")}
@@ -95,6 +98,7 @@ export function Jobs() {
               {t("jobs.new")}
             </Button>
           </>
+          )
         }
       />
       <ServerPicker />

@@ -10,13 +10,13 @@ import {
   Edit16Regular,
   MoreHorizontal20Regular,
   ServerMultiple20Regular,
-  ShieldCheckmark16Regular,
   SearchSparkle16Regular,
 } from "@fluentui/react-icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FirstBackup } from "../components/FirstBackup";
-import { Confirm, Empty, PageHead, RefreshButton, Skeleton, Status, TextField, useAction } from "../components/ui";
+import { Info, NoServer } from "../components/guide";
+import { Confirm, PageHead, RefreshButton, Skeleton, Status, TextField, useAction } from "../components/ui";
 import { api, errText } from "../lib/api";
 import { bytes, duration } from "../lib/format";
 import type { Server } from "../lib/types";
@@ -189,6 +189,7 @@ export function Servers() {
       <PageHead
         title={t("nav.servers")}
         desc={t("servers.desc")}
+        info={t("servers.info")}
         actions={
           <>
             <RefreshButton onClick={() => void refreshServers()} />
@@ -199,7 +200,7 @@ export function Servers() {
         }
       />
       {servers.length === 0 ? (
-        <Empty icon={<ServerMultiple20Regular />} title={t("overview.noServers")} text={t("overview.noServersText")} />
+        <NoServer page="servers" onAdd={() => setAdding(true)} />
       ) : (
         <div className="rows">
           {servers.map((s) => {
@@ -222,27 +223,25 @@ export function Servers() {
                   {st ? (
                     <div className="meta">
                       <span>{st.os}</span>
-                      <span>{st.arch}</span>
-                      <span>{t("servers.agent", { version: st.version })}</span>
-                      <span>{st.restic ? t("servers.restic", { version: st.restic }) : t("servers.noRestic")}</span>
-                      <span>{t("servers.uptime", { time: duration(st.uptime_secs) })}</span>
-                      <span>{st.timezone}</span>
-                      {st.disks.map((d) => (
+                      {st.disks.slice(0, 2).map((d) => (
                         <span key={d.mount}>
                           {d.mount} · {t("overview.card.free", { size: bytes(d.available) })}
                         </span>
                       ))}
+                      <Info
+                        text={[
+                          `${st.arch} · ${t("servers.agent", { version: st.version })}`,
+                          st.restic ? t("servers.restic", { version: st.restic }) : t("servers.noRestic"),
+                          `${t("servers.uptime", { time: duration(st.uptime_secs) })} · ${st.timezone}`,
+                          `${t("servers.hostKey")}: ${s.host_key}`,
+                        ].join("\n")}
+                      />
                     </div>
                   ) : l?.online === false ? (
                     <div className="desc bad-text selectable">{friendly(l.error ?? "", t)}</div>
                   ) : (
                     <Skeleton h={14} w={280} />
                   )}
-                  <div className="meta">
-                    <span className="mono" title={t("servers.hostKey")}>
-                      <ShieldCheckmark16Regular /> {s.host_key}
-                    </span>
-                  </div>
                 </div>
                 <div className="ctl">
                   <Button size="small" icon={<SearchSparkle16Regular />} disabled={!st} onClick={() => setFirst(s.id)}>
