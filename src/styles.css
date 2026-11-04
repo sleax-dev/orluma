@@ -358,6 +358,15 @@ button.card:active { transform: scale(0.995); }
 .check-list { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
 .check-list > * { border-bottom: 1px solid var(--border); padding: 6px 10px; }
 .check-list > *:last-child { border-bottom: 0; }
+.tree { max-height: 340px; overflow-y: auto; }
+.tree > * { padding: 0; }
+.tree-row { padding-block: 3px; padding-inline-end: 10px; min-height: 32px; }
+.tree-row.skipped { opacity: 0.5; }
+.tree-chev { width: 22px; height: 22px; display: grid; place-items: center; border: 0; background: transparent; color: var(--muted); border-radius: 6px; flex-shrink: 0; padding: 0; }
+button.tree-chev:hover { background: var(--surface-2); color: var(--text); }
+[dir="rtl"] .tree-chev[aria-expanded="false"] svg { transform: scaleX(-1); }
+.tree-row .tag { margin-inline-start: 8px; }
+.tree-note { padding-block: 4px; padding-inline-end: 10px; font-size: 12px; color: var(--muted); }
 .check-row { display: flex; align-items: center; gap: 8px; }
 .check-row .size { margin-inline-start: auto; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
 .list-edit { display: flex; flex-direction: column; gap: 6px; }

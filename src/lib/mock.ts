@@ -220,6 +220,17 @@ function agentCall(server: string, path: string, body: Record<string, unknown>):
       return { ok: true, message: "A repository is there and the password opens it" };
     case "discover":
       return discovery;
+    case "discover/ls": {
+      const names: Record<string, [string, "dir" | "file", number][]> = {
+        "/root": [[".cache", "dir", 0], ["projects", "dir", 0], ["notes", "dir", 0], [".bashrc", "file", 3_771], ["backup.sh", "file", 1_204]],
+        "/root/projects": [["shop", "dir", 0], ["api", "dir", 0], ["node_modules", "dir", 0], ["README.md", "file", 2_310]],
+        "/root/projects/shop": [["src", "dir", 0], ["node_modules", "dir", 0], ["package.json", "file", 1_480]],
+        "/home": [["deploy", "dir", 0], ["ubuntu", "dir", 0]],
+        "/var/www": [["shop.example.net", "dir", 0], ["blog.example.net", "dir", 0], ["html", "dir", 0]],
+      };
+      const p = String(body.path);
+      return (names[p] ?? []).map(([name, kind, size]) => ({ name, path: `${p}/${name}`, kind, size, mtime: iso(24 * H) }));
+    }
     case "discover/size":
       return { bytes: (discovery.paths.find((p) => p.path === body.path)?.bytes ?? 0), complete: true };
     case "logs":

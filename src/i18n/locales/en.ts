@@ -103,6 +103,7 @@ const en = {
     text: "This is what the server holds. Tick what matters; a daily backup is set up with sensible defaults you can change later.",
     scanning: "Looking around the server…",
     databases: "Databases", noDatabases: "No running database was found.", folders: "Folders",
+    skips: "Skipped automatically: node_modules, caches, temp files and anything else that can be rebuilt.", skipsInfo: "These are added to the backup and can be changed later in the job: {{list}}", skipped: "skipped", emptyFolder: "Empty", insideTicked: "Included with its parent folder. Untick the parent to choose inside it.", toggle: "Show what is inside", chosen: "{{count}} chosen · about {{size}}", loadFailed: "Could not open this folder",
     tooBig: "Too big to measure", noSpace: "The tick marks add up to about {{need}}, but only {{free}} is free on this server's disk. Tick less, or keep backups on another disk.",
     hint: { config: "settings", home: "home", web: "websites", data: "data", "docker-volume": "Docker volume" },
     where: "Where to",

@@ -327,7 +327,7 @@ pub struct LogsRequest {
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
-pub struct PathSizeRequest {
+pub struct PathRequest {
     pub path: String,
 }
 

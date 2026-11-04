@@ -104,6 +104,7 @@ export default {
     text: "Isto é o que o servidor tem. Marque o que importa; um backup diário é criado com padrões sensatos que você pode mudar depois.",
     scanning: "Examinando o servidor…",
     databases: "Bancos de dados", noDatabases: "Nenhum banco de dados em execução foi encontrado.", folders: "Pastas",
+    skips: "Ignorados automaticamente: node_modules, caches, arquivos temporários e tudo o que pode ser recriado.", skipsInfo: "Eles são adicionados ao backup e podem ser alterados depois na tarefa: {{list}}", skipped: "ignorado", emptyFolder: "Vazia", insideTicked: "Incluída com a pasta superior. Desmarque a pasta superior para escolher dentro dela.", toggle: "Mostrar o conteúdo", chosen: "{{count}} escolhidos · cerca de {{size}}", loadFailed: "Não foi possível abrir esta pasta",
     tooBig: "Grande demais para medir", noSpace: "O que você marcou soma cerca de {{need}}, mas só há {{free}} livres no disco do servidor. Marque menos ou guarde os backups em outro disco.",
     hint: { config: "configurações", home: "pessoal", web: "sites", data: "dados", "docker-volume": "volume Docker" },
     where: "Para onde",

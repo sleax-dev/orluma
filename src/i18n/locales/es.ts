@@ -104,6 +104,7 @@ export default {
     text: "Esto es lo que contiene el servidor. Marca lo importante; se crea una copia diaria con valores sensatos que puedes cambiar después.",
     scanning: "Revisando el servidor…",
     databases: "Bases de datos", noDatabases: "No se encontró ninguna base de datos en marcha.", folders: "Carpetas",
+    skips: "Se omiten automáticamente: node_modules, cachés, archivos temporales y todo lo que se puede regenerar.", skipsInfo: "Se añaden a la copia y se pueden cambiar después en la tarea: {{list}}", skipped: "se omite", emptyFolder: "Vacía", insideTicked: "Incluida con su carpeta superior. Desmarca la carpeta superior para elegir dentro.", toggle: "Mostrar el contenido", chosen: "{{count}} elegidos · unos {{size}}", loadFailed: "No se pudo abrir esta carpeta",
     tooBig: "Demasiado grande para medir", noSpace: "Lo marcado suma unos {{need}}, pero solo hay {{free}} libres en el disco del servidor. Marca menos o guarda las copias en otro disco.",
     hint: { config: "configuración", home: "personal", web: "sitios web", data: "datos", "docker-volume": "volumen Docker" },
     where: "Destino",

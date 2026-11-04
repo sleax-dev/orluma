@@ -104,6 +104,7 @@ export default {
     text: "Das liegt auf dem Server. Hake an, was wichtig ist; eine tägliche Sicherung mit sinnvollen Standards wird eingerichtet, die du später ändern kannst.",
     scanning: "Server wird durchsucht…",
     databases: "Datenbanken", noDatabases: "Keine laufende Datenbank gefunden.", folders: "Ordner",
+    skips: "Wird automatisch übersprungen: node_modules, Caches, temporäre Dateien und alles, was sich neu erzeugen lässt.", skipsInfo: "Diese werden dem Backup hinzugefügt und lassen sich später im Auftrag ändern: {{list}}", skipped: "übersprungen", emptyFolder: "Leer", insideTicked: "Wird mit dem übergeordneten Ordner gesichert. Entferne dessen Haken, um darin auszuwählen.", toggle: "Inhalt anzeigen", chosen: "{{count}} gewählt · etwa {{size}}", loadFailed: "Ordner konnte nicht geöffnet werden",
     tooBig: "Zu groß zum Messen", noSpace: "Deine Auswahl umfasst etwa {{need}}, aber auf der Platte des Servers sind nur {{free}} frei. Wähle weniger aus oder lege Backups auf einer anderen Platte ab.",
     hint: { config: "Einstellungen", home: "Home", web: "Websites", data: "Daten", "docker-volume": "Docker-Volume" },
     where: "Wohin",

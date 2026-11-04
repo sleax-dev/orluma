@@ -104,6 +104,7 @@ export default {
     text: "Voici ce que contient le serveur. Coche ce qui compte ; une sauvegarde quotidienne avec des réglages raisonnables est créée, modifiable ensuite.",
     scanning: "Exploration du serveur…",
     databases: "Bases de données", noDatabases: "Aucune base de données en cours d'exécution n'a été trouvée.", folders: "Dossiers",
+    skips: "Ignorés automatiquement : node_modules, caches, fichiers temporaires et tout ce qui peut être régénéré.", skipsInfo: "Ils sont ajoutés à la sauvegarde et modifiables plus tard dans la tâche : {{list}}", skipped: "ignoré", emptyFolder: "Vide", insideTicked: "Incluse avec son dossier parent. Décochez le parent pour choisir à l'intérieur.", toggle: "Afficher le contenu", chosen: "{{count}} choisis · environ {{size}}", loadFailed: "Impossible d'ouvrir ce dossier",
     tooBig: "Trop volumineux pour être mesuré", noSpace: "Votre sélection pèse environ {{need}}, mais il ne reste que {{free}} sur le disque du serveur. Cochez moins ou placez les sauvegardes sur un autre disque.",
     hint: { config: "réglages", home: "personnel", web: "sites web", data: "données", "docker-volume": "volume Docker" },
     where: "Destination",

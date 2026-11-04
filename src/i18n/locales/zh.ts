@@ -104,6 +104,7 @@ export default {
     text: "这是服务器上的内容。勾选重要的部分，系统会用合理的默认设置创建每日备份，之后可以随时修改。",
     scanning: "正在检查服务器…",
     databases: "数据库", noDatabases: "未发现正在运行的数据库。", folders: "文件夹",
+    skips: "自动跳过：node_modules、缓存、临时文件以及所有可重新生成的内容。", skipsInfo: "这些规则会加入备份，之后可在任务中修改：{{list}}", skipped: "已跳过", emptyFolder: "空", insideTicked: "已随上级文件夹一起备份。取消勾选上级文件夹后才能单独选择其中内容。", toggle: "显示内容", chosen: "已选 {{count}} 项 · 约 {{size}}", loadFailed: "无法打开此文件夹",
     tooBig: "太大，无法统计", noSpace: "所选内容约 {{need}}，但服务器磁盘仅剩 {{free}}。请少选一些，或把备份放到另一块磁盘。",
     hint: { config: "配置", home: "主目录", web: "网站", data: "数据", "docker-volume": "Docker 卷" },
     where: "备份到",

@@ -39,7 +39,7 @@ export function newSource(type: SourceType): Source {
   const id = newId("src");
   switch (type) {
     case "paths":
-      return { type, id, paths: [], excludes: [], one_file_system: false };
+      return { type, id, paths: [], excludes: [...DEFAULT_EXCLUDES], one_file_system: false };
     case "postgres":
       return { type, id, databases: [], globals: true, ...conn, os_user: "postgres" };
     case "mysql":
@@ -146,4 +146,24 @@ export function destSummary(k: DestKind): string {
     default:
       return `${k.remote}:${k.path}`;
   }
+}
+
+/** What a file backup never needs: things a tool rebuilds (node_modules, build output, caches), junk and system folders.
+ *  restic patterns, added to every new file backup and editable in the job. */
+export const DEFAULT_EXCLUDES = [
+  "node_modules", ".npm", ".pnpm-store", ".yarn/cache", "bower_components",
+  "__pycache__", "*.pyc", ".venv", "venv", ".tox", ".pytest_cache", ".mypy_cache", ".ruff_cache",
+  ".cache", ".gradle", ".m2/repository", ".cargo/registry", ".cargo/git", ".rustup", "go/pkg/mod", ".nuget/packages",
+  ".next", ".nuxt", ".svelte-kit", ".turbo", ".parcel-cache", ".angular/cache",
+  "target/debug", "target/release",
+  ".vscode-server", ".cursor-server", ".Trash", ".local/share/Trash",
+  "*.tmp", "*.swp", ".DS_Store", "Thumbs.db", "lost+found",
+  "/var/lib/docker/overlay2", "/var/lib/containerd", "/proc", "/sys", "/dev", "/run", "/tmp", "/var/tmp", "/var/cache",
+];
+
+const SKIP_NAMES = new Set(["node_modules", ".npm", ".pnpm-store", "bower_components", "__pycache__", ".venv", "venv", ".tox", ".pytest_cache", ".mypy_cache", ".ruff_cache", ".cache", ".gradle", ".rustup", ".next", ".nuxt", ".svelte-kit", ".turbo", ".parcel-cache", ".vscode-server", ".cursor-server", ".Trash", "lost+found", ".DS_Store", "Thumbs.db"]);
+
+/** True for entries the default excludes already skip, so the folder picker can show them as such. */
+export function isSkipped(path: string, name: string): boolean {
+  return SKIP_NAMES.has(name) || /\.(pyc|tmp|swp)$/.test(name) || DEFAULT_EXCLUDES.includes(path);
 }

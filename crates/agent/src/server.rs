@@ -353,7 +353,11 @@ async fn trace(req: axum::extract::Request, next: axum::middleware::Next) -> Res
     res
 }
 
-async fn path_size(Json(r): Json<orluma_core::api::PathSizeRequest>) -> R<orluma_core::api::PathSize> {
+async fn fs_list(Json(r): Json<orluma_core::api::PathRequest>) -> R<Vec<orluma_core::api::Node>> {
+    Ok(Json(crate::discover::list_dir(&r.path).await))
+}
+
+async fn path_size(Json(r): Json<orluma_core::api::PathRequest>) -> R<orluma_core::api::PathSize> {
     Ok(Json(crate::discover::path_size(&r.path).await))
 }
 
@@ -419,6 +423,7 @@ pub fn router(agent: Shared) -> axum::Router {
         .route("/v1/dump", get(dump))
         .route("/v1/discover", post(discover))
         .route("/v1/discover/size", post(path_size))
+        .route("/v1/discover/ls", post(fs_list))
         .route("/v1/logs", post(logs))
         .route("/v1/notifiers/test", post(notifier_test))
         .route("/v1/agent/update-check", post(update_check))

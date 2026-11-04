@@ -130,6 +130,7 @@ export const api = {
   lanScan: () => call<{ name: string; addr: string }[]>("lan_scan"),
   lanReceive: (addr: string, code: string) => call<string[]>("lan_receive", { addr, code }),
   discover: (s: string) => agent<Discovery>(s, "discover"),
+  listDir: (s: string, path: string) => agent<FsNode[]>(s, "discover/ls", { path }),
   pathSize: (s: string, path: string) => agent<{ bytes: number; complete: boolean }>(s, "discover/size", { path }),
   agentLogs: (s: string, lines: number) => agent<string[]>(s, "logs", { lines }),
   appLogs: (lines: number) => call<string[]>("log_tail", { lines }),

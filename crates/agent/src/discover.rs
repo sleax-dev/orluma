@@ -1,7 +1,7 @@
 //! What on this server is worth backing up: databases (running services and Docker containers, with the
 //! credentials their containers were started with) and the usual folders, with their sizes.
 
-use orluma_core::api::{Discovery, FoundDatabase, FoundPath, PathSize, Tool};
+use orluma_core::api::{Discovery, FoundDatabase, FoundPath, Node, PathSize, Tool};
 use std::time::Duration;
 use tokio::process::Command;
 
@@ -203,13 +203,55 @@ const PATHS: &[(&str, &str)] = &[
     ("/var/vmail", "data"),
 ];
 
+/// An absolute path to a folder, without `..`: what the folder picker may look into.
+fn safe_dir(p: &str) -> bool {
+    p.starts_with('/') && !p.split('/').any(|c| c == "..") && std::path::Path::new(p).is_dir()
+}
+
+/// What is inside a folder, folders first, for the picker in "What should I back up?". Links are not followed.
+pub async fn list_dir(p: &str) -> Vec<Node> {
+    if !safe_dir(p) {
+        return Vec::new();
+    }
+    let p = p.to_string();
+    tokio::task::spawn_blocking(move || {
+        let Ok(rd) = std::fs::read_dir(&p) else {
+            return Vec::new();
+        };
+        let mut v: Vec<Node> = rd
+            .flatten()
+            .filter_map(|e| {
+                let m = e.path().symlink_metadata().ok()?;
+                let kind = if m.is_symlink() {
+                    "symlink"
+                } else if m.is_dir() {
+                    "dir"
+                } else {
+                    "file"
+                };
+                Some(Node {
+                    name: e.file_name().to_string_lossy().into_owned(),
+                    path: e.path().to_string_lossy().into_owned(),
+                    kind: kind.into(),
+                    size: if m.is_file() { m.len() } else { 0 },
+                    mtime: m.modified().ok().map(Into::into),
+                })
+            })
+            .collect();
+        v.sort_by_key(|a| (a.kind != "dir", a.name.to_lowercase()));
+        v.truncate(2000);
+        v
+    })
+    .await
+    .unwrap_or_default()
+}
+
 /// At most two folders are measured at a time: `du` on a big tree is disk-heavy.
 static SIZING: tokio::sync::Semaphore = tokio::sync::Semaphore::const_new(2);
 
 /// Size of one folder, measured at low priority and given up on after 25 seconds (`complete: false`).
 pub async fn path_size(p: &str) -> PathSize {
-    let known = PATHS.iter().any(|(x, _)| x == &p) || p.starts_with("/var/lib/docker/volumes/");
-    if !known || p.contains("..") || !std::path::Path::new(p).is_dir() {
+    if !safe_dir(p) {
         return PathSize::default();
     }
     let Ok(_slot) = SIZING.acquire().await else {
@@ -266,14 +308,18 @@ mod tests {
     use super::*;
 
     #[test]
-    fn only_known_folders_are_sized() {
+    fn folders_are_sized_and_listed() {
         let rt = tokio::runtime::Runtime::new().unwrap();
         assert!(!rt.block_on(path_size("/definitely/not/there")).complete);
         assert!(
             !rt.block_on(path_size("/etc/../root")).complete,
-            "paths outside the suggestions are refused"
+            "paths with .. are refused"
         );
+        assert!(!rt.block_on(path_size("etc")).complete, "relative paths are refused");
         let etc = rt.block_on(path_size("/etc"));
         assert!(etc.complete && etc.bytes > 0);
+        let list = rt.block_on(list_dir("/etc"));
+        assert!(list.iter().any(|n| n.name == "passwd" && n.kind == "file"));
+        assert!(rt.block_on(list_dir("/etc/../root")).is_empty());
     }
 }

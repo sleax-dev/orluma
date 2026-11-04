@@ -104,6 +104,7 @@ export default {
     text: "Sunucuda bunlar var. Önemli olanları işaretle; makul varsayılanlarla günlük bir yedek kurulur, sonra istediğin gibi değiştirirsin.",
     scanning: "Sunucuya bakılıyor…",
     databases: "Veritabanları", noDatabases: "Çalışan bir veritabanı bulunamadı.", folders: "Klasörler",
+    skips: "Otomatik atlanır: node_modules, önbellekler, geçici dosyalar ve yeniden üretilebilen her şey.", skipsInfo: "Bunlar yedeğe eklenir ve sonra yedeğin içinden değiştirilebilir: {{list}}", skipped: "atlanır", emptyFolder: "Boş", insideTicked: "Üst klasörle birlikte yedekleniyor. İçinden seçmek için üst klasörün işaretini kaldır.", toggle: "İçini göster", chosen: "{{count}} seçili · yaklaşık {{size}}", loadFailed: "Bu klasör açılamadı",
     tooBig: "Ölçülemeyecek kadar büyük", noSpace: "İşaretlediklerin yaklaşık {{need}} tutuyor ama sunucunun diskinde yalnızca {{free}} boş. Daha azını işaretle ya da yedekleri başka bir diskte tut.",
     hint: { config: "ayarlar", home: "ev dizini", web: "web siteleri", data: "veri", "docker-volume": "Docker birimi" },
     where: "Nereye",

@@ -104,6 +104,7 @@ export default {
     text: "サーバーにあるものです。大事なものにチェックを入れてください。妥当な既定値で毎日のバックアップを作成し、あとから変更できます。",
     scanning: "サーバーを調べています…",
     databases: "データベース", noDatabases: "稼働中のデータベースは見つかりませんでした。", folders: "フォルダー",
+    skips: "自動的に除外：node_modules、キャッシュ、一時ファイル、再生成できるものすべて。", skipsInfo: "これらはバックアップに追加され、後でジョブで変更できます：{{list}}", skipped: "除外", emptyFolder: "空", insideTicked: "親フォルダーと一緒にバックアップされます。中を選ぶには親のチェックを外してください。", toggle: "中身を表示", chosen: "{{count}} 件選択 · 約 {{size}}", loadFailed: "フォルダーを開けませんでした",
     tooBig: "大きすぎて計測できません", noSpace: "選択した内容は約 {{need}} ですが、サーバーのディスクの空きは {{free}} だけです。選択を減らすか、別のディスクにバックアップを置いてください。",
     hint: { config: "設定", home: "ホーム", web: "Web サイト", data: "データ", "docker-volume": "Docker ボリューム" },
     where: "保存先",

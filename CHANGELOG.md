@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.5
+
+- "What should I back up?" starts with nothing ticked: nothing is chosen for you.
+- Folders are a tree. Open any folder (/root, /var/www, ...) to see what is inside and tick single folders or files at any level; ticking a folder takes everything in it. Sizes fill in as you open things.
+- New file backups skip what never needs backing up: node_modules, build output and caches (.cache, .next, target/debug, .gradle, __pycache__, virtualenvs, ...), editor servers, trash, temp files and system folders (/proc, /sys, /tmp, /var/cache, Docker overlay layers). The list is shown in the dialog and stays editable in the job.
+
 ## 0.1.4
 
 - "What should I back up?" is fast: the list of databases and folders appears at once and folder sizes fill in afterwards (measuring a big folder such as /root took 25 seconds on a cold disk, and the whole window waited for it). Folders too big to measure say so.
