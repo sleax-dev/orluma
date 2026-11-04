@@ -6,7 +6,8 @@ use std::time::Duration;
 use tokio::process::Command;
 
 async fn out(cmd: &str, args: &[&str]) -> Option<String> {
-    let o = tokio::time::timeout(Duration::from_secs(15), Command::new(cmd).args(args).output())
+    // kill_on_drop: a command that outlives the timeout (du on a huge tree) must not keep running
+    let o = tokio::time::timeout(Duration::from_secs(15), Command::new(cmd).args(args).kill_on_drop(true).output())
         .await
         .ok()?
         .ok()?;
@@ -205,7 +206,11 @@ async fn size(p: &str) -> u64 {
         .unwrap_or(0)
 }
 
+/// One discovery at a time: a second request waits for the first instead of starting another round of `du`.
+static ONE: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
+
 pub async fn discover() -> Discovery {
+    let _one = ONE.lock().await;
     let mut d = Discovery::default();
     docker(&mut d.databases, &mut d.paths).await;
     services(&mut d.databases).await;

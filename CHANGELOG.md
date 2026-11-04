@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3
+
+- Fixed "What should I back up?" looking at the server over and over: reading the settings restarted the look-up, and every round started more `du` commands on the server, which could push its load very high. The window now looks once, the agent runs one look-up at a time, and a command that runs past its time limit is stopped.
+
 ## 0.1.2
 
 - First run is guided: the Overview opens with a short "Set up your backups" list (connect a server, choose what to back up, run the first backup, optionally keep a copy on this PC) with one button on the current step. Pages that need a server say so and point back to step 1 instead of showing nothing.

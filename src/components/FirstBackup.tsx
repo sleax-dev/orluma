@@ -38,7 +38,9 @@ export function FirstBackup({ server, open, onClose }: { server: string; open: b
         setPaths(new Set(d.paths.filter((p) => ["config", "web", "home", "data"].includes(p.hint) && p.bytes < 50e9).map((p) => p.path)));
       })
       .catch((e) => setError(errText(e)));
-  }, [open, server, loadConfig]);
+    // loadConfig changes whenever configs does, so listing it here re-ran the discovery after every config read
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, server]);
 
   const toSource = (d: FoundDatabase): Source => {
     const conn = { host: d.host, port: d.port, user: d.user, password: d.password, container: d.container, os_user: d.os_user };
