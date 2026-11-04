@@ -1,7 +1,7 @@
 import type { Locale, Translation } from "./en";
 
 export default {
-  titlebar: { minimize: "Minimieren", maximize: "Maximieren", close: "Schließen", closeToTray: "Schließen (Orluma läuft im Infobereich weiter)" },
+  titlebar: { minimize: "Minimieren", close: "Schließen", closeToTray: "Schließen (Orluma läuft im Infobereich weiter)" },
   common: {
     back: "Zurück", next: "Weiter", cancel: "Abbrechen", close: "Schließen", save: "Speichern", edit: "Bearbeiten", delete: "Löschen", remove: "Entfernen",
     copy: "Kopieren", copied: "Kopiert", more: "Mehr", refresh: "Aktualisieren", on: "An", off: "Aus",
@@ -114,12 +114,13 @@ export default {
     defaults: "Täglich um 03:00 · behält 7 tägliche, 4 wöchentliche, 12 monatliche und 2 jährliche · wöchentlich geprüft.",
     localName: "Platte dieses Servers", jobName: "Serversicherung",
     create: "Sicherung anlegen", later: "Später",
-    next: "Weiter", back: "Zurück",
+    next: "Weiter", back: "Zurück", repoExists: "In {{path}} liegt bereits eine Sicherung, deren Passwort diese App nicht kennt. Wähle einen anderen Ordner oder das Ziel, dem sie gehört.",
     nothing: "Hake mindestens eine Datenbank oder einen Ordner an.",
     created: "Sicherung angelegt. Sie läuft täglich um 03:00, oder starte sie jetzt.",
   },
 
   jobs: {
+    twinText: "Die Sicherungen in diesem Ordner stammen von {{name}}, das denselben Ort mit einem anderen Passwort nutzt.", twinUse: "{{name}} verwenden", twinUsed: "Diese Sicherung nutzt jetzt {{name}}. Starte sie erneut.",
     info: "Ein Backup ist eine Liste dessen, was geschützt wird (Ordner, Datenbanken), wo es liegt, wann es läuft und wie lange alte Kopien bleiben.",
     desc: "Was jeder Server wann sichert.",
     new: "Neue Sicherung", none: "Noch keine Sicherungen auf diesem Server", noneText: "Lass Orluma den Server ansehen und vorschlagen, was gesichert werden sollte.",
@@ -204,6 +205,7 @@ export default {
     deleteTitle: "{{name}} entfernen?", deleteText: "Orluma nutzt dieses Ziel nicht mehr. Die Daten darin werden nicht gelöscht.",
   },
   dest: {
+    sameLocation: "{{name}} nutzt diesen Ort bereits. Zwei Ziele am selben Ort hätten zwei Passwörter für ein Repository: verwende stattdessen {{name}}.",
     newTitle: "Neues Ziel", editTitle: "{{name}} bearbeiten",
     type: { local: "Serverplatte", sftp: "Anderer Server (SFTP)", s3: "S3-kompatibel", b2: "Backblaze B2", azure: "Azure Blob", gcs: "Google Cloud Storage", rest: "REST-Server", rclone: "rclone-Remote" },
     about: {

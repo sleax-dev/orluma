@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api, errText } from "../lib/api";
 import { bytes } from "../lib/format";
-import { DEFAULT_EXCLUDES, newId, newJob, randomPassword } from "../lib/defaults";
+import { DEFAULT_EXCLUDES, newId, newJob, randomPassword, sameLocation } from "../lib/defaults";
 import type { Discovery, FoundDatabase, Source } from "../lib/types";
 import { useApp } from "../state";
 import { FolderTree, type Sizes } from "../components/FolderTree";
@@ -121,8 +121,21 @@ export function BackupWizard() {
     try {
       let destId = existing;
       if (where === "local" || !destId) {
-        destId = newId("d");
-        cfg.destinations.push({ id: destId, name: t("first.localName"), kind: { type: "local", path: localPath.trim() }, password: randomPassword(), limit_upload_kib: 0, limit_download_kib: 0 });
+        const path = localPath.trim().replace(/\/+$/, "") || "/";
+        const same = cfg.destinations.find((d) => sameLocation(d.kind, { type: "local", path }));
+        if (same) {
+          destId = same.id; // a second run in the same folder reuses it: its password already opens what is there
+        } else {
+          const dest = { id: newId("d"), name: t("first.localName"), kind: { type: "local" as const, path }, password: randomPassword(), limit_upload_kib: 0, limit_download_kib: 0 };
+          // a repository somebody else left in this folder cannot be opened with a new password: say so now, not at 03:00
+          const r = await api.testDestination(server, dest).catch(() => null);
+          if (r && !r.ok) {
+            toast("error", t("first.repoExists", { path }));
+            return;
+          }
+          destId = dest.id;
+          cfg.destinations.push(dest);
+        }
       }
       const sources: Source[] = [];
       if (paths.size > 0) sources.push({ type: "paths", id: newId("src"), paths: [...paths], excludes: [...DEFAULT_EXCLUDES], one_file_system: false });

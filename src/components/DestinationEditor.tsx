@@ -3,14 +3,14 @@ import { CheckmarkCircle16Filled, Copy16Regular, DismissCircle16Filled, Eye16Reg
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api, errText } from "../lib/api";
-import { DEST_TYPES, newDestKind, S3_PROVIDERS } from "../lib/defaults";
+import { DEST_TYPES, newDestKind, S3_PROVIDERS, sameLocation } from "../lib/defaults";
 import type { Destination, DestKind, TestResult } from "../lib/types";
 import { useApp } from "../state";
 import { TextField } from "./ui";
 
 export function DestinationEditor({ open, server, initial, onClose, onSave }: { open: boolean; server: string; initial: Destination; onClose: () => void; onSave: (d: Destination) => Promise<void> }) {
   const { t } = useTranslation();
-  const { live, servers, toast } = useApp();
+  const { live, servers, toast, configs } = useApp();
   const [d, setD] = useState<Destination>(initial);
   const [show, setShow] = useState(false);
   const [test, setTest] = useState<TestResult | null>(null);
@@ -20,6 +20,7 @@ export function DestinationEditor({ open, server, initial, onClose, onSave }: { 
   const k = d.kind;
   const setK = (p: Partial<DestKind>) => setD({ ...d, kind: { ...k, ...p } as DestKind });
   const agentKey = live[server]?.status?.ssh_public_key ?? "";
+  const twin = configs[server]?.destinations.find((o) => o.id !== d.id && sameLocation(o.kind, d.kind));
 
   const runTest = async () => {
     setTesting(true);
@@ -175,6 +176,7 @@ export function DestinationEditor({ open, server, initial, onClose, onSave }: { 
                 <TextField label={t("dest.limitUp")} hint={t("dest.limitHint")} value={d.limit_upload_kib} onChange={(v) => setD({ ...d, limit_upload_kib: Number(v.replace(/\D/g, "")) || 0 })} contentAfter="KiB/s" />
                 <TextField label={t("dest.limitDown")} value={d.limit_download_kib} onChange={(v) => setD({ ...d, limit_download_kib: Number(v.replace(/\D/g, "")) || 0 })} contentAfter="KiB/s" />
               </div>
+              {twin && <p className="bad-text small" style={{ margin: 0 }}>{t("dest.sameLocation", { name: twin.name })}</p>}
               {test && (
                 <p className={test.ok ? "ok-line" : "bad-text selectable"} style={{ display: "flex", gap: 8, margin: 0 }}>
                   {test.ok ? <CheckmarkCircle16Filled /> : <DismissCircle16Filled style={{ flex: "none", marginTop: 2 }} />} {test.message}
@@ -187,7 +189,7 @@ export function DestinationEditor({ open, server, initial, onClose, onSave }: { 
             <Button disabled={testing} onClick={() => void runTest()}>
               {testing ? <Spinner size="tiny" /> : t("dest.test")}
             </Button>
-            <Button appearance="primary" disabled={!d.name.trim() || d.password.length < 8} onClick={() => void onSave({ ...d, name: d.name.trim() })}>
+            <Button appearance="primary" disabled={!d.name.trim() || d.password.length < 8 || !!twin} onClick={() => void onSave({ ...d, name: d.name.trim() })}>
               {t("common.save")}
             </Button>
           </DialogActions>

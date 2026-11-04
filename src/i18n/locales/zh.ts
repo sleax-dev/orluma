@@ -1,7 +1,7 @@
 import type { Locale, Translation } from "./en";
 
 export default {
-  titlebar: { minimize: "最小化", maximize: "最大化", close: "关闭", closeToTray: "关闭（Orluma 会在托盘中继续运行）" },
+  titlebar: { minimize: "最小化", close: "关闭", closeToTray: "关闭（Orluma 会在托盘中继续运行）" },
   common: {
     back: "上一步", next: "下一步", cancel: "取消", close: "关闭", save: "保存", edit: "编辑", delete: "删除", remove: "移除",
     copy: "复制", copied: "已复制", more: "更多", refresh: "刷新", on: "开", off: "关",
@@ -114,12 +114,13 @@ export default {
     defaults: "每天 03:00 · 保留 7 个每日、4 个每周、12 个每月和 2 个每年快照 · 每周校验。",
     localName: "本服务器磁盘", jobName: "服务器备份",
     create: "创建备份", later: "稍后",
-    next: "下一步", back: "上一步",
+    next: "下一步", back: "上一步", repoExists: "{{path}} 中已有一份此应用不知道密码的备份。请换一个文件夹，或使用拥有它的目标。",
     nothing: "请至少勾选一个数据库或文件夹。",
     created: "备份已创建。它每天 03:00 运行，也可以现在就开始。",
   },
 
   jobs: {
+    twinText: "此文件夹中的备份由 {{name}} 创建，它以不同的密码使用同一位置。", twinUse: "使用 {{name}}", twinUsed: "此备份现在使用 {{name}}。请再次运行。",
     info: "备份就是一份清单：要保护什么（文件夹、数据库）、存到哪里、何时运行，以及旧副本保留多久。",
     desc: "每台服务器备份什么、何时备份。",
     new: "新建备份", none: "这台服务器还没有备份", noneText: "让 Orluma 检查服务器并建议要备份的内容。",
@@ -204,6 +205,7 @@ export default {
     deleteTitle: "移除 {{name}}？", deleteText: "Orluma 将不再使用此目标，其中的数据不会被删除。",
   },
   dest: {
+    sameLocation: "{{name}} 已在使用此位置。同一位置的两个目标意味着一个仓库有两个密码：请改用 {{name}}。",
     newTitle: "新建目标", editTitle: "编辑 {{name}}",
     type: { local: "服务器磁盘", sftp: "另一台服务器（SFTP）", s3: "S3 兼容", b2: "Backblaze B2", azure: "Azure Blob", gcs: "Google Cloud Storage", rest: "REST 服务器", rclone: "rclone 远程" },
     about: {

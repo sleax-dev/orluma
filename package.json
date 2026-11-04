@@ -2,7 +2,7 @@
   "name": "orluma",
   "private": true,
   "description": "Backups for your servers, run from your desktop.",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "type": "module",
   "scripts": {
     "dev": "vite",

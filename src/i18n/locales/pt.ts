@@ -1,7 +1,7 @@
 import type { Locale, Translation } from "./en";
 
 export default {
-  titlebar: { minimize: "Minimizar", maximize: "Maximizar", close: "Fechar", closeToTray: "Fechar (o Orluma continua na bandeja)" },
+  titlebar: { minimize: "Minimizar", close: "Fechar", closeToTray: "Fechar (o Orluma continua na bandeja)" },
   common: {
     back: "Voltar", next: "Avançar", cancel: "Cancelar", close: "Fechar", save: "Salvar", edit: "Editar", delete: "Excluir", remove: "Remover",
     copy: "Copiar", copied: "Copiado", more: "Mais", refresh: "Atualizar", on: "Ligado", off: "Desligado",
@@ -114,12 +114,13 @@ export default {
     defaults: "Todo dia às 03:00 · mantém 7 diários, 4 semanais, 12 mensais e 2 anuais · verificado toda semana.",
     localName: "Disco deste servidor", jobName: "Backup do servidor",
     create: "Criar backup", later: "Depois",
-    next: "Avançar", back: "Voltar",
+    next: "Avançar", back: "Voltar", repoExists: "Já existe um backup em {{path}} cuja senha este app não tem. Escolha outra pasta ou use o destino ao qual ele pertence.",
     nothing: "Marque pelo menos um banco de dados ou pasta.",
     created: "Backup criado. Ele roda todo dia às 03:00, ou inicie agora.",
   },
 
   jobs: {
+    twinText: "Os backups desta pasta foram feitos por {{name}}, que usa o mesmo local com outra senha.", twinUse: "Usar {{name}}", twinUsed: "Este backup agora usa {{name}}. Execute de novo.",
     info: "Um backup é uma lista do que proteger (pastas, bancos de dados), onde guardar, quando executar e por quanto tempo manter cópias antigas.",
     desc: "O que cada servidor copia e quando.",
     new: "Novo backup", none: "Nenhum backup neste servidor ainda", noneText: "Deixe o Orluma examinar o servidor e sugerir o que copiar.",
@@ -204,6 +205,7 @@ export default {
     deleteTitle: "Remover {{name}}?", deleteText: "O Orluma deixa de usar este destino. Os dados nele não são apagados.",
   },
   dest: {
+    sameLocation: "{{name}} já usa este local. Dois destinos no mesmo local teriam duas senhas para um repositório: use {{name}}.",
     newTitle: "Novo destino", editTitle: "Editar {{name}}",
     type: { local: "Disco do servidor", sftp: "Outro servidor (SFTP)", s3: "Compatível com S3", b2: "Backblaze B2", azure: "Azure Blob", gcs: "Google Cloud Storage", rest: "Servidor REST", rclone: "Remoto do rclone" },
     about: {

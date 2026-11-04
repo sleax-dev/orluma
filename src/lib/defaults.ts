@@ -148,6 +148,12 @@ export function destSummary(k: DestKind): string {
   }
 }
 
+/** Two destinations pointing at one place would hold two passwords for one repository: only the first opens it. */
+export function sameLocation(a: DestKind, b: DestKind): boolean {
+  const key = (k: DestKind) => `${k.type}|${destSummary(k).trim().replace(/\/+$/, "")}`;
+  return key(a) === key(b);
+}
+
 /** What a file backup never needs: things a tool rebuilds (node_modules, build output, caches, language runtimes and
  *  package stores), junk and system folders. restic patterns, added to every new file backup and editable in the job.
  *  A name matches at any depth, "a/b" matches wherever a/b occurs, a leading / pins it to the root. The agent also

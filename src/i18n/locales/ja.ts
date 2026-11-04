@@ -1,7 +1,7 @@
 import type { Locale, Translation } from "./en";
 
 export default {
-  titlebar: { minimize: "最小化", maximize: "最大化", close: "閉じる", closeToTray: "閉じる（Orluma はトレイで動き続けます）" },
+  titlebar: { minimize: "最小化", close: "閉じる", closeToTray: "閉じる（Orluma はトレイで動き続けます）" },
   common: {
     back: "戻る", next: "次へ", cancel: "キャンセル", close: "閉じる", save: "保存", edit: "編集", delete: "削除", remove: "外す",
     copy: "コピー", copied: "コピーしました", more: "その他", refresh: "更新", on: "オン", off: "オフ",
@@ -114,12 +114,13 @@ export default {
     defaults: "毎日 03:00 · 日次 7・週次 4・月次 12・年次 2 を保持 · 週 1 回検証。",
     localName: "このサーバーのディスク", jobName: "サーバーのバックアップ",
     create: "バックアップを作成", later: "あとで",
-    next: "次へ", back: "戻る",
+    next: "次へ", back: "戻る", repoExists: "{{path}} には、このアプリがパスワードを知らないバックアップが既にあります。別のフォルダーを選ぶか、それを持つ保存先を使ってください。",
     nothing: "データベースかフォルダーを 1 つ以上選んでください。",
     created: "バックアップを作成しました。毎日 03:00 に実行されます。今すぐ開始もできます。",
   },
 
   jobs: {
+    twinText: "このフォルダーのバックアップは、同じ場所を別のパスワードで使う {{name}} が作成しました。", twinUse: "{{name}} を使う", twinUsed: "このバックアップは {{name}} を使うようになりました。もう一度実行してください。",
     info: "バックアップとは、守るもの（フォルダー、データベース）、保存先、実行時刻、古いコピーの保持期間の一覧です。",
     desc: "各サーバーが何をいつバックアップするか。",
     new: "新しいバックアップ", none: "このサーバーにはまだバックアップがありません", noneText: "Orluma にサーバーを調べさせ、バックアップ対象を提案してもらいましょう。",
@@ -204,6 +205,7 @@ export default {
     deleteTitle: "{{name}} を外しますか？", deleteText: "Orluma はこの保存先を使わなくなります。中のデータは削除されません。",
   },
   dest: {
+    sameLocation: "{{name}} がすでにこの場所を使っています。同じ場所に保存先が2つあると1つのリポジトリにパスワードが2つになります。{{name}} を使ってください。",
     newTitle: "新しい保存先", editTitle: "{{name}} を編集",
     type: { local: "サーバーのディスク", sftp: "別のサーバー（SFTP）", s3: "S3 互換", b2: "Backblaze B2", azure: "Azure Blob", gcs: "Google Cloud Storage", rest: "REST サーバー", rclone: "rclone リモート" },
     about: {

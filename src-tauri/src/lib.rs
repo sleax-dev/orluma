@@ -1083,7 +1083,11 @@ fn create_main(app: &AppHandle) -> tauri::Result<tauri::WebviewWindow> {
         .cloned()
         .ok_or(tauri::Error::WindowNotFound)?;
     let w = tauri::WebviewWindowBuilder::from_config(app, &config)?.build()?;
-    if let Ok(Some(m)) = w.current_monitor() {
+    // The window cannot be resized by hand, so make sure the fixed size fits small screens (1366x768 at 125 %).
+    if let Ok(Some(m)) = w
+        .current_monitor()
+        .map(|m| m.or_else(|| w.primary_monitor().ok().flatten()))
+    {
         let screen = m.size().to_logical::<f64>(m.scale_factor());
         let _ = w.set_size(tauri::LogicalSize::new(
             1180f64.min(screen.width - 48.0),

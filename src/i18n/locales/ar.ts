@@ -1,7 +1,7 @@
 import type { Locale, Translation } from "./en";
 
 export default {
-  titlebar: { minimize: "تصغير", maximize: "تكبير", close: "إغلاق", closeToTray: "إغلاق (يستمر Orluma بالعمل في الشريط)" },
+  titlebar: { minimize: "تصغير", close: "إغلاق", closeToTray: "إغلاق (يستمر Orluma بالعمل في الشريط)" },
   common: {
     back: "رجوع", next: "التالي", cancel: "إلغاء", close: "إغلاق", save: "حفظ", edit: "تعديل", delete: "حذف", remove: "إزالة",
     copy: "نسخ", copied: "تم النسخ", more: "المزيد", refresh: "تحديث", on: "مفعّل", off: "معطّل",
@@ -116,12 +116,13 @@ export default {
     defaults: "كل يوم 03:00 · يحتفظ بـ 7 يومية و4 أسبوعية و12 شهرية و2 سنوية · يُفحص أسبوعيًا.",
     localName: "قرص هذا الخادم", jobName: "نسخ الخادم",
     create: "إنشاء النسخة", later: "لاحقًا",
-    next: "التالي", back: "رجوع",
+    next: "التالي", back: "رجوع", repoExists: "توجد نسخة احتياطية في {{path}} لا يعرف هذا التطبيق كلمة مرورها. اختر مجلدًا آخر أو استخدم الوجهة التي تملكها.",
     nothing: "حدّد قاعدة بيانات أو مجلدًا واحدًا على الأقل.",
     created: "أُنشئت النسخة. تعمل كل يوم 03:00، أو ابدأها الآن.",
   },
 
   jobs: {
+    twinText: "أُنشئت النسخ في هذا المجلد بواسطة {{name}} التي تستخدم المكان نفسه بكلمة مرور مختلفة.", twinUse: "استخدام {{name}}", twinUsed: "تستخدم هذه النسخة الآن {{name}}. شغّلها مرة أخرى.",
     info: "النسخة الاحتياطية قائمة بما يُحمى (مجلدات وقواعد بيانات)، وأين يُحفظ، ومتى يعمل، ومدة الاحتفاظ بالنسخ القديمة.",
     desc: "ما ينسخه كل خادم ومتى.",
     new: "نسخة جديدة", none: "لا نسخ احتياطية على هذا الخادم بعد", noneText: "دع Orluma يفحص الخادم ويقترح ما يجب نسخه.",
@@ -206,6 +207,7 @@ export default {
     deleteTitle: "إزالة {{name}}؟", deleteText: "يتوقف Orluma عن استخدام هذه الوجهة. لا تُحذف البيانات الموجودة فيها.",
   },
   dest: {
+    sameLocation: "{{name}} تستخدم هذا المكان بالفعل. وجهتان في مكان واحد تعني كلمتي مرور لمستودع واحد: استخدم {{name}} بدلًا من ذلك.",
     newTitle: "وجهة جديدة", editTitle: "تعديل {{name}}",
     type: { local: "قرص الخادم", sftp: "خادم آخر (SFTP)", s3: "متوافق مع S3", b2: "Backblaze B2", azure: "Azure Blob", gcs: "Google Cloud Storage", rest: "خادم REST", rclone: "وجهة rclone" },
     about: {

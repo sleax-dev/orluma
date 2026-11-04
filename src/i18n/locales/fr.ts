@@ -1,7 +1,7 @@
 import type { Locale, Translation } from "./en";
 
 export default {
-  titlebar: { minimize: "Réduire", maximize: "Agrandir", close: "Fermer", closeToTray: "Fermer (Orluma reste dans la zone de notification)" },
+  titlebar: { minimize: "Réduire", close: "Fermer", closeToTray: "Fermer (Orluma reste dans la zone de notification)" },
   common: {
     back: "Retour", next: "Suivant", cancel: "Annuler", close: "Fermer", save: "Enregistrer", edit: "Modifier", delete: "Supprimer", remove: "Retirer",
     copy: "Copier", copied: "Copié", more: "Plus", refresh: "Actualiser", on: "Activé", off: "Désactivé",
@@ -114,12 +114,13 @@ export default {
     defaults: "Chaque jour à 03:00 · garde 7 quotidiennes, 4 hebdomadaires, 12 mensuelles et 2 annuelles · vérifiée chaque semaine.",
     localName: "Disque de ce serveur", jobName: "Sauvegarde du serveur",
     create: "Créer la sauvegarde", later: "Plus tard",
-    next: "Suivant", back: "Retour",
+    next: "Suivant", back: "Retour", repoExists: "Il y a déjà une sauvegarde dans {{path}} dont cette application n'a pas le mot de passe. Choisissez un autre dossier ou la destination qui la possède.",
     nothing: "Coche au moins une base de données ou un dossier.",
     created: "Sauvegarde créée. Elle tourne chaque jour à 03:00, ou lance-la maintenant.",
   },
 
   jobs: {
+    twinText: "Les sauvegardes de ce dossier ont été faites par {{name}}, qui utilise le même emplacement avec un autre mot de passe.", twinUse: "Utiliser {{name}}", twinUsed: "Cette sauvegarde utilise maintenant {{name}}. Relancez-la.",
     info: "Une sauvegarde est une liste de choses à protéger (dossiers, bases de données), où les garder, quand l'exécuter et combien de temps garder les anciennes copies.",
     desc: "Ce que chaque serveur sauvegarde, et quand.",
     new: "Nouvelle sauvegarde", none: "Aucune sauvegarde sur ce serveur", noneText: "Laisse Orluma examiner le serveur et proposer quoi sauvegarder.",
@@ -204,6 +205,7 @@ export default {
     deleteTitle: "Retirer {{name}} ?", deleteText: "Orluma n'utilise plus cette destination. Ses données ne sont pas supprimées.",
   },
   dest: {
+    sameLocation: "{{name}} utilise déjà cet emplacement. Deux destinations au même endroit auraient deux mots de passe pour un dépôt : utilisez {{name}}.",
     newTitle: "Nouvelle destination", editTitle: "Modifier {{name}}",
     type: { local: "Disque du serveur", sftp: "Autre serveur (SFTP)", s3: "Compatible S3", b2: "Backblaze B2", azure: "Azure Blob", gcs: "Google Cloud Storage", rest: "Serveur REST", rclone: "Remote rclone" },
     about: {

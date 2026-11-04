@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.8
+
+- Fixed backups failing at once with "wrong password or no key found" after "What should I back up?" was used twice. Each run made a new destination with a new password in the same folder, so the repository the first run created could not be opened by the second. A second run now reuses the destination that already has that folder, and if the folder holds a backup this app has no password for, it says so before creating anything.
+- Two destinations can no longer point at the same place: the destination editor names the one already there and does not save a second.
+- A backup that already failed this way shows "Use <destination>" under the error: it checks that destination's password really opens the repository, then points the backup at it. No password is copied or shown.
+- The agent's error now says what "wrong password" usually means here (another destination using the same folder).
+- The window has a fixed size, like Zanrei: no maximize button, no resizing by the edges or corners. It still shrinks to fit small screens when it opens.
+
 ## 0.1.7
 
 - Sizes in "What should I back up?" no longer count what the backup skips: a project folder is measured without its node_modules, caches and so on, so "30 GB" is what would really be stored. Measuring is also much faster in trees full of node_modules, and the free-space warning is accurate.

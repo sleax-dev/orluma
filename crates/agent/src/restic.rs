@@ -309,6 +309,11 @@ fn err_text(o: &Output) -> String {
     let line = e.lines().rev().find(|l| !l.trim().is_empty()).unwrap_or(e);
     if line.is_empty() {
         format!("restic exited with code {}", o.code)
+    } else if line.contains("wrong password or no key found") {
+        // restic's wording blames the password but not where it comes from: usually two destinations share a folder
+        format!(
+            "{line}. This backup location holds a repository made with a different password (another destination using the same folder?)"
+        )
     } else {
         line.to_string()
     }
@@ -819,6 +824,18 @@ pub fn which(name: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn wrong_password_says_where_to_look() {
+        let o = Output {
+            code: 1,
+            stdout: String::new(),
+            stderr: "Fatal: wrong password or no key found\n".into(),
+        };
+        let e = err_text(&o);
+        assert!(e.starts_with("Fatal: wrong password or no key found"));
+        assert!(e.contains("different password"));
+    }
 
     #[test]
     fn versions() {

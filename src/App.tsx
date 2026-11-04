@@ -2,7 +2,7 @@ import { FluentProvider } from "@fluentui/react-components";
 import { ArrowDownload16Regular } from "@fluentui/react-icons";
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { Floating, ResizeEdges, TitleBar } from "./components/ui";
+import { Floating, TitleBar } from "./components/ui";
 import { isRtl } from "./i18n";
 import type { Settings } from "./lib/types";
 import { ICONS, NAV_GROUPS, type Page } from "./nav";
@@ -103,7 +103,6 @@ export function App({ initial }: { initial: Settings }) {
     <FluentProvider theme={theme} dir={isRtl(i18n.language) ? "rtl" : "ltr"} style={{ background: "transparent", height: "100%" }}>
       <AppProvider initial={initial}>
         <div className="app-bg">
-          <ResizeEdges />
           <TitleBar />
           <Shell />
           <Floating />

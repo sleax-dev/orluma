@@ -1,6 +1,6 @@
 // English is the source language: every other file is typed against this one.
 const en = {
-  titlebar: { minimize: "Minimize", maximize: "Maximize", close: "Close", closeToTray: "Close (Orluma keeps running in the tray)" },
+  titlebar: { minimize: "Minimize", close: "Close", closeToTray: "Close (Orluma keeps running in the tray)" },
   common: {
     back: "Back", next: "Next", cancel: "Cancel", close: "Close", save: "Save", edit: "Edit", delete: "Delete", remove: "Remove",
     copy: "Copy", copied: "Copied", more: "More", refresh: "Refresh", on: "On", off: "Off",
@@ -113,12 +113,13 @@ const en = {
     defaults: "Every day at 03:00 · keeps 7 daily, 4 weekly, 12 monthly and 2 yearly · verified weekly.",
     localName: "This server's disk", jobName: "Server backup",
     create: "Create backup", later: "Later",
-    next: "Next", back: "Back",
+    next: "Next", back: "Back", repoExists: "There already is a backup in {{path}} that this app has no password for. Pick another folder, or use the destination that owns it.",
     nothing: "Tick at least one database or folder.",
     created: "Backup created. It runs every day at 03:00, or start it now.",
   },
 
   jobs: {
+    twinText: "This folder's backups were made by {{name}}, which uses the same place with a different password.", twinUse: "Use {{name}}", twinUsed: "This backup now uses {{name}}. Run it again.",
     info: "A backup is a list of things to protect (folders, databases), where to keep them, when to run, and how long to keep old copies.",
     desc: "What each server backs up, and when.",
     new: "New backup", none: "No backups on this server yet", noneText: "Let Orluma look at the server and suggest what to back up.",
@@ -203,6 +204,7 @@ const en = {
     deleteTitle: "Remove {{name}}?", deleteText: "Orluma stops using this destination. The data in it is not deleted.",
   },
   dest: {
+    sameLocation: "{{name}} already uses this place. Two destinations in one place would have two passwords for one repository: use {{name}} instead.",
     newTitle: "New destination", editTitle: "Edit {{name}}",
     type: { local: "Server disk", sftp: "Another server (SFTP)", s3: "S3-compatible", b2: "Backblaze B2", azure: "Azure Blob", gcs: "Google Cloud Storage", rest: "REST server", rclone: "rclone remote" },
     about: {

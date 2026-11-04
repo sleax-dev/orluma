@@ -1,7 +1,7 @@
 import type { Locale, Translation } from "./en";
 
 export default {
-  titlebar: { minimize: "Simge durumuna küçült", maximize: "Büyüt", close: "Kapat", closeToTray: "Kapat (Orluma tepside çalışmaya devam eder)" },
+  titlebar: { minimize: "Simge durumuna küçült", close: "Kapat", closeToTray: "Kapat (Orluma tepside çalışmaya devam eder)" },
   common: {
     back: "Geri", next: "İleri", cancel: "Vazgeç", close: "Kapat", save: "Kaydet", edit: "Düzenle", delete: "Sil", remove: "Kaldır",
     copy: "Kopyala", copied: "Kopyalandı", more: "Diğer", refresh: "Yenile", on: "Açık", off: "Kapalı",
@@ -114,12 +114,13 @@ export default {
     defaults: "Her gün 03:00 · 7 günlük, 4 haftalık, 12 aylık ve 2 yıllık saklar · haftada bir doğrulanır.",
     localName: "Bu sunucunun diski", jobName: "Sunucu yedeği",
     create: "Yedeği oluştur", later: "Sonra",
-    next: "İleri", back: "Geri",
+    next: "İleri", back: "Geri", repoExists: "{{path}} içinde bu uygulamanın şifresini bilmediği bir yedek zaten var. Başka bir klasör seç ya da onun sahibi olan hedefi kullan.",
     nothing: "En az bir veritabanı ya da klasör işaretle.",
     created: "Yedek oluşturuldu. Her gün 03:00'te çalışır; istersen şimdi başlat.",
   },
 
   jobs: {
+    twinText: "Bu klasördeki yedekler aynı yeri farklı bir şifreyle kullanan {{name}} ile alınmış.", twinUse: "{{name}} hedefini kullan", twinUsed: "Bu yedek artık {{name}} hedefini kullanıyor. Tekrar çalıştır.",
     info: "Bir yedek; korunacak şeylerin (klasör, veritabanı), saklanacağı yerin, çalışma zamanının ve eski kopyaların ne kadar tutulacağının listesidir.",
     desc: "Her sunucunun neyi ne zaman yedeklediği.",
     new: "Yeni yedek", none: "Bu sunucuda henüz yedek yok", noneText: "Orluma sunucuya baksın ve neyin yedekleneceğini önersin.",
@@ -204,6 +205,7 @@ export default {
     deleteTitle: "{{name}} kaldırılsın mı?", deleteText: "Orluma bu hedefi kullanmayı bırakır. İçindeki veri silinmez.",
   },
   dest: {
+    sameLocation: "{{name}} zaten bu yeri kullanıyor. Aynı yerde iki hedef, tek depo için iki farklı şifre demek: bunun yerine {{name}} hedefini kullan.",
     newTitle: "Yeni hedef", editTitle: "{{name}} düzenle",
     type: { local: "Sunucu diski", sftp: "Başka bir sunucu (SFTP)", s3: "S3 uyumlu", b2: "Backblaze B2", azure: "Azure Blob", gcs: "Google Cloud Storage", rest: "REST sunucusu", rclone: "rclone remote" },
     about: {

@@ -21,7 +21,7 @@ import { DestinationEditor } from "../components/DestinationEditor";
 import { Confirm, Empty, LiveRun, PageHead, ServerPicker, Skeleton, Status } from "../components/ui";
 import { api, errText } from "../lib/api";
 import { describe } from "../lib/cron";
-import { newDestination, newId, newJob } from "../lib/defaults";
+import { newDestination, newId, newJob, sameLocation } from "../lib/defaults";
 import { bytes, relative } from "../lib/format";
 import type { Job, Source } from "../lib/types";
 import { useApp } from "../state";
@@ -64,6 +64,24 @@ export function Jobs() {
     if (await saveConfig(server, next)) {
       setEditing(null);
       toast("success", t("job.saved"));
+    }
+  };
+
+  // A job whose repository was made by another destination in the same place (two passwords for one repository):
+  // point it at the destination whose password really opens it. Nothing is copied between destinations.
+  const twinOf = (job: Job) => {
+    const own = cfg?.destinations.find((d) => d.id === job.destination);
+    return own ? cfg?.destinations.find((d) => d.id !== own.id && sameLocation(d.kind, own.kind)) : undefined;
+  };
+  const switchToTwin = async (job: Job) => {
+    const twin = twinOf(job);
+    if (!cfg || !twin) return;
+    try {
+      const r = await api.testDestination(server, twin);
+      if (!r.ok) throw new Error(r.message);
+      if (await saveConfig(server, { ...cfg, jobs: cfg.jobs.map((j) => (j.id === job.id ? { ...j, destination: twin.id } : j)) })) toast("success", t("jobs.twinUsed", { name: twin.name }));
+    } catch (e) {
+      toast("error", errText(e));
     }
   };
 
@@ -190,6 +208,12 @@ export function Jobs() {
                 </div>
                 {running && <div style={{ width: "100%" }}><LiveRun p={running} title={job.name} onCancel={() => void api.cancelRun(server, running.run_id)} /></div>}
                 {last?.status === "failed" && last.error && !running && <div className="desc bad-text selectable small" style={{ paddingInlineStart: 50 }}>{last.error}</div>}
+                {last?.status === "failed" && /wrong password/i.test(last.error ?? "") && !running && twinOf(job) && (
+                  <div className="desc small" style={{ paddingInlineStart: 50, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                    <span className="muted">{t("jobs.twinText", { name: twinOf(job)!.name })}</span>
+                    <Button size="small" onClick={() => void switchToTwin(job)}>{t("jobs.twinUse", { name: twinOf(job)!.name })}</Button>
+                  </div>
+                )}
               </div>
             );
           })}

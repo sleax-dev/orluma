@@ -1,7 +1,7 @@
 import type { Locale, Translation } from "./en";
 
 export default {
-  titlebar: { minimize: "Minimizar", maximize: "Maximizar", close: "Cerrar", closeToTray: "Cerrar (Orluma sigue en la bandeja)" },
+  titlebar: { minimize: "Minimizar", close: "Cerrar", closeToTray: "Cerrar (Orluma sigue en la bandeja)" },
   common: {
     back: "Atrás", next: "Siguiente", cancel: "Cancelar", close: "Cerrar", save: "Guardar", edit: "Editar", delete: "Eliminar", remove: "Quitar",
     copy: "Copiar", copied: "Copiado", more: "Más", refresh: "Actualizar", on: "Activado", off: "Desactivado",
@@ -114,12 +114,13 @@ export default {
     defaults: "Cada día a las 03:00 · conserva 7 diarias, 4 semanales, 12 mensuales y 2 anuales · se verifica cada semana.",
     localName: "Disco de este servidor", jobName: "Copia del servidor",
     create: "Crear copia", later: "Más tarde",
-    next: "Siguiente", back: "Atrás",
+    next: "Siguiente", back: "Atrás", repoExists: "Ya hay una copia en {{path}} cuya contraseña esta app no conoce. Elige otra carpeta o usa el destino al que pertenece.",
     nothing: "Marca al menos una base de datos o carpeta.",
     created: "Copia creada. Se ejecuta cada día a las 03:00, o iníciala ahora.",
   },
 
   jobs: {
+    twinText: "Las copias de esta carpeta las hizo {{name}}, que usa el mismo lugar con otra contraseña.", twinUse: "Usar {{name}}", twinUsed: "Esta copia usa ahora {{name}}. Vuelve a ejecutarla.",
     info: "Una copia es una lista de cosas que proteger (carpetas, bases de datos), dónde guardarlas, cuándo ejecutarse y cuánto tiempo conservar las copias antiguas.",
     desc: "Qué copia cada servidor y cuándo.",
     new: "Nueva copia", none: "Aún no hay copias en este servidor", noneText: "Deja que Orluma revise el servidor y sugiera qué copiar.",
@@ -204,6 +205,7 @@ export default {
     deleteTitle: "¿Quitar {{name}}?", deleteText: "Orluma deja de usar este destino. Sus datos no se borran.",
   },
   dest: {
+    sameLocation: "{{name}} ya usa este lugar. Dos destinos en un mismo lugar tendrían dos contraseñas para un repositorio: usa {{name}}.",
     newTitle: "Nuevo destino", editTitle: "Editar {{name}}",
     type: { local: "Disco del servidor", sftp: "Otro servidor (SFTP)", s3: "Compatible con S3", b2: "Backblaze B2", azure: "Azure Blob", gcs: "Google Cloud Storage", rest: "Servidor REST", rclone: "Remoto de rclone" },
     about: {

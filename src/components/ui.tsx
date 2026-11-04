@@ -10,13 +10,13 @@ import {
   Input,
   type InputProps,
 } from "@fluentui/react-components";
-import { ArrowClockwise16Regular, Dismiss16Regular, Info16Regular, Maximize16Regular, Subtract16Regular } from "@fluentui/react-icons";
+import { ArrowClockwise16Regular, Dismiss16Regular, Info16Regular, Subtract16Regular } from "@fluentui/react-icons";
 import { AnimatePresence, motion } from "motion/react";
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import logo from "../assets/logo.svg";
-import { api, isTauri } from "../lib/api";
+import { api } from "../lib/api";
 import { bytes, duration, percent } from "../lib/format";
 import { Guide, Info } from "./guide";
 import type { RunProgress, RunStatus } from "../lib/types";
@@ -26,47 +26,13 @@ export function Logo({ size = 22 }: { size?: number }) {
   return <img src={logo} width={size} height={size} alt="" style={{ borderRadius: size * 0.22 }} />;
 }
 
-const EDGES = { n: "North", s: "South", e: "East", w: "West", ne: "NorthEast", nw: "NorthWest", se: "SouthEast", sw: "SouthWest" } as const;
-
-/** The window is frameless, so Windows and Linux give it no grab handles: these thin strips along the edges and
- *  corners start the system resize. macOS resizes frameless windows by itself. */
-export function ResizeEdges() {
-  const [on, setOn] = useState(false);
-  useEffect(() => {
-    if (!isTauri || /Mac/.test(navigator.userAgent)) return;
-    let off = () => {};
-    void import("@tauri-apps/api/window").then(async ({ getCurrentWindow }) => {
-      const w = getCurrentWindow();
-      const sync = async () => setOn(!(await w.isMaximized()) && !(await w.isFullscreen()));
-      await sync();
-      off = await w.onResized(() => void sync());
-    });
-    return () => off();
-  }, []);
-  if (!on) return null;
-  const start = (d: keyof typeof EDGES) => (e: React.MouseEvent) => {
-    if (e.button !== 0) return;
-    void import("@tauri-apps/api/window").then(({ getCurrentWindow }) => getCurrentWindow().startResizeDragging(EDGES[d]));
-  };
-  return (
-    <>
-      {(Object.keys(EDGES) as (keyof typeof EDGES)[]).map((d) => (
-        <div key={d} className={`edge ${d}`} onMouseDown={start(d)} aria-hidden />
-      ))}
-    </>
-  );
-}
-
+/** Caption area: drag region, minimize, close. The window has a fixed size (like Zanrei), so there is no maximize. */
 export function TitleBar() {
   const { t } = useTranslation();
   const { settings } = useApp();
   const closeLabel = settings.setup_done && settings.run_in_background ? t("titlebar.closeToTray") : t("titlebar.close");
-  const toggleMax = async () => {
-    const { getCurrentWindow } = await import("@tauri-apps/api/window");
-    await getCurrentWindow().toggleMaximize();
-  };
   return (
-    <div className="titlebar" data-tauri-drag-region onDoubleClick={() => void toggleMax().catch(() => {})}>
+    <div className="titlebar" data-tauri-drag-region>
       <span className="brand">
         <Logo size={18} />
         <span>Orluma</span>
@@ -74,9 +40,6 @@ export function TitleBar() {
       <span className="grow" data-tauri-drag-region />
       <button className="tb-btn" title={t("titlebar.minimize")} aria-label={t("titlebar.minimize")} onClick={() => void api.minimizeWindow()}>
         <Subtract16Regular />
-      </button>
-      <button className="tb-btn" title={t("titlebar.maximize")} aria-label={t("titlebar.maximize")} onClick={() => void toggleMax().catch(() => {})}>
-        <Maximize16Regular />
       </button>
       <button className="tb-btn close" title={closeLabel} aria-label={closeLabel} onClick={() => void api.closeWindow()}>
         <Dismiss16Regular />
