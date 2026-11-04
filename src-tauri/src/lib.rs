@@ -926,7 +926,7 @@ async fn recovery_kit(s: State<'_, AppState>, target: String) -> Res<u32> {
     let kit = serde_json::json!({
         "orluma_recovery_kit": 1,
         "created": Utc::now(),
-        "how_to_restore": "Install restic (https://restic.net). For a destination: set RESTIC_PASSWORD to its password and the repository URL as shown, then `restic snapshots` and `restic restore <id> --target <folder>`. S3/B2/Azure/GCS destinations also need the keys listed with them.",
+        "how_to_restore": "Install restic (https://restic.net). For a destination: set RESTIC_PASSWORD to its password and the repository URL as shown, then `restic snapshots` and `restic restore <id> --target <folder>`. S3/B2/Azure/GCS destinations also need the keys listed with them. Google Drive, OneDrive and Dropbox destinations (rclone, with a provider): run `rclone config` on any computer to connect the same account under the remote name shown, then use `rclone:<remote>:<path>` as the repository.",
         "pc_repository": { "folder": s.0.store.pc_root(&lock(&s.0.settings)).display().to_string(), "password": s.0.store.pc_password().map_err(|e| e.to_string())? },
         "servers": out,
     });

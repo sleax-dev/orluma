@@ -213,10 +213,16 @@ pub(crate) fn ch_client(conn: &DbConn) -> Vec<String> {
         vec![s("clickhouse"), s("client")]
     };
     a.extend(conn_flags(conn, "--host", "--port", "--user"));
-    if !conn.password.is_empty() {
-        a.extend([s("--password"), conn.password.clone()]);
-    }
     a
+}
+
+/// clickhouse-client reads the password from the environment, so it never shows in `ps`.
+pub(crate) fn ch_env(conn: &DbConn) -> Vec<(String, String)> {
+    if conn.password.is_empty() {
+        Vec::new()
+    } else {
+        vec![(s("CLICKHOUSE_PASSWORD"), conn.password.clone())]
+    }
 }
 
 pub async fn clickhouse_tables(conn: &DbConn, databases: &[String]) -> Result<Vec<(String, String)>> {
@@ -228,7 +234,7 @@ pub async fn clickhouse_tables(conn: &DbConn, databases: &[String]) -> Result<Ve
         s("SELECT database, name FROM system.tables WHERE database NOT IN ('system','INFORMATION_SCHEMA','information_schema') \
            AND NOT is_temporary AND engine NOT LIKE '%View' AND engine NOT IN ('Dictionary','MaterializedView') AND name NOT LIKE '.inner%' ORDER BY 1, 2"),
     ]);
-    let (argv, env) = wrap(conn, argv, Vec::new());
+    let (argv, env) = wrap(conn, argv, ch_env(conn));
     Ok(query(&argv, &env)
         .await?
         .lines()
@@ -371,14 +377,23 @@ pub async fn plan(src: &Source) -> Result<Vec<Planned>> {
             )
         }
         Source::Redis { conn, .. } => {
-            let mut argv = vec![s("redis-cli")];
-            argv.extend(conn_flags(conn, "-h", "-p", "--user"));
             let env = if conn.password.is_empty() {
                 Vec::new()
             } else {
                 vec![(s("REDISCLI_AUTH"), conn.password.clone())]
             };
-            argv.extend([s("--rdb"), s("/dev/stdout")]);
+            // `--rdb /dev/stdout` fails on redis-cli 7 ("Fail to fsync '/dev/stdout'"): 7 writes to stdout with
+            // `--rdb -`; older ones, which take no "-", get a temporary file that is streamed and removed.
+            let mut argv = vec![
+                s("sh"),
+                s("-c"),
+                s(
+                    "if redis-cli --help 2>&1 | grep -q 'filename of \"-\"'; then exec redis-cli \"$@\" --rdb -; fi; \
+                   f=$(mktemp) || exit 1; trap 'rm -f \"$f\"' EXIT; redis-cli \"$@\" --rdb \"$f\" >&2 && cat \"$f\"",
+                ),
+                s("sh"),
+            ];
+            argv.extend(conn_flags(conn, "-h", "-p", "--user"));
             let (argv, env) = wrap(conn, argv, env);
             one(
                 "redis".into(),
@@ -421,7 +436,7 @@ pub async fn plan(src: &Source) -> Result<Vec<Planned>> {
                         db.replace('\'', "''")
                     ),
                 ]);
-                let (argv, env) = wrap(conn, argv, Vec::new());
+                let (argv, env) = wrap(conn, argv, ch_env(conn));
                 out.push(Planned {
                     source_id: id.clone(),
                     kind,
@@ -443,7 +458,7 @@ pub async fn plan(src: &Source) -> Result<Vec<Planned>> {
                         t.replace('`', "")
                     ),
                 ]);
-                let (argv, env) = wrap(conn, argv, Vec::new());
+                let (argv, env) = wrap(conn, argv, ch_env(conn));
                 out.push(Planned {
                     source_id: id.clone(),
                     kind,

@@ -8,9 +8,15 @@
 - **Database passwords are no longer visible in the process list.** For databases in Docker the password used to be part of the `docker exec` command, which every user on the server can read with `ps`. It now travels only in the environment.
 - **Failed dumps say why.** The dump tool's own message ("requires authentication", "access denied") is shown instead of restic's "context canceled", with any password in it masked; run logs and errors are masked the same way before they are stored or sent as alerts.
 - New file backups no longer skip folders named `.Trash`: in a mail server's Maildir that is the mailbox's Trash folder, which is real mail. Only the desktop trash (`.local/share/Trash`) is skipped. Jobs made with 0.1.5 to 0.1.8 have `.Trash` in "Leave out"; remove that line to back those folders up.
+- **Redis backups work again with Redis 7.** `redis-cli --rdb /dev/stdout` fails there ("Fail to fsync"); Redis 7 now streams with `--rdb -`, older versions through a temporary file that is removed after.
+- **ClickHouse's password is no longer visible in the process list** either: it goes to `clickhouse-client` through the environment.
+- **Cancelling a backup no longer leaves the repository locked.** The next run's cleanup used to stop at "the unlock command can be used to remove stale locks"; locks left by a killed run (cancel, reboot, power cut) are now removed before retention, and only those.
+- A failed backup says why in its summary (Backups page, alerts, webhooks): "1 of the job's sources could not be backed up (…). paths: not found on the server: /srv/app" instead of only the count.
+- An SFTP destination whose server turns the agent's key away says so, instead of "server unexpectedly closed connection".
+- The recovery kit explains how to reach a Google Drive, OneDrive or Dropbox destination without Orluma.
 - Releases: the server agent is published even when a macOS build cannot get a GitHub runner, so servers can always install and update to the new version.
 
-Tested end to end on a real server: files (content, owner and permissions), PostgreSQL, MariaDB and MongoDB in Docker were backed up, copied to another server's repository, and restored there into new databases with every row, index and non-ASCII character intact.
+Tested end to end against a real agent (117 checks): every source kind (folders, PostgreSQL with roles and every database, MariaDB with views and procedures, MongoDB, Redis, SQLite, ClickHouse, command output) into a local disk, S3-compatible storage, a restic REST server and SFTP; browsing, single-file and zip downloads, restores (owner, mode, times, symlinks, empty folders, non-ASCII names; refusing a non-empty folder), restores into every database kind (new database, refusal without "replace", replace), copies to a second destination and to another server, retention, prune, unlock, verify (and a deliberately damaged repository being caught, with its alert), hooks and `ORLUMA_STATUS`, health-check pings, signed webhooks, cancel, two jobs at once, cron and catch-up after downtime, disk alerts, and no password in logs, run history or the process list. The PC's own repository server was tested with restic itself.
 
 ## 0.1.8
 

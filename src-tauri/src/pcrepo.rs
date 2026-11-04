@@ -299,3 +299,99 @@ mod sha2_lite {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The real restic against this server: init, backup, full read-back check, restore, forget and prune.
+    /// Skipped where restic is not installed (CI); run locally with restic on PATH.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn restic_works_against_it() {
+        if std::process::Command::new("restic").arg("version").output().is_err() {
+            eprintln!("restic not installed: skipped");
+            return;
+        }
+        let dir = std::env::temp_dir().join(format!("orluma-pcrepo-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        let src = dir.join("src");
+        std::fs::create_dir_all(src.join("sub")).unwrap();
+        std::fs::write(src.join("a.txt"), "hello").unwrap();
+        let big: Vec<u8> = (0..3_000_000u32)
+            .map(|i| (i.wrapping_mul(2_654_435_761) >> 13) as u8)
+            .collect();
+        std::fs::write(src.join("sub/big.bin"), &big).unwrap();
+        let s = start(dir.join("repos")).await.unwrap();
+        let url = format!("rest:http://{}:{}@{}/srv1/", s.user, s.password, s.addr);
+        let cache = dir.join("cache");
+        let cleanup = dir.clone();
+        tokio::task::spawn_blocking(move || {
+            let restic = |args: &[&str]| {
+                let out = std::process::Command::new("restic")
+                    .args(args)
+                    .env("RESTIC_REPOSITORY", &url)
+                    .env("RESTIC_PASSWORD", "pw")
+                    .env("RESTIC_CACHE_DIR", &cache)
+                    .output()
+                    .unwrap();
+                assert!(
+                    out.status.success(),
+                    "restic {args:?}: {}",
+                    String::from_utf8_lossy(&out.stderr)
+                );
+                String::from_utf8_lossy(&out.stdout).into_owned()
+            };
+            let run = |args: Vec<String>| {
+                let a: Vec<&str> = args.iter().map(String::as_str).collect();
+                restic(&a)
+            };
+            let srcs = src.display().to_string();
+            let out = dir.join("out").display().to_string();
+            run(vec!["init".into()]);
+            run(vec!["backup".into(), srcs.clone()]);
+            std::fs::write(format!("{srcs}/a.txt"), "changed").unwrap();
+            run(vec!["backup".into(), srcs.clone()]);
+            run(vec!["check".into(), "--read-data".into()]);
+            run(vec!["restore".into(), "latest".into(), "--target".into(), out.clone()]);
+            assert_eq!(std::fs::read(format!("{out}{srcs}/sub/big.bin")).unwrap(), big);
+            assert_eq!(
+                std::fs::read_to_string(format!("{out}{srcs}/a.txt")).unwrap(),
+                "changed"
+            );
+            run(vec![
+                "forget".into(),
+                "--keep-last".into(),
+                "1".into(),
+                "--prune".into(),
+            ]);
+            run(vec!["check".into(), "--read-data".into()]);
+            let n = run(vec!["snapshots".into(), "--json".into()]);
+            assert_eq!(n.matches("\"short_id\"").count(), 1, "{n}");
+        })
+        .await
+        .unwrap();
+
+        // no password, no entry; a blob that does not match its name is refused
+        let _ = rustls::crypto::ring::default_provider().install_default();
+        let http = reqwest::Client::new();
+        let base = format!("http://{}/srv1", s.addr);
+        let r = http.get(format!("{base}/config")).send().await.unwrap();
+        assert_eq!(r.status(), 401);
+        let r = http
+            .post(format!("{base}/data/{}", "0".repeat(64)))
+            .basic_auth(&s.user, Some(&s.password))
+            .body("not what the name says")
+            .send()
+            .await
+            .unwrap();
+        assert!(r.status().is_client_error(), "{}", r.status());
+        let r = http
+            .get(format!("http://{}/../etc/config", s.addr))
+            .basic_auth(&s.user, Some(&s.password))
+            .send()
+            .await
+            .unwrap();
+        assert!(!r.status().is_success());
+        let _ = std::fs::remove_dir_all(&cleanup);
+    }
+}

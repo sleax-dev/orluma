@@ -4,7 +4,7 @@
 
 use crate::restic::anyhow_lite::{Error, Result};
 use crate::restic::{Repo, Restic};
-use crate::sources::{ch_client, conn_flags, mysql_env, mysql_tool, pg_env, query, wrap};
+use crate::sources::{ch_client, ch_env, conn_flags, mysql_env, mysql_tool, pg_env, query, wrap};
 use orluma_core::api::RestoreDbRequest;
 use std::process::Stdio;
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader};
@@ -270,7 +270,7 @@ async fn clickhouse(restic: &Restic, repo: &Repo, r: &RestoreDbRequest) -> Resul
     let run = |q: String| {
         let mut a = ch_client(&r.conn);
         a.extend(["--query".into(), q]);
-        wrap(&r.conn, a, Vec::new())
+        wrap(&r.conn, a, ch_env(&r.conn))
     };
     let (a, e) = run(format!("SELECT count() FROM system.tables WHERE database = '{db}'"));
     if query(&a, &e).await?.trim() != "0" {
@@ -334,7 +334,7 @@ async fn clickhouse(restic: &Restic, repo: &Repo, r: &RestoreDbRequest) -> Resul
     for (table, snap) in &tables {
         let mut a = ch_client(&r.conn);
         a.extend(["--query".into(), format!("INSERT INTO `{db}`.`{table}` FORMAT Native")]);
-        let (a, e) = wrap(&r.conn, a, Vec::new());
+        let (a, e) = wrap(&r.conn, a, ch_env(&r.conn));
         pipe(
             dump_cmd(restic, repo, &snap.id, &format!("{dir}/{table}.native")),
             tool(&a, &e),

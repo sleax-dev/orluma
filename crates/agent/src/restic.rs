@@ -319,6 +319,11 @@ fn err_text(o: &Output) -> String {
     let line = e.lines().rev().find(|l| !l.trim().is_empty()).unwrap_or(e);
     if line.is_empty() {
         format!("restic exited with code {}", o.code)
+    } else if line.contains("unable to start the sftp session") {
+        // what restic says when the other server turns the agent's key away
+        format!(
+            "{line}. The other server did not accept this server's key: add it to that user's ~/.ssh/authorized_keys (Storage shows the key)"
+        )
     } else if line.contains("wrong password or no key found") {
         // restic's wording blames the password but not where it comes from: usually two destinations share a folder
         format!(
@@ -763,6 +768,8 @@ impl Restic {
             tokio::select! {
                 _ = cancel.cancelled() => {
                     let _ = child.kill().await;
+                    // a killed restic leaves its lock behind; `unlock` removes only locks whose process is gone
+                    let _ = self.unlock(repo).await;
                     bail!("Cancelled");
                 }
                 line = lines.next_line() => {

@@ -346,11 +346,14 @@ async fn backup_inner(run: &mut Run, job: &Job) -> Result<()> {
     // Plan every source first: a database that cannot be listed is an error now, not halfway through.
     let mut units = Vec::new();
     let mut failed = Vec::new();
+    // the first reason goes into the summary: it is what Backups, the alert and the webhook show
+    let mut first: Option<String> = None;
     for src in &job.sources {
         match sources::plan(src).await {
             Ok(p) => units.extend(p),
             Err(e) => {
                 run.error(format!("Source {} ({}): {e}", src.id(), src.kind()));
+                first.get_or_insert_with(|| format!("{}: {e}", src.kind()));
                 failed.push(src.id().to_string());
             }
         }
@@ -419,6 +422,7 @@ async fn backup_inner(run: &mut Run, job: &Job) -> Result<()> {
                     bail!("Cancelled");
                 }
                 run.error(format!("  {}: {e}", u.label));
+                first.get_or_insert_with(|| format!("{}: {e}", u.label));
                 failed.push(u.source_id.clone());
             }
         }
@@ -426,9 +430,10 @@ async fn backup_inner(run: &mut Run, job: &Job) -> Result<()> {
     if !failed.is_empty() {
         failed.dedup();
         bail!(
-            "{} of the job's sources could not be backed up ({})",
+            "{} of the job's sources could not be backed up ({}). {}",
             failed.len(),
-            failed.join(", ")
+            failed.join(", "),
+            first.unwrap_or_default()
         );
     }
 
@@ -480,6 +485,9 @@ async fn backup_inner(run: &mut Run, job: &Job) -> Result<()> {
 async fn maintain(run: &mut Run, job: &Job, dest: &str, repo: &Repo, restic: &crate::restic::Restic) {
     let agent = run.agent.clone();
     let name = agent.destination(dest).map(|d| d.name).unwrap_or_else(|_| dest.into());
+    // locks left by a run that was killed (cancel, reboot, power cut) would stop forget and prune; only stale
+    // ones are removed, a live run's lock stays
+    let _ = restic.unlock(repo).await;
     match restic.forget(repo, &job.id, &job.retention).await {
         Ok(m) => run.info(format!("Retention on '{name}': {m}")),
         Err(e) => run.warn(format!("Retention on '{name}' failed: {e}")),
