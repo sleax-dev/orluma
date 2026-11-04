@@ -114,7 +114,7 @@ export default {
     defaults: "Chaque jour à 03:00 · garde 7 quotidiennes, 4 hebdomadaires, 12 mensuelles et 2 annuelles · vérifiée chaque semaine.",
     localName: "Disque de ce serveur", jobName: "Sauvegarde du serveur",
     create: "Créer la sauvegarde", later: "Plus tard",
-    next: "Suivant", back: "Retour",
+    next: "Suivant", back: "Retour", tooLarge: "dépasse la limite",
     nothing: "Coche au moins une base de données ou un dossier.",
     created: "Sauvegarde créée. Elle tourne chaque jour à 03:00, ou lance-la maintenant.",
   },
@@ -186,7 +186,7 @@ export default {
   },
   advanced: {
     compression: "Compression", comp: { auto: "Automatique", max: "Maximale (plus lente, plus petite)", off: "Désactivée" },
-    largerThan: "Ignorer les fichiers de plus de (Mio)", largerThanHint: "0 signifie sans limite.",
+    largerThan: "Ignorer les fichiers de plus de", largerThanHint: "Les images disque, ISO et anciens dumps sont rarement à conserver et ralentissent chaque sauvegarde. S'applique aux fichiers et dossiers, pas aux bases de données.", noLimit: "Sans limite",
     caches: "Ignorer les dossiers de cache (marqués par CACHEDIR.TAG)",
     lowPriority: "Tourner en priorité CPU et disque basse, pour que le serveur reste réactif",
   },

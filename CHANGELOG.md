@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.7
+
+- New file backups skip single files larger than 500 MB (disk images, ISOs, old dumps). The limit is a choice of 100 MB, 250 MB, 500 MB or 1 GB, or none, in the last step of "What should I back up?" and in the job's Advanced tab. The folder tree greys out files over the limit. Databases are not affected, and existing jobs keep their setting.
+
 ## 0.1.6
 
 - "What should I back up?" is a page of its own with three steps (databases, folders, where to) instead of a cramped dialog. The folder tree uses the whole page, Back/Next stay in reach, and the step is skipped when the server has no database.

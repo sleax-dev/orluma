@@ -114,7 +114,7 @@ export default {
     defaults: "Todo dia às 03:00 · mantém 7 diários, 4 semanais, 12 mensais e 2 anuais · verificado toda semana.",
     localName: "Disco deste servidor", jobName: "Backup do servidor",
     create: "Criar backup", later: "Depois",
-    next: "Avançar", back: "Voltar",
+    next: "Avançar", back: "Voltar", tooLarge: "acima do limite",
     nothing: "Marque pelo menos um banco de dados ou pasta.",
     created: "Backup criado. Ele roda todo dia às 03:00, ou inicie agora.",
   },
@@ -186,7 +186,7 @@ export default {
   },
   advanced: {
     compression: "Compressão", comp: { auto: "Automática", max: "Máxima (mais lenta, menor)", off: "Desligada" },
-    largerThan: "Ignorar arquivos maiores que (MiB)", largerThanHint: "0 significa sem limite.",
+    largerThan: "Ignorar arquivos individuais maiores que", largerThanHint: "Imagens de disco, ISOs e dumps antigos raramente precisam de backup e deixam cada execução lenta. Vale para arquivos e pastas, não para bancos de dados.", noLimit: "Sem limite",
     caches: "Ignorar pastas de cache (marcadas com CACHEDIR.TAG)",
     lowPriority: "Rodar com baixa prioridade de CPU e disco, para o servidor continuar ágil",
   },

@@ -114,7 +114,7 @@ export default {
     defaults: "Her gün 03:00 · 7 günlük, 4 haftalık, 12 aylık ve 2 yıllık saklar · haftada bir doğrulanır.",
     localName: "Bu sunucunun diski", jobName: "Sunucu yedeği",
     create: "Yedeği oluştur", later: "Sonra",
-    next: "İleri", back: "Geri",
+    next: "İleri", back: "Geri", tooLarge: "dosya sınırını aşıyor",
     nothing: "En az bir veritabanı ya da klasör işaretle.",
     created: "Yedek oluşturuldu. Her gün 03:00'te çalışır; istersen şimdi başlat.",
   },
@@ -186,7 +186,7 @@ export default {
   },
   advanced: {
     compression: "Sıkıştırma", comp: { auto: "Otomatik", max: "En yüksek (daha yavaş, daha küçük)", off: "Kapalı" },
-    largerThan: "Şundan büyük dosyaları atla (MiB)", largerThanHint: "0 sınırsız demek.",
+    largerThan: "Şundan büyük tek dosyaları atla", largerThanHint: "Disk imajları, ISO'lar ve eski dökümler genelde yedeklenmek istenmez ve her yedeği yavaşlatır. Dosya ve klasörlere uygulanır, veritabanlarına değil.", noLimit: "Sınırsız",
     caches: "Önbellek klasörlerini atla (CACHEDIR.TAG ile işaretli olanlar)",
     lowPriority: "Düşük işlemci ve disk önceliğiyle çalış, sunucu hızlı kalsın",
   },

@@ -114,7 +114,7 @@ export default {
     defaults: "毎日 03:00 · 日次 7・週次 4・月次 12・年次 2 を保持 · 週 1 回検証。",
     localName: "このサーバーのディスク", jobName: "サーバーのバックアップ",
     create: "バックアップを作成", later: "あとで",
-    next: "次へ", back: "戻る",
+    next: "次へ", back: "戻る", tooLarge: "サイズ上限を超過",
     nothing: "データベースかフォルダーを 1 つ以上選んでください。",
     created: "バックアップを作成しました。毎日 03:00 に実行されます。今すぐ開始もできます。",
   },
@@ -186,7 +186,7 @@ export default {
   },
   advanced: {
     compression: "圧縮", comp: { auto: "自動", max: "最大（遅いが小さい）", off: "オフ" },
-    largerThan: "これより大きいファイルを除外（MiB）", largerThanHint: "0 は無制限。",
+    largerThan: "これより大きい単一ファイルを除外", largerThanHint: "ディスクイメージ、ISO、古いダンプは通常バックアップ不要で、毎回の実行を遅くします。ファイルとフォルダーが対象で、データベースは対象外です。", noLimit: "無制限",
     caches: "キャッシュフォルダーを除外（CACHEDIR.TAG のあるもの）",
     lowPriority: "CPU とディスクの優先度を下げて実行し、サーバーの応答性を保つ",
   },

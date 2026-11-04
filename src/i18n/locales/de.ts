@@ -114,7 +114,7 @@ export default {
     defaults: "Täglich um 03:00 · behält 7 tägliche, 4 wöchentliche, 12 monatliche und 2 jährliche · wöchentlich geprüft.",
     localName: "Platte dieses Servers", jobName: "Serversicherung",
     create: "Sicherung anlegen", later: "Später",
-    next: "Weiter", back: "Zurück",
+    next: "Weiter", back: "Zurück", tooLarge: "über der Grenze",
     nothing: "Hake mindestens eine Datenbank oder einen Ordner an.",
     created: "Sicherung angelegt. Sie läuft täglich um 03:00, oder starte sie jetzt.",
   },
@@ -186,7 +186,7 @@ export default {
   },
   advanced: {
     compression: "Komprimierung", comp: { auto: "Automatisch", max: "Maximal (langsamer, kleiner)", off: "Aus" },
-    largerThan: "Dateien größer als (MiB) auslassen", largerThanHint: "0 bedeutet keine Grenze.",
+    largerThan: "Einzelne Dateien auslassen, die größer sind als", largerThanHint: "Festplattenabbilder, ISOs und alte Dumps will man selten sichern, und sie bremsen jeden Lauf. Gilt für Dateien und Ordner, nicht für Datenbanken.", noLimit: "Keine Grenze",
     caches: "Cache-Ordner auslassen (mit CACHEDIR.TAG markiert)",
     lowPriority: "Mit niedriger CPU- und Festplattenpriorität laufen, damit der Server flüssig bleibt",
   },

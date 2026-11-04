@@ -113,7 +113,7 @@ const en = {
     defaults: "Every day at 03:00 · keeps 7 daily, 4 weekly, 12 monthly and 2 yearly · verified weekly.",
     localName: "This server's disk", jobName: "Server backup",
     create: "Create backup", later: "Later",
-    next: "Next", back: "Back",
+    next: "Next", back: "Back", tooLarge: "over the file limit",
     nothing: "Tick at least one database or folder.",
     created: "Backup created. It runs every day at 03:00, or start it now.",
   },
@@ -185,7 +185,7 @@ const en = {
   },
   advanced: {
     compression: "Compression", comp: { auto: "Automatic", max: "Maximum (slower, smaller)", off: "Off" },
-    largerThan: "Skip files larger than (MiB)", largerThanHint: "0 means no limit.",
+    largerThan: "Skip single files larger than", largerThanHint: "Disk images, ISOs and old dumps are rarely what you mean to keep and slow every run. Applies to files and folders, not databases.", noLimit: "No limit",
     caches: "Skip cache folders (those marked with CACHEDIR.TAG)",
     lowPriority: "Run at low CPU and disk priority, so the server stays responsive",
   },

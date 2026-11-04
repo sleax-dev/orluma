@@ -29,6 +29,7 @@ import { useTranslation } from "react-i18next";
 import { build, describe, parts, presetFor } from "../lib/cron";
 import { newSource, SOURCE_TYPES } from "../lib/defaults";
 import type { AgentConfig, Hook, Job, Retention, Source } from "../lib/types";
+import { FileLimit } from "./FileLimit";
 import { TextField } from "./ui";
 
 type TabId = "sources" | "destination" | "schedule" | "retention" | "verify" | "advanced";
@@ -298,7 +299,7 @@ export function JobEditor({ open, job: initial, config, onClose, onSave, onAddDe
                         ))}
                       </Dropdown>
                     </Field>
-                    <TextField label={t("advanced.largerThan")} hint={t("advanced.largerThanHint")} value={job.options.exclude_larger_than_mib} onChange={(v) => set({ options: { ...job.options, exclude_larger_than_mib: Number(v.replace(/\D/g, "")) || 0 } })} />
+                    <FileLimit value={job.options.exclude_larger_than_mib} onChange={(n) => set({ options: { ...job.options, exclude_larger_than_mib: n } })} />
                     <Checkbox className="full" checked={job.options.exclude_caches} onChange={(_, d) => set({ options: { ...job.options, exclude_caches: !!d.checked } })} label={t("advanced.caches")} />
                     <Checkbox className="full" checked={job.options.low_priority} onChange={(_, d) => set({ options: { ...job.options, low_priority: !!d.checked } })} label={t("advanced.lowPriority")} />
                   </div>

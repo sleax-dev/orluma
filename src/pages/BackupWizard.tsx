@@ -7,6 +7,7 @@ import { bytes } from "../lib/format";
 import { DEFAULT_EXCLUDES, newId, newJob, randomPassword } from "../lib/defaults";
 import type { Discovery, FoundDatabase, Source } from "../lib/types";
 import { useApp } from "../state";
+import { FileLimit } from "../components/FileLimit";
 import { FolderTree, type Sizes } from "../components/FolderTree";
 import { Info, NoServer } from "../components/guide";
 import { PageHead } from "../components/ui";
@@ -26,6 +27,7 @@ export function BackupWizard() {
   const [existing, setExisting] = useState("");
   const [destinations, setDestinations] = useState<{ id: string; name: string }[]>([]);
   const [busy, setBusy] = useState(false);
+  const [maxMib, setMaxMib] = useState(newJob().options.exclude_larger_than_mib);
   // folder -> measured size; measuring a big folder takes long, so the list shows first and sizes fill in
   const [sizes, setSizes] = useState<Sizes>({});
   const queue = useRef<string[]>([]);
@@ -131,7 +133,7 @@ export function BackupWizard() {
         toast("error", t("first.nothing"));
         return;
       }
-      cfg.jobs.push(newJob({ name: t("first.jobName"), destination: destId, sources }));
+      cfg.jobs.push(newJob({ name: t("first.jobName"), destination: destId, sources, options: { ...newJob().options, exclude_larger_than_mib: maxMib } }));
       if (await saveConfig(server, cfg)) {
         toast("success", t("first.created"));
         setPage("jobs", { server });
@@ -185,7 +187,7 @@ export function BackupWizard() {
             <div className="form-sect" style={{ margin: 0 }}>
               {t("first.folders")} <Info text={t("first.skipsInfo", { list: DEFAULT_EXCLUDES.join(", ") })} />
             </div>
-            <FolderTree server={server} roots={found.paths} selected={paths} onChange={setPaths} sizes={sizes} measure={measure} />
+            <FolderTree server={server} roots={found.paths} maxMib={maxMib} selected={paths} onChange={setPaths} sizes={sizes} measure={measure} />
             <p className="muted small" style={{ margin: 0 }}>{t("first.skips")}</p>
           </>
         )}
@@ -204,6 +206,7 @@ export function BackupWizard() {
                 {destinations.map((d) => <Radio key={d.id} value={d.id} label={d.name} />)}
               </RadioGroup>
             )}
+            <FileLimit value={maxMib} onChange={setMaxMib} />
             <p className="muted small" style={{ margin: 0 }}>{t("first.defaults")}</p>
           </>
         )}

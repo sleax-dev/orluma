@@ -27,7 +27,7 @@ export function newJob(p: Partial<Job> = {}): Job {
     retention: { last: 3, hourly: 0, daily: 7, weekly: 4, monthly: 12, yearly: 2, prune_every_days: 7 },
     verify: { every_days: 7, read_data_percent: 5 },
     hooks: { before: [], after: [] },
-    options: { compression: "auto", exclude_caches: true, exclude_larger_than_mib: 0, low_priority: true },
+    options: { compression: "auto", exclude_caches: true, exclude_larger_than_mib: 500, low_priority: true }, // 500 MiB per file: see FileLimit
     healthcheck_url: "",
     ...p,
   };

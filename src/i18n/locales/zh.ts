@@ -114,7 +114,7 @@ export default {
     defaults: "每天 03:00 · 保留 7 个每日、4 个每周、12 个每月和 2 个每年快照 · 每周校验。",
     localName: "本服务器磁盘", jobName: "服务器备份",
     create: "创建备份", later: "稍后",
-    next: "下一步", back: "上一步",
+    next: "下一步", back: "上一步", tooLarge: "超过大小限制",
     nothing: "请至少勾选一个数据库或文件夹。",
     created: "备份已创建。它每天 03:00 运行，也可以现在就开始。",
   },
@@ -186,7 +186,7 @@ export default {
   },
   advanced: {
     compression: "压缩", comp: { auto: "自动", max: "最大（更慢、更小）", off: "关闭" },
-    largerThan: "跳过大于此值的文件（MiB）", largerThanHint: "0 表示不限制。",
+    largerThan: "跳过大于此值的单个文件", largerThanHint: "磁盘镜像、ISO 和旧的转储文件通常无需备份，还会拖慢每次运行。仅适用于文件和文件夹，不适用于数据库。", noLimit: "不限制",
     caches: "跳过缓存文件夹（带有 CACHEDIR.TAG 标记的）",
     lowPriority: "以低 CPU 和磁盘优先级运行，保持服务器流畅",
   },

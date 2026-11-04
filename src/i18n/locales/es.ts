@@ -114,7 +114,7 @@ export default {
     defaults: "Cada día a las 03:00 · conserva 7 diarias, 4 semanales, 12 mensuales y 2 anuales · se verifica cada semana.",
     localName: "Disco de este servidor", jobName: "Copia del servidor",
     create: "Crear copia", later: "Más tarde",
-    next: "Siguiente", back: "Atrás",
+    next: "Siguiente", back: "Atrás", tooLarge: "supera el límite",
     nothing: "Marca al menos una base de datos o carpeta.",
     created: "Copia creada. Se ejecuta cada día a las 03:00, o iníciala ahora.",
   },
@@ -186,7 +186,7 @@ export default {
   },
   advanced: {
     compression: "Compresión", comp: { auto: "Automática", max: "Máxima (más lenta, más pequeña)", off: "Desactivada" },
-    largerThan: "Omitir archivos mayores de (MiB)", largerThanHint: "0 significa sin límite.",
+    largerThan: "Omitir archivos individuales mayores de", largerThanHint: "Las imágenes de disco, ISO y volcados antiguos rara vez se quieren guardar y ralentizan cada copia. Se aplica a archivos y carpetas, no a bases de datos.", noLimit: "Sin límite",
     caches: "Omitir carpetas de caché (las marcadas con CACHEDIR.TAG)",
     lowPriority: "Ejecutar con baja prioridad de CPU y disco para que el servidor siga ágil",
   },
