@@ -113,6 +113,7 @@ const en = {
     defaults: "Every day at 03:00 · keeps 7 daily, 4 weekly, 12 monthly and 2 yearly · verified weekly.",
     localName: "This server's disk", jobName: "Server backup",
     create: "Create backup", later: "Later",
+    next: "Next", back: "Back",
     nothing: "Tick at least one database or folder.",
     created: "Backup created. It runs every day at 03:00, or start it now.",
   },

@@ -14,7 +14,6 @@ import {
 } from "@fluentui/react-icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FirstBackup } from "../components/FirstBackup";
 import { Info, NoServer } from "../components/guide";
 import { Confirm, PageHead, RefreshButton, Skeleton, Status, TextField, useAction } from "../components/ui";
 import { api, errText } from "../lib/api";
@@ -175,9 +174,8 @@ function friendly(e: string, t: (k: string) => string): string {
 
 export function Servers() {
   const { t } = useTranslation();
-  const { servers, live, refreshServers, refreshStatus, params, toast } = useApp();
+  const { servers, live, refreshServers, refreshStatus, params, toast, setPage } = useApp();
   const [adding, setAdding] = useState(params.add === "1");
-  const [first, setFirst] = useState<string | null>(null);
   const [removing, setRemoving] = useState<Server | null>(null);
   const [uninstall, setUninstall] = useState(true);
   const [purge, setPurge] = useState(false);
@@ -244,7 +242,7 @@ export function Servers() {
                   )}
                 </div>
                 <div className="ctl">
-                  <Button size="small" icon={<SearchSparkle16Regular />} disabled={!st} onClick={() => setFirst(s.id)}>
+                  <Button size="small" icon={<SearchSparkle16Regular />} disabled={!st} onClick={() => setPage("backup", { server: s.id })}>
                     {t("servers.whatToBackUp")}
                   </Button>
                   <Menu>
@@ -281,10 +279,9 @@ export function Servers() {
         onAdded={(s) => {
           void refreshServers();
           setAdding(false);
-          setFirst(s.id);
+          setPage("backup", { server: s.id });
         }}
       />
-      {first && <FirstBackup server={first} open onClose={() => setFirst(null)} />}
 
       <Confirm
         open={!!removing}

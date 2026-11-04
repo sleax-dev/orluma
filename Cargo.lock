@@ -3689,7 +3689,7 @@ dependencies = [
 
 [[package]]
 name = "orluma"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "axum",
  "base64 0.22.1",
@@ -3731,7 +3731,7 @@ dependencies = [
 
 [[package]]
 name = "orluma-agent"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "axum",
  "base64 0.22.1",
@@ -3758,7 +3758,7 @@ dependencies = [
 
 [[package]]
 name = "orluma-core"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "chrono",
  "chrono-tz",

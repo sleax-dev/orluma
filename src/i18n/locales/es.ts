@@ -114,6 +114,7 @@ export default {
     defaults: "Cada día a las 03:00 · conserva 7 diarias, 4 semanales, 12 mensuales y 2 anuales · se verifica cada semana.",
     localName: "Disco de este servidor", jobName: "Copia del servidor",
     create: "Crear copia", later: "Más tarde",
+    next: "Siguiente", back: "Atrás",
     nothing: "Marca al menos una base de datos o carpeta.",
     created: "Copia creada. Se ejecuta cada día a las 03:00, o iníciala ahora.",
   },

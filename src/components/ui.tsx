@@ -13,10 +13,10 @@ import {
 import { ArrowClockwise16Regular, Dismiss16Regular, Info16Regular, Maximize16Regular, Subtract16Regular } from "@fluentui/react-icons";
 import { AnimatePresence, motion } from "motion/react";
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import logo from "../assets/logo.svg";
-import { api } from "../lib/api";
+import { api, isTauri } from "../lib/api";
 import { bytes, duration, percent } from "../lib/format";
 import { Guide, Info } from "./guide";
 import type { RunProgress, RunStatus } from "../lib/types";
@@ -24,6 +24,37 @@ import { useApp } from "../state";
 
 export function Logo({ size = 22 }: { size?: number }) {
   return <img src={logo} width={size} height={size} alt="" style={{ borderRadius: size * 0.22 }} />;
+}
+
+const EDGES = { n: "North", s: "South", e: "East", w: "West", ne: "NorthEast", nw: "NorthWest", se: "SouthEast", sw: "SouthWest" } as const;
+
+/** The window is frameless, so Windows and Linux give it no grab handles: these thin strips along the edges and
+ *  corners start the system resize. macOS resizes frameless windows by itself. */
+export function ResizeEdges() {
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    if (!isTauri || /Mac/.test(navigator.userAgent)) return;
+    let off = () => {};
+    void import("@tauri-apps/api/window").then(async ({ getCurrentWindow }) => {
+      const w = getCurrentWindow();
+      const sync = async () => setOn(!(await w.isMaximized()) && !(await w.isFullscreen()));
+      await sync();
+      off = await w.onResized(() => void sync());
+    });
+    return () => off();
+  }, []);
+  if (!on) return null;
+  const start = (d: keyof typeof EDGES) => (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    void import("@tauri-apps/api/window").then(({ getCurrentWindow }) => getCurrentWindow().startResizeDragging(EDGES[d]));
+  };
+  return (
+    <>
+      {(Object.keys(EDGES) as (keyof typeof EDGES)[]).map((d) => (
+        <div key={d} className={`edge ${d}`} onMouseDown={start(d)} aria-hidden />
+      ))}
+    </>
+  );
 }
 
 export function TitleBar() {

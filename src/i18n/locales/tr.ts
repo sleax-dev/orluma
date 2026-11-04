@@ -114,6 +114,7 @@ export default {
     defaults: "Her gün 03:00 · 7 günlük, 4 haftalık, 12 aylık ve 2 yıllık saklar · haftada bir doğrulanır.",
     localName: "Bu sunucunun diski", jobName: "Sunucu yedeği",
     create: "Yedeği oluştur", later: "Sonra",
+    next: "İleri", back: "Geri",
     nothing: "En az bir veritabanı ya da klasör işaretle.",
     created: "Yedek oluşturuldu. Her gün 03:00'te çalışır; istersen şimdi başlat.",
   },

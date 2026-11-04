@@ -114,6 +114,7 @@ export default {
     defaults: "Chaque jour à 03:00 · garde 7 quotidiennes, 4 hebdomadaires, 12 mensuelles et 2 annuelles · vérifiée chaque semaine.",
     localName: "Disque de ce serveur", jobName: "Sauvegarde du serveur",
     create: "Créer la sauvegarde", later: "Plus tard",
+    next: "Suivant", back: "Retour",
     nothing: "Coche au moins une base de données ou un dossier.",
     created: "Sauvegarde créée. Elle tourne chaque jour à 03:00, ou lance-la maintenant.",
   },

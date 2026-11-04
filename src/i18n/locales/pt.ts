@@ -114,6 +114,7 @@ export default {
     defaults: "Todo dia às 03:00 · mantém 7 diários, 4 semanais, 12 mensais e 2 anuais · verificado toda semana.",
     localName: "Disco deste servidor", jobName: "Backup do servidor",
     create: "Criar backup", later: "Depois",
+    next: "Avançar", back: "Voltar",
     nothing: "Marque pelo menos um banco de dados ou pasta.",
     created: "Backup criado. Ele roda todo dia às 03:00, ou inicie agora.",
   },

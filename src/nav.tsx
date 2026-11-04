@@ -20,7 +20,7 @@ import {
   Settings20Regular,
 } from "@fluentui/react-icons";
 
-export type Page = "overview" | "servers" | "jobs" | "storage" | "restore" | "transfer" | "activity" | "alerts" | "settings";
+export type Page = "overview" | "servers" | "jobs" | "storage" | "restore" | "transfer" | "activity" | "alerts" | "settings" | "backup";
 
 export const ICONS: Record<Page, [FluentIcon, FluentIcon]> = {
   overview: [Home20Regular, Home20Filled],
@@ -32,6 +32,7 @@ export const ICONS: Record<Page, [FluentIcon, FluentIcon]> = {
   activity: [Pulse20Regular, Pulse20Filled],
   alerts: [Alert20Regular, Alert20Filled],
   settings: [Settings20Regular, Settings20Filled],
+  backup: [ShieldCheckmark20Regular, ShieldCheckmark20Filled],
 };
 
 export const NAV_GROUPS: { label?: string; pages: Page[] }[] = [

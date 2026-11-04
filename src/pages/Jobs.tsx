@@ -16,7 +16,6 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NoServer } from "../components/guide";
 import { JobIcon } from "../components/SourceIcon";
-import { FirstBackup } from "../components/FirstBackup";
 import { JobEditor } from "../components/JobEditor";
 import { DestinationEditor } from "../components/DestinationEditor";
 import { Confirm, Empty, LiveRun, PageHead, ServerPicker, Skeleton, Status } from "../components/ui";
@@ -47,7 +46,6 @@ export function Jobs() {
   const { server, servers, configs, loadConfig, saveConfig, live, toast, setPage, refreshStatus } = useApp();
   const [editing, setEditing] = useState<Job | null>(null);
   const [deleting, setDeleting] = useState<Job | null>(null);
-  const [first, setFirst] = useState(false);
   const [addingDest, setAddingDest] = useState(false);
   const [starting, setStarting] = useState<string | null>(null);
 
@@ -91,7 +89,7 @@ export function Jobs() {
         actions={
           cfg && cfg.jobs.length === 0 ? undefined : (
           <>
-            <Button icon={<SearchSparkle16Regular />} disabled={!st} onClick={() => setFirst(true)}>
+            <Button icon={<SearchSparkle16Regular />} disabled={!st} onClick={() => setPage("backup", { server })}>
               {t("servers.whatToBackUp")}
             </Button>
             <Button appearance="primary" icon={<Add16Regular />} disabled={!cfg} onClick={() => setEditing(newJob({ destination: cfg?.destinations[0]?.id ?? "" }))}>
@@ -117,7 +115,7 @@ export function Jobs() {
           title={t("jobs.none")}
           text={t("jobs.noneText")}
           action={
-            <Button appearance="primary" icon={<SearchSparkle16Regular />} onClick={() => setFirst(true)}>
+            <Button appearance="primary" icon={<SearchSparkle16Regular />} onClick={() => setPage("backup", { server })}>
               {t("servers.whatToBackUp")}
             </Button>
           }
@@ -209,7 +207,6 @@ export function Jobs() {
           }}
         />
       )}
-      {first && <FirstBackup server={server} open onClose={() => setFirst(false)} />}
       <Confirm
         open={!!deleting}
         title={t("jobs.deleteTitle", { name: deleting?.name })}

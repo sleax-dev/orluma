@@ -114,6 +114,7 @@ export default {
     defaults: "每天 03:00 · 保留 7 个每日、4 个每周、12 个每月和 2 个每年快照 · 每周校验。",
     localName: "本服务器磁盘", jobName: "服务器备份",
     create: "创建备份", later: "稍后",
+    next: "下一步", back: "上一步",
     nothing: "请至少勾选一个数据库或文件夹。",
     created: "备份已创建。它每天 03:00 运行，也可以现在就开始。",
   },

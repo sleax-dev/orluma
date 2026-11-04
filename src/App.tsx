@@ -2,12 +2,13 @@ import { FluentProvider } from "@fluentui/react-components";
 import { ArrowDownload16Regular } from "@fluentui/react-icons";
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { Floating, TitleBar } from "./components/ui";
+import { Floating, ResizeEdges, TitleBar } from "./components/ui";
 import { isRtl } from "./i18n";
 import type { Settings } from "./lib/types";
 import { ICONS, NAV_GROUPS, type Page } from "./nav";
 import { Activity } from "./pages/Activity";
 import { Alerts } from "./pages/Alerts";
+import { BackupWizard } from "./pages/BackupWizard";
 import { Jobs } from "./pages/Jobs";
 import { Overview } from "./pages/Overview";
 import { RestorePage } from "./pages/Restore";
@@ -22,7 +23,7 @@ import { theme } from "./theme";
 function NavButton({ page }: { page: Page }) {
   const { t } = useTranslation();
   const { page: current, setPage, running, live } = useApp();
-  const active = current === page;
+  const active = current === page || (page === "jobs" && current === "backup");
   const Icon = ICONS[page][active ? 1 : 0];
   const offline = page === "servers" ? Object.values(live).filter((l) => l.online === false).length : 0;
   return (
@@ -44,6 +45,8 @@ function PageView({ page }: { page: Page }) {
       return <Servers />;
     case "jobs":
       return <Jobs />;
+    case "backup":
+      return <BackupWizard />;
     case "storage":
       return <Storage />;
     case "restore":
@@ -100,6 +103,7 @@ export function App({ initial }: { initial: Settings }) {
     <FluentProvider theme={theme} dir={isRtl(i18n.language) ? "rtl" : "ltr"} style={{ background: "transparent", height: "100%" }}>
       <AppProvider initial={initial}>
         <div className="app-bg">
+          <ResizeEdges />
           <TitleBar />
           <Shell />
           <Floating />

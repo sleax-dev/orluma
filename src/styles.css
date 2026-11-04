@@ -506,3 +506,26 @@ button.tree-chev:hover { background: var(--surface-2); color: var(--text); }
 .step-line { display: flex; gap: 10px; align-items: baseline; color: var(--muted); font-size: 13px; }
 .step-line .n { width: 18px; height: 18px; flex: none; border-radius: 50%; display: inline-grid; place-items: center; font-size: 11px; font-weight: 600; background: var(--surface-2); color: var(--text); transform: translateY(2px); }
 .quiet { color: var(--muted); font-size: 13px; margin: 0; }
+
+/* "What should we back up?" as a page: steps, one card, and a footer that stays in reach */
+.wizard { max-width: 760px; }
+.steps { list-style: none; margin: 0; padding: 0; display: flex; gap: 8px; flex-wrap: wrap; }
+.steps button { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--muted); font: inherit; font-size: 13px; }
+.steps button:not(:disabled):hover { background: var(--surface-2); color: var(--text); }
+.steps button:disabled { cursor: default; }
+.steps .n { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; background: var(--surface-2); }
+.steps .now button { color: var(--text); border-color: var(--accent); }
+.steps .now .n { background: var(--accent); color: var(--bg); }
+.steps .done .n { background: var(--ok); color: var(--bg); }
+.wizard-body { display: flex; flex-direction: column; gap: 14px; }
+.wizard-body .tree { max-height: max(260px, calc(100vh - 430px)); }
+.wizard-foot { display: flex; justify-content: space-between; gap: 8px; position: sticky; bottom: 0; padding-block: 8px; background: var(--bg); }
+
+/* the window has no frame of its own, so its edges are drawn here (see ResizeEdges) */
+.edge { position: fixed; z-index: 100000; }
+.edge.n, .edge.s { left: 10px; right: 10px; height: 5px; cursor: ns-resize; }
+.edge.e, .edge.w { top: 10px; bottom: 10px; width: 5px; cursor: ew-resize; }
+.edge.n { top: 0; } .edge.s { bottom: 0; } .edge.e { right: 0; } .edge.w { left: 0; }
+.edge.ne, .edge.nw, .edge.se, .edge.sw { width: 10px; height: 10px; }
+.edge.ne { top: 0; right: 0; cursor: nesw-resize; } .edge.sw { bottom: 0; left: 0; cursor: nesw-resize; }
+.edge.nw { top: 0; left: 0; cursor: nwse-resize; } .edge.se { bottom: 0; right: 0; cursor: nwse-resize; }

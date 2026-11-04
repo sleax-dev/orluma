@@ -114,6 +114,7 @@ export default {
     defaults: "Täglich um 03:00 · behält 7 tägliche, 4 wöchentliche, 12 monatliche und 2 jährliche · wöchentlich geprüft.",
     localName: "Platte dieses Servers", jobName: "Serversicherung",
     create: "Sicherung anlegen", later: "Später",
+    next: "Weiter", back: "Zurück",
     nothing: "Hake mindestens eine Datenbank oder einen Ordner an.",
     created: "Sicherung angelegt. Sie läuft täglich um 03:00, oder starte sie jetzt.",
   },

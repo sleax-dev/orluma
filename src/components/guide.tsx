@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { api, errText } from "../lib/api";
 import { useApp } from "../state";
 import type { Page } from "../nav";
-import { FirstBackup } from "./FirstBackup";
 
 /** The small "i" next to a title or label: the long explanation lives here, not on the page. */
 export function Info({ text }: { text: string }) {
@@ -74,7 +73,6 @@ type StepState = "done" | "now" | "later";
 export function GetStarted({ compact }: { compact?: boolean }) {
   const { t } = useTranslation();
   const { servers, configs, loadConfig, live, settings, setPage, toast, refreshStatus } = useApp();
-  const [wizard, setWizard] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
 
   useEffect(() => {
@@ -110,7 +108,7 @@ export function GetStarted({ compact }: { compact?: boolean }) {
 
   const actions: ReactNode[] = [
     <Button key="1" appearance="primary" icon={<Add16Regular />} onClick={() => setPage("servers", { add: "1" })}>{t("servers.add")}</Button>,
-    <Button key="2" appearance="primary" icon={<SearchSparkle16Regular />} disabled={!first} onClick={() => first && setWizard(first.id)}>{t("start.s2.action")}</Button>,
+    <Button key="2" appearance="primary" icon={<SearchSparkle16Regular />} disabled={!first} onClick={() => first && setPage("backup", { server: first.id })}>{t("start.s2.action")}</Button>,
     <Button key="3" appearance="primary" icon={starting ? <Spinner size="extra-tiny" /> : <Play16Filled />} disabled={starting || jobs.length === 0} onClick={() => void runFirst()}>{t("start.s3.action")}</Button>,
     <Button key="4" icon={<Desktop16Regular />} onClick={() => setPage("storage")}>{t("start.s4.action")}</Button>,
   ];
@@ -139,7 +137,6 @@ export function GetStarted({ compact }: { compact?: boolean }) {
           );
         })}
       </ol>
-      {wizard && <FirstBackup server={wizard} open onClose={() => setWizard(null)} />}
     </section>
   );
 }

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.6
+
+- "What should I back up?" is a page of its own with three steps (databases, folders, where to) instead of a cramped dialog. The folder tree uses the whole page, Back/Next stay in reach, and the step is skipped when the server has no database.
+- The window can be resized again by its edges and corners on Windows and Linux (it has no frame of its own, so it had no handles).
+
 ## 0.1.5
 
 - "What should I back up?" starts with nothing ticked: nothing is chosen for you.
