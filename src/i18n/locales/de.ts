@@ -114,7 +114,7 @@ export default {
     defaults: "Täglich um 03:00 · behält 7 tägliche, 4 wöchentliche, 12 monatliche und 2 jährliche · wöchentlich geprüft.",
     localName: "Platte dieses Servers", jobName: "Serversicherung",
     create: "Sicherung anlegen", later: "Später",
-    next: "Weiter", back: "Zurück", tooLarge: "über der Grenze",
+    next: "Weiter", back: "Zurück",
     nothing: "Hake mindestens eine Datenbank oder einen Ordner an.",
     created: "Sicherung angelegt. Sie läuft täglich um 03:00, oder starte sie jetzt.",
   },
@@ -152,7 +152,7 @@ export default {
       clickhouse: "Jede Tabelle plus Schema",
       command: "Was der Befehl ausgibt",
     },
-    paths: "Ordner und Dateien", pathsHint: "Einer pro Zeile.", excludes: "Auslassen", excludesHint: "Muster, eines pro Zeile: *.log, */cache/*",
+    paths: "Ordner und Dateien", pathsHint: "Einer pro Zeile.", excludes: "Auslassen", excludesHint: "Muster, eines pro Zeile: *.log, */cache/*", addSkips: "Empfohlene Ausnahmen hinzufügen",
     oneFs: "Im selben Dateisystem bleiben (eingehängte Platten in diesen Ordnern auslassen)",
     container: "Docker-Container", containerHint: "Das Dump-Werkzeug in diesem Container ausführen.",
     osUser: "Als Benutzer ausführen", osUserHint: "Für Postgres auf dem Server selbst: postgres (kein Passwort nötig).",
@@ -186,8 +186,8 @@ export default {
   },
   advanced: {
     compression: "Komprimierung", comp: { auto: "Automatisch", max: "Maximal (langsamer, kleiner)", off: "Aus" },
-    largerThan: "Einzelne Dateien auslassen, die größer sind als", largerThanHint: "Festplattenabbilder, ISOs und alte Dumps will man selten sichern, und sie bremsen jeden Lauf. Gilt für Dateien und Ordner, nicht für Datenbanken.", noLimit: "Keine Grenze",
-    caches: "Cache-Ordner auslassen (mit CACHEDIR.TAG markiert)",
+    largerThan: "Dateien größer als (MiB) auslassen", largerThanHint: "0 bedeutet keine Grenze.",
+    caches: "Cache-Ordner (CACHEDIR.TAG), Python-Umgebungen und Ordner mit einer .nobackup-Datei auslassen",
     lowPriority: "Mit niedriger CPU- und Festplattenpriorität laufen, damit der Server flüssig bleibt",
   },
 

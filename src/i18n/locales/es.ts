@@ -114,7 +114,7 @@ export default {
     defaults: "Cada día a las 03:00 · conserva 7 diarias, 4 semanales, 12 mensuales y 2 anuales · se verifica cada semana.",
     localName: "Disco de este servidor", jobName: "Copia del servidor",
     create: "Crear copia", later: "Más tarde",
-    next: "Siguiente", back: "Atrás", tooLarge: "supera el límite",
+    next: "Siguiente", back: "Atrás",
     nothing: "Marca al menos una base de datos o carpeta.",
     created: "Copia creada. Se ejecuta cada día a las 03:00, o iníciala ahora.",
   },
@@ -152,7 +152,7 @@ export default {
       clickhouse: "Cada tabla y el esquema",
       command: "Lo que imprima el comando",
     },
-    paths: "Carpetas y archivos", pathsHint: "Uno por línea.", excludes: "Excluir", excludesHint: "Patrones, uno por línea: *.log, */cache/*",
+    paths: "Carpetas y archivos", pathsHint: "Uno por línea.", excludes: "Excluir", excludesHint: "Patrones, uno por línea: *.log, */cache/*", addSkips: "Añadir las exclusiones recomendadas",
     oneFs: "Quedarse en el mismo sistema de archivos (omitir discos montados dentro de estas carpetas)",
     container: "Contenedor Docker", containerHint: "Ejecuta la herramienta de volcado dentro de este contenedor.",
     osUser: "Ejecutar como usuario", osUserHint: "Para Postgres en el propio servidor: postgres (sin contraseña).",
@@ -186,8 +186,8 @@ export default {
   },
   advanced: {
     compression: "Compresión", comp: { auto: "Automática", max: "Máxima (más lenta, más pequeña)", off: "Desactivada" },
-    largerThan: "Omitir archivos individuales mayores de", largerThanHint: "Las imágenes de disco, ISO y volcados antiguos rara vez se quieren guardar y ralentizan cada copia. Se aplica a archivos y carpetas, no a bases de datos.", noLimit: "Sin límite",
-    caches: "Omitir carpetas de caché (las marcadas con CACHEDIR.TAG)",
+    largerThan: "Omitir archivos mayores de (MiB)", largerThanHint: "0 significa sin límite.",
+    caches: "Omitir carpetas de caché (CACHEDIR.TAG), entornos virtuales de Python y carpetas con un archivo .nobackup",
     lowPriority: "Ejecutar con baja prioridad de CPU y disco para que el servidor siga ágil",
   },
 

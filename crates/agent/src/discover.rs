@@ -249,18 +249,22 @@ pub async fn list_dir(p: &str) -> Vec<Node> {
 /// At most two folders are measured at a time: `du` on a big tree is disk-heavy.
 static SIZING: tokio::sync::Semaphore = tokio::sync::Semaphore::const_new(2);
 
-/// Size of one folder, measured at low priority and given up on after 25 seconds (`complete: false`).
-pub async fn path_size(p: &str) -> PathSize {
+/// Size of one folder, measured at low priority and given up on after 25 seconds (`complete: false`). `excludes`
+/// are left out of the count (and not walked, which is also much faster in a tree full of node_modules).
+pub async fn path_size(p: &str, excludes: &[String]) -> PathSize {
     if !safe_dir(p) {
         return PathSize::default();
     }
     let Ok(_slot) = SIZING.acquire().await else {
         return PathSize::default();
     };
-    let run = Command::new("nice")
-        .args(["-n", "19", "du", "-sbx", p])
-        .kill_on_drop(true)
-        .output();
+    let mut cmd = Command::new("nice");
+    cmd.args(["-n", "19", "du", "-sbx"]);
+    // a pattern is one argument, never a shell word; an absurd list is cut rather than refused
+    for e in excludes.iter().filter(|e| !e.is_empty() && e.len() <= 200).take(100) {
+        cmd.arg(format!("--exclude={e}"));
+    }
+    let run = cmd.arg(p).kill_on_drop(true).output();
     match tokio::time::timeout(Duration::from_secs(25), run).await {
         Ok(Ok(o)) if o.status.success() || !o.stdout.is_empty() => PathSize {
             bytes: String::from_utf8_lossy(&o.stdout)
@@ -310,16 +314,42 @@ mod tests {
     #[test]
     fn folders_are_sized_and_listed() {
         let rt = tokio::runtime::Runtime::new().unwrap();
-        assert!(!rt.block_on(path_size("/definitely/not/there")).complete);
+        let none: Vec<String> = Vec::new();
+        assert!(!rt.block_on(path_size("/definitely/not/there", &none)).complete);
         assert!(
-            !rt.block_on(path_size("/etc/../root")).complete,
+            !rt.block_on(path_size("/etc/../root", &none)).complete,
             "paths with .. are refused"
         );
-        assert!(!rt.block_on(path_size("etc")).complete, "relative paths are refused");
-        let etc = rt.block_on(path_size("/etc"));
+        assert!(
+            !rt.block_on(path_size("etc", &none)).complete,
+            "relative paths are refused"
+        );
+        let etc = rt.block_on(path_size("/etc", &none));
         assert!(etc.complete && etc.bytes > 0);
         let list = rt.block_on(list_dir("/etc"));
         assert!(list.iter().any(|n| n.name == "passwd" && n.kind == "file"));
         assert!(rt.block_on(list_dir("/etc/../root")).is_empty());
+    }
+
+    #[test]
+    fn size_leaves_out_what_is_skipped() {
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        let dir = std::env::temp_dir().join(format!("orluma-size-{}", std::process::id()));
+        let deep = dir.join("a/b/node_modules/x");
+        std::fs::create_dir_all(&deep).unwrap();
+        std::fs::create_dir_all(dir.join(".yarn/cache")).unwrap();
+        std::fs::write(deep.join("big"), vec![0u8; 3_000_000]).unwrap();
+        std::fs::write(dir.join(".yarn/cache/z"), vec![0u8; 2_000_000]).unwrap();
+        std::fs::write(dir.join("a/keep"), vec![0u8; 1000]).unwrap();
+        let p = dir.to_string_lossy().into_owned();
+        let all = rt.block_on(path_size(&p, &[]));
+        let ex = rt.block_on(path_size(&p, &["node_modules".into(), ".yarn/cache".into()]));
+        let _ = std::fs::remove_dir_all(&dir);
+        assert!(all.bytes > 5_000_000, "everything counted: {}", all.bytes);
+        assert!(
+            ex.complete && ex.bytes < 100_000,
+            "skipped parts not counted: {}",
+            ex.bytes
+        );
     }
 }

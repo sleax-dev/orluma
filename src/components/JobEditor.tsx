@@ -27,9 +27,8 @@ import { Add16Regular, Delete16Regular } from "@fluentui/react-icons";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { build, describe, parts, presetFor } from "../lib/cron";
-import { newSource, SOURCE_TYPES } from "../lib/defaults";
+import { DEFAULT_EXCLUDES, newSource, SOURCE_TYPES } from "../lib/defaults";
 import type { AgentConfig, Hook, Job, Retention, Source } from "../lib/types";
-import { FileLimit } from "./FileLimit";
 import { TextField } from "./ui";
 
 type TabId = "sources" | "destination" | "schedule" | "retention" | "verify" | "advanced";
@@ -49,6 +48,7 @@ function SourceFields({ s, onChange }: { s: Source; onChange: (s: Source) => voi
           </Field>
           <Field label={t("source.excludes")} hint={t("source.excludesHint")} className="full">
             <Textarea resize="vertical" value={s.excludes.join("\n")} onChange={(_, d) => set({ excludes: lines(d.value) })} placeholder={"*.log\n*/node_modules/*"} />
+            <Button size="small" appearance="subtle" onClick={() => set({ excludes: [...new Set([...s.excludes, ...DEFAULT_EXCLUDES])] })}>{t("source.addSkips")}</Button>
           </Field>
           <Checkbox className="full" checked={s.one_file_system} onChange={(_, d) => set({ one_file_system: !!d.checked })} label={t("source.oneFs")} />
         </div>
@@ -299,7 +299,7 @@ export function JobEditor({ open, job: initial, config, onClose, onSave, onAddDe
                         ))}
                       </Dropdown>
                     </Field>
-                    <FileLimit value={job.options.exclude_larger_than_mib} onChange={(n) => set({ options: { ...job.options, exclude_larger_than_mib: n } })} />
+                    <TextField label={t("advanced.largerThan")} hint={t("advanced.largerThanHint")} value={job.options.exclude_larger_than_mib} onChange={(v) => set({ options: { ...job.options, exclude_larger_than_mib: Number(v.replace(/\D/g, "")) || 0 } })} />
                     <Checkbox className="full" checked={job.options.exclude_caches} onChange={(_, d) => set({ options: { ...job.options, exclude_caches: !!d.checked } })} label={t("advanced.caches")} />
                     <Checkbox className="full" checked={job.options.low_priority} onChange={(_, d) => set({ options: { ...job.options, low_priority: !!d.checked } })} label={t("advanced.lowPriority")} />
                   </div>

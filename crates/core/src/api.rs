@@ -331,6 +331,14 @@ pub struct PathRequest {
     pub path: String,
 }
 
+/// A folder to measure, without what the backup will skip anyway (`du --exclude` patterns, like restic's).
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+pub struct SizeRequest {
+    pub path: String,
+    #[serde(default)]
+    pub excludes: Vec<String>,
+}
+
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct PathSize {
     pub bytes: u64,

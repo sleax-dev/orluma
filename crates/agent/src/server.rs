@@ -357,8 +357,8 @@ async fn fs_list(Json(r): Json<orluma_core::api::PathRequest>) -> R<Vec<orluma_c
     Ok(Json(crate::discover::list_dir(&r.path).await))
 }
 
-async fn path_size(Json(r): Json<orluma_core::api::PathRequest>) -> R<orluma_core::api::PathSize> {
-    Ok(Json(crate::discover::path_size(&r.path).await))
+async fn path_size(Json(r): Json<orluma_core::api::SizeRequest>) -> R<orluma_core::api::PathSize> {
+    Ok(Json(crate::discover::path_size(&r.path, &r.excludes).await))
 }
 
 async fn discover() -> R<Discovery> {

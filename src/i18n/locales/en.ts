@@ -113,7 +113,7 @@ const en = {
     defaults: "Every day at 03:00 · keeps 7 daily, 4 weekly, 12 monthly and 2 yearly · verified weekly.",
     localName: "This server's disk", jobName: "Server backup",
     create: "Create backup", later: "Later",
-    next: "Next", back: "Back", tooLarge: "over the file limit",
+    next: "Next", back: "Back",
     nothing: "Tick at least one database or folder.",
     created: "Backup created. It runs every day at 03:00, or start it now.",
   },
@@ -151,7 +151,7 @@ const en = {
       clickhouse: "Each table, plus the schema",
       command: "Whatever the command prints",
     },
-    paths: "Folders and files", pathsHint: "One per line.", excludes: "Leave out", excludesHint: "Patterns, one per line: *.log, */cache/*",
+    paths: "Folders and files", pathsHint: "One per line.", excludes: "Leave out", excludesHint: "Patterns, one per line: *.log, */cache/*", addSkips: "Add the recommended skips",
     oneFs: "Stay on the same filesystem (skip mounted disks inside these folders)",
     container: "Docker container", containerHint: "Run the dump tool inside this container.",
     osUser: "Run as user", osUserHint: "For Postgres on the server itself: postgres (no password needed).",
@@ -185,8 +185,8 @@ const en = {
   },
   advanced: {
     compression: "Compression", comp: { auto: "Automatic", max: "Maximum (slower, smaller)", off: "Off" },
-    largerThan: "Skip single files larger than", largerThanHint: "Disk images, ISOs and old dumps are rarely what you mean to keep and slow every run. Applies to files and folders, not databases.", noLimit: "No limit",
-    caches: "Skip cache folders (those marked with CACHEDIR.TAG)",
+    largerThan: "Skip files larger than (MiB)", largerThanHint: "0 means no limit.",
+    caches: "Skip cache folders (CACHEDIR.TAG), Python virtualenvs and any folder holding a .nobackup file",
     lowPriority: "Run at low CPU and disk priority, so the server stays responsive",
   },
 

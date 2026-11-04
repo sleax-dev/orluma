@@ -675,7 +675,12 @@ impl Restic {
                 one_file_system,
             } => {
                 if opts.exclude_caches {
+                    // CACHEDIR.TAG (cargo, many tools), plus folders that say what they are by a marker file:
+                    // a Python virtualenv of any name has pyvenv.cfg, and .nobackup is the usual "skip me" flag
                     args.push("--exclude-caches".into());
+                    for marker in ["pyvenv.cfg", ".nobackup"] {
+                        args.push(format!("--exclude-if-present={marker}"));
+                    }
                 }
                 if opts.exclude_larger_than_mib > 0 {
                     args.push(format!("--exclude-larger-than={}M", opts.exclude_larger_than_mib));

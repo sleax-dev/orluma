@@ -27,7 +27,7 @@ export function newJob(p: Partial<Job> = {}): Job {
     retention: { last: 3, hourly: 0, daily: 7, weekly: 4, monthly: 12, yearly: 2, prune_every_days: 7 },
     verify: { every_days: 7, read_data_percent: 5 },
     hooks: { before: [], after: [] },
-    options: { compression: "auto", exclude_caches: true, exclude_larger_than_mib: 500, low_priority: true }, // 500 MiB per file: see FileLimit
+    options: { compression: "auto", exclude_caches: true, exclude_larger_than_mib: 0, low_priority: true },
     healthcheck_url: "",
     ...p,
   };
@@ -148,22 +148,28 @@ export function destSummary(k: DestKind): string {
   }
 }
 
-/** What a file backup never needs: things a tool rebuilds (node_modules, build output, caches), junk and system folders.
- *  restic patterns, added to every new file backup and editable in the job. */
+/** What a file backup never needs: things a tool rebuilds (node_modules, build output, caches, language runtimes and
+ *  package stores), junk and system folders. restic patterns, added to every new file backup and editable in the job.
+ *  A name matches at any depth, "a/b" matches wherever a/b occurs, a leading / pins it to the root. The agent also
+ *  skips virtualenvs of any name (pyvenv.cfg), cargo's target (CACHEDIR.TAG) and folders with a .nobackup file. */
 export const DEFAULT_EXCLUDES = [
-  "node_modules", ".npm", ".pnpm-store", ".yarn/cache", "bower_components",
-  "__pycache__", "*.pyc", ".venv", "venv", ".tox", ".pytest_cache", ".mypy_cache", ".ruff_cache",
-  ".cache", ".gradle", ".m2/repository", ".cargo/registry", ".cargo/git", ".rustup", "go/pkg/mod", ".nuget/packages",
-  ".next", ".nuxt", ".svelte-kit", ".turbo", ".parcel-cache", ".angular/cache",
+  "node_modules", ".npm", ".pnpm-store", ".local/share/pnpm", ".yarn/cache", ".yarn/unplugged", "bower_components", ".bun/install/cache", ".node-gyp", ".electron",
+  "__pycache__", "*.pyc", ".venv", "venv", ".virtualenvs", ".local/share/virtualenvs", ".tox", ".pytest_cache", ".mypy_cache", ".ruff_cache", ".nyc_output",
+  ".cache", ".ccache", ".gradle", ".m2/repository", ".cargo/registry", ".cargo/git", ".rustup", "go/pkg/mod", ".nuget/packages", ".composer/cache", ".pub-cache", ".stack-work",
+  ".nvm/versions", ".pyenv/versions", ".rbenv/versions", ".sdkman", "miniconda3", "anaconda3", ".conda",
+  ".next", ".nuxt", ".svelte-kit", ".turbo", ".vite", ".astro", ".expo", ".parcel-cache", ".angular/cache", ".sass-cache", ".eslintcache", ".dart_tool", ".terraform",
   "target/debug", "target/release",
   ".vscode-server", ".cursor-server", ".Trash", ".local/share/Trash",
   "*.tmp", "*.swp", ".DS_Store", "Thumbs.db", "lost+found",
   "/var/lib/docker/overlay2", "/var/lib/containerd", "/proc", "/sys", "/dev", "/run", "/tmp", "/var/tmp", "/var/cache",
 ];
 
-const SKIP_NAMES = new Set(["node_modules", ".npm", ".pnpm-store", "bower_components", "__pycache__", ".venv", "venv", ".tox", ".pytest_cache", ".mypy_cache", ".ruff_cache", ".cache", ".gradle", ".rustup", ".next", ".nuxt", ".svelte-kit", ".turbo", ".parcel-cache", ".vscode-server", ".cursor-server", ".Trash", "lost+found", ".DS_Store", "Thumbs.db"]);
-
-/** True for entries the default excludes already skip, so the folder picker can show them as such. */
+/** True for entries the default excludes already skip, so the folder picker can show them as such. Same rules as
+ *  restic: a plain name at any depth, a pattern with a slash at the end of the path, a leading / from the root. */
 export function isSkipped(path: string, name: string): boolean {
-  return SKIP_NAMES.has(name) || /\.(pyc|tmp|swp)$/.test(name) || DEFAULT_EXCLUDES.includes(path);
+  return DEFAULT_EXCLUDES.some((e) => {
+    if (e.startsWith("/")) return path === e;
+    if (e.startsWith("*")) return name.endsWith(e.slice(1));
+    return e.includes("/") ? path.endsWith(`/${e}`) : name === e;
+  });
 }

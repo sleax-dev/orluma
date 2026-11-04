@@ -114,7 +114,7 @@ export default {
     defaults: "Todo dia às 03:00 · mantém 7 diários, 4 semanais, 12 mensais e 2 anuais · verificado toda semana.",
     localName: "Disco deste servidor", jobName: "Backup do servidor",
     create: "Criar backup", later: "Depois",
-    next: "Avançar", back: "Voltar", tooLarge: "acima do limite",
+    next: "Avançar", back: "Voltar",
     nothing: "Marque pelo menos um banco de dados ou pasta.",
     created: "Backup criado. Ele roda todo dia às 03:00, ou inicie agora.",
   },
@@ -152,7 +152,7 @@ export default {
       clickhouse: "Cada tabela, mais o esquema",
       command: "O que o comando imprimir",
     },
-    paths: "Pastas e arquivos", pathsHint: "Um por linha.", excludes: "Excluir", excludesHint: "Padrões, um por linha: *.log, */cache/*",
+    paths: "Pastas e arquivos", pathsHint: "Um por linha.", excludes: "Excluir", excludesHint: "Padrões, um por linha: *.log, */cache/*", addSkips: "Adicionar as exclusões recomendadas",
     oneFs: "Ficar no mesmo sistema de arquivos (ignorar discos montados dentro destas pastas)",
     container: "Contêiner Docker", containerHint: "Rodar a ferramenta de dump dentro deste contêiner.",
     osUser: "Rodar como usuário", osUserHint: "Para o Postgres no próprio servidor: postgres (sem senha).",
@@ -186,8 +186,8 @@ export default {
   },
   advanced: {
     compression: "Compressão", comp: { auto: "Automática", max: "Máxima (mais lenta, menor)", off: "Desligada" },
-    largerThan: "Ignorar arquivos individuais maiores que", largerThanHint: "Imagens de disco, ISOs e dumps antigos raramente precisam de backup e deixam cada execução lenta. Vale para arquivos e pastas, não para bancos de dados.", noLimit: "Sem limite",
-    caches: "Ignorar pastas de cache (marcadas com CACHEDIR.TAG)",
+    largerThan: "Ignorar arquivos maiores que (MiB)", largerThanHint: "0 significa sem limite.",
+    caches: "Ignorar pastas de cache (CACHEDIR.TAG), ambientes virtuais Python e pastas com um arquivo .nobackup",
     lowPriority: "Rodar com baixa prioridade de CPU e disco, para o servidor continuar ágil",
   },
 

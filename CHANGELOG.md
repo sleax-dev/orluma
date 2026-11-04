@@ -2,7 +2,9 @@
 
 ## 0.1.7
 
-- New file backups skip single files larger than 500 MB (disk images, ISOs, old dumps). The limit is a choice of 100 MB, 250 MB, 500 MB or 1 GB, or none, in the last step of "What should I back up?" and in the job's Advanced tab. The folder tree greys out files over the limit. Databases are not affected, and existing jobs keep their setting.
+- Sizes in "What should I back up?" no longer count what the backup skips: a project folder is measured without its node_modules, caches and so on, so "30 GB" is what would really be stored. Measuring is also much faster in trees full of node_modules, and the free-space warning is accurate.
+- More is recognised as rebuildable and skipped: Python virtualenvs of any name (found by their pyvenv.cfg, not by the name `venv`), folders holding a `.nobackup` file, Node/Bun/pnpm/Yarn stores and caches, nvm/pyenv/rbenv/sdkman/conda installs, `.terraform`, `.dart_tool`, Vite/Astro/Expo caches, ccache, composer and pub caches. `node_modules` was already skipped at any depth. The folder tree marks all of these as skipped, with the same rules the backup uses.
+- Jobs made before this version can add the recommended skips with one button under "Leave out".
 
 ## 0.1.6
 

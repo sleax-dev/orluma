@@ -114,7 +114,7 @@ export default {
     defaults: "毎日 03:00 · 日次 7・週次 4・月次 12・年次 2 を保持 · 週 1 回検証。",
     localName: "このサーバーのディスク", jobName: "サーバーのバックアップ",
     create: "バックアップを作成", later: "あとで",
-    next: "次へ", back: "戻る", tooLarge: "サイズ上限を超過",
+    next: "次へ", back: "戻る",
     nothing: "データベースかフォルダーを 1 つ以上選んでください。",
     created: "バックアップを作成しました。毎日 03:00 に実行されます。今すぐ開始もできます。",
   },
@@ -152,7 +152,7 @@ export default {
       clickhouse: "各テーブルとスキーマ",
       command: "コマンドが出力したもの",
     },
-    paths: "フォルダーとファイル", pathsHint: "1 行に 1 つ。", excludes: "除外", excludesHint: "パターンを 1 行に 1 つ: *.log、*/cache/*",
+    paths: "フォルダーとファイル", pathsHint: "1 行に 1 つ。", excludes: "除外", excludesHint: "パターンを 1 行に 1 つ: *.log、*/cache/*", addSkips: "おすすめの除外を追加",
     oneFs: "同じファイルシステム内にとどまる（これらのフォルダー内のマウント済みディスクを除外）",
     container: "Docker コンテナー", containerHint: "ダンプツールをこのコンテナー内で実行します。",
     osUser: "実行ユーザー", osUserHint: "サーバー上の Postgres の場合: postgres（パスワード不要）。",
@@ -186,8 +186,8 @@ export default {
   },
   advanced: {
     compression: "圧縮", comp: { auto: "自動", max: "最大（遅いが小さい）", off: "オフ" },
-    largerThan: "これより大きい単一ファイルを除外", largerThanHint: "ディスクイメージ、ISO、古いダンプは通常バックアップ不要で、毎回の実行を遅くします。ファイルとフォルダーが対象で、データベースは対象外です。", noLimit: "無制限",
-    caches: "キャッシュフォルダーを除外（CACHEDIR.TAG のあるもの）",
+    largerThan: "これより大きいファイルを除外（MiB）", largerThanHint: "0 は無制限。",
+    caches: "キャッシュフォルダー（CACHEDIR.TAG）、Python 仮想環境、.nobackup ファイルのあるフォルダーを除外",
     lowPriority: "CPU とディスクの優先度を下げて実行し、サーバーの応答性を保つ",
   },
 

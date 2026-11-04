@@ -34,7 +34,6 @@ export function FolderTree({
   onChange,
   sizes,
   measure,
-  maxMib = 0,
 }: {
   server: string;
   roots: Root[];
@@ -42,8 +41,6 @@ export function FolderTree({
   onChange: (s: Set<string>) => void;
   sizes: Sizes;
   measure: (path: string, first?: boolean) => void;
-  /** single files above this many MiB are left out of the backup (0: no limit) */
-  maxMib?: number;
 }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState<Set<string>>(new Set());
@@ -92,8 +89,7 @@ export function FolderTree({
 
   const rows = (items: Item[], depth: number): React.ReactNode =>
     items.map((i) => {
-      const big = !i.dir && maxMib > 0 && (i.size ?? 0) > maxMib * 1048576;
-      const skipped = big || (!i.hint && isSkipped(i.path, i.name));
+      const skipped = !i.hint && isSkipped(i.path, i.name);
       const locked = covered(i.path);
       const isOpen = open.has(i.path);
       const k = kids[i.path];
@@ -116,7 +112,7 @@ export function FolderTree({
                 <>
                   <span className="mono">{i.hint ? i.path : i.name}</span>
                   {i.hint && <span className="tag">{t(`first.hint.${i.hint}`)}</span>}
-                  {skipped && <span className="tag">{t(big ? "first.tooLarge" : "first.skipped")}</span>}
+                  {skipped && <span className="tag">{t("first.skipped")}</span>}
                 </>
               }
             />
