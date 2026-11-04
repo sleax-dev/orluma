@@ -3,6 +3,7 @@
 
 mod db;
 mod discover;
+mod logs;
 mod notify;
 mod paths;
 mod restic;
@@ -146,6 +147,7 @@ fn serve() -> std::io::Result<()> {
     let rt = tokio::runtime::Runtime::new()?;
     rt.block_on(async {
         let paths = Paths::from_env();
+        logs::init(paths.data.join("agent.log"));
         let agent = state::Agent::new(paths.clone())?;
         ensure_key(&paths);
         tokio::spawn(scheduler::run(agent.clone()));
@@ -153,7 +155,7 @@ fn serve() -> std::io::Result<()> {
         let a = agent.clone();
         tokio::spawn(async move {
             if let Err(e) = a.restic().await {
-                eprintln!("restic: {e}");
+                logs::warn("restic", e);
             }
         });
         let mut term = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;

@@ -1,7 +1,7 @@
 //! What on this server is worth backing up: databases (running services and Docker containers, with the
 //! credentials their containers were started with) and the usual folders, with their sizes.
 
-use orluma_core::api::{Discovery, FoundDatabase, FoundPath, Tool};
+use orluma_core::api::{Discovery, FoundDatabase, FoundPath, PathSize, Tool};
 use std::time::Duration;
 use tokio::process::Command;
 
@@ -122,6 +122,7 @@ async fn docker(found: &mut Vec<FoundDatabase>, paths: &mut Vec<FoundPath>) {
                     path: mount.into(),
                     bytes: 0,
                     hint: "docker-volume".into(),
+                    pending: true,
                 });
             }
         }
@@ -202,11 +203,33 @@ const PATHS: &[(&str, &str)] = &[
     ("/var/vmail", "data"),
 ];
 
-async fn size(p: &str) -> u64 {
-    out("du", &["-sbx", p])
-        .await
-        .and_then(|s| s.split_whitespace().next().and_then(|n| n.parse().ok()))
-        .unwrap_or(0)
+/// At most two folders are measured at a time: `du` on a big tree is disk-heavy.
+static SIZING: tokio::sync::Semaphore = tokio::sync::Semaphore::const_new(2);
+
+/// Size of one folder, measured at low priority and given up on after 25 seconds (`complete: false`).
+pub async fn path_size(p: &str) -> PathSize {
+    let known = PATHS.iter().any(|(x, _)| x == &p) || p.starts_with("/var/lib/docker/volumes/");
+    if !known || p.contains("..") || !std::path::Path::new(p).is_dir() {
+        return PathSize::default();
+    }
+    let Ok(_slot) = SIZING.acquire().await else {
+        return PathSize::default();
+    };
+    let run = Command::new("nice")
+        .args(["-n", "19", "du", "-sbx", p])
+        .kill_on_drop(true)
+        .output();
+    match tokio::time::timeout(Duration::from_secs(25), run).await {
+        Ok(Ok(o)) if o.status.success() || !o.stdout.is_empty() => PathSize {
+            bytes: String::from_utf8_lossy(&o.stdout)
+                .split_whitespace()
+                .next()
+                .and_then(|n| n.parse().ok())
+                .unwrap_or(0),
+            complete: true,
+        },
+        _ => PathSize::default(),
+    }
 }
 
 /// One discovery at a time: a second request waits for the first instead of starting another round of `du`.
@@ -223,14 +246,10 @@ pub async fn discover() -> Discovery {
                 path: p.to_string(),
                 bytes: 0,
                 hint: hint.to_string(),
+                pending: true,
             });
         }
     }
-    let sizes = futures_util::future::join_all(d.paths.iter().map(|p| size(&p.path))).await;
-    for (p, s) in d.paths.iter_mut().zip(sizes) {
-        p.bytes = s;
-    }
-    d.paths.retain(|p| p.bytes > 0 || p.hint != "docker-volume");
     let rank = |h: &str| {
         ["config", "home", "web", "data", "docker-volume"]
             .iter()
@@ -240,4 +259,21 @@ pub async fn discover() -> Discovery {
     d.paths.sort_by_key(|p| rank(&p.hint));
     d.tools = tools().await;
     d
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn only_known_folders_are_sized() {
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        assert!(!rt.block_on(path_size("/definitely/not/there")).complete);
+        assert!(
+            !rt.block_on(path_size("/etc/../root")).complete,
+            "paths outside the suggestions are refused"
+        );
+        let etc = rt.block_on(path_size("/etc"));
+        assert!(etc.complete && etc.bytes > 0);
+    }
 }

@@ -57,7 +57,12 @@ fn parse_version(out: &str) -> Option<(u32, u32, u32)> {
 }
 
 async fn version_of(bin: &std::path::Path) -> Option<(u32, u32, u32)> {
-    let out = Command::new(bin).arg("version").output().await.ok()?;
+    let out = Command::new(bin)
+        .arg("version")
+        .kill_on_drop(true)
+        .output()
+        .await
+        .ok()?;
     parse_version(&String::from_utf8_lossy(&out.stdout))
 }
 

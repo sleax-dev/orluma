@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.4
+
+- "What should I back up?" is fast: the list of databases and folders appears at once and folder sizes fill in afterwards (measuring a big folder such as /root took 25 seconds on a cold disk, and the whole window waited for it). Folders too big to measure say so.
+- The window no longer repeats its look-up. Reading the settings used to restart it, and each round started more `du` commands on the server, which could push its load very high. The agent now runs one look-up at a time, measures at low priority, and stops commands that pass their time limit.
+- Safer defaults: only settings and websites are ticked. Home folders and app data are often caches and can be huge, so they are opt-in, and the window warns when what is ticked will not fit in the free space of the backup disk.
+- The lists in the window showed only the first rows when the window was short (they were squeezed instead of scrolling). They keep their full height now, here and in the destination, job and alert editors.
+- Diagnostics (Settings): a log of this app and of each server's agent, with warnings and errors filtered, and "Copy report" / "Save report" that put both logs, server states and last runs into one text to send. Passwords, keys, tokens and webhook secrets are removed before anything is written, shown or saved. The app logs every server call with its time (slow ones as warnings), failures, panics and interface errors; the agent logs requests, runs, alerts and updates to `/var/lib/orluma/agent.log` (rotated) and journald.
+- Storage statistics are kept for five minutes instead of re-reading every snapshot each time the page opens.
+
 ## 0.1.3
 
 - Fixed "What should I back up?" looking at the server over and over: reading the settings restarted the look-up, and every round started more `du` commands on the server, which could push its load very high. The window now looks once, the agent runs one look-up at a time, and a command that runs past its time limit is stopped.

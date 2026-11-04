@@ -15,12 +15,16 @@ use futures_util::StreamExt;
 use orluma_core::api::*;
 use orluma_core::model::{AgentConfig, Destination, Notifier};
 use serde::Deserialize;
+use std::collections::HashMap;
 use std::convert::Infallible;
+use std::sync::Mutex;
+use std::time::Duration;
 
 pub struct ApiErr(StatusCode, String);
 
 impl IntoResponse for ApiErr {
     fn into_response(self) -> Response {
+        crate::logs::warn("api", format!("{}: {}", self.0.as_u16(), self.1));
         (self.0, Json(ApiError { error: self.1 })).into_response()
     }
 }
@@ -123,9 +127,21 @@ async fn dest_init(State(a): State<Shared>, Json(r): Json<IdRequest>) -> R<TestR
     }))
 }
 
+/// restic's restore-size stats walk every snapshot, which takes minutes on a big repository, and the app asks
+/// whenever the Storage page opens. Answers are kept for five minutes.
+static STATS: std::sync::OnceLock<Mutex<HashMap<String, (std::time::Instant, RepoStats)>>> = std::sync::OnceLock::new();
+
 async fn dest_stats(State(a): State<Shared>, Json(r): Json<IdRequest>) -> R<RepoStats> {
+    let cache = STATS.get_or_init(Default::default);
+    if let Some((at, s)) = lock(cache).get(&r.id)
+        && at.elapsed() < Duration::from_secs(300)
+    {
+        return Ok(Json(s.clone()));
+    }
     let restic = a.restic().await?;
-    Ok(Json(restic.stats(&a.repo(&r.id)?).await?))
+    let s = restic.stats(&a.repo(&r.id)?).await?;
+    lock(cache).insert(r.id, (std::time::Instant::now(), s.clone()));
+    Ok(Json(s))
 }
 
 async fn dest_unlock(State(a): State<Shared>, Json(r): Json<IdRequest>) -> R<()> {
@@ -314,6 +330,33 @@ async fn dump(State(a): State<Shared>, Query(q): Query<DumpQuery>) -> Result<Res
         .into_response())
 }
 
+async fn logs(Json(r): Json<LogsRequest>) -> R<Vec<String>> {
+    Ok(Json(crate::logs::tail(r.lines.clamp(1, 5000))))
+}
+
+/// One line per request: what was asked, how it ended and how long it took. Status polls are only kept when
+/// slow, so the log is not flooded every 30 seconds.
+async fn trace(req: axum::extract::Request, next: axum::middleware::Next) -> Response {
+    let (method, path) = (req.method().clone(), req.uri().path().to_string());
+    let t = std::time::Instant::now();
+    let res = next.run(req).await;
+    let ms = t.elapsed().as_millis();
+    let code = res.status().as_u16();
+    let routine = path == "/v1/status" || path == "/v1/logs" || path == "/v1/events";
+    if ms >= 3000 {
+        crate::logs::warn("api", format!("slow {method} {path} {code} {ms}ms"));
+    } else if code >= 400 {
+        crate::logs::warn("api", format!("{method} {path} {code} {ms}ms"));
+    } else if !routine {
+        crate::logs::info("api", format!("{method} {path} {code} {ms}ms"));
+    }
+    res
+}
+
+async fn path_size(Json(r): Json<orluma_core::api::PathSizeRequest>) -> R<orluma_core::api::PathSize> {
+    Ok(Json(crate::discover::path_size(&r.path).await))
+}
+
 async fn discover() -> R<Discovery> {
     Ok(Json(crate::discover::discover().await))
 }
@@ -375,9 +418,12 @@ pub fn router(agent: Shared) -> axum::Router {
         .route("/v1/destinations/attach", post(attach))
         .route("/v1/dump", get(dump))
         .route("/v1/discover", post(discover))
+        .route("/v1/discover/size", post(path_size))
+        .route("/v1/logs", post(logs))
         .route("/v1/notifiers/test", post(notifier_test))
         .route("/v1/agent/update-check", post(update_check))
         .route("/v1/agent/update", post(update_install))
+        .layer(axum::middleware::from_fn(trace))
         .with_state(agent)
 }
 
@@ -386,10 +432,13 @@ pub async fn serve(agent: Shared) -> std::io::Result<()> {
     let _ = std::fs::remove_file(&path);
     let listener = tokio::net::UnixListener::bind(&path)?;
     crate::paths::set_mode(&path, 0o600)?;
-    eprintln!(
-        "orluma-agent {} listening on {}",
-        env!("CARGO_PKG_VERSION"),
-        path.display()
+    crate::logs::info(
+        "agent",
+        format!(
+            "orluma-agent {} listening on {}",
+            env!("CARGO_PKG_VERSION"),
+            path.display()
+        ),
     );
     axum::serve(listener, router(agent)).await
 }

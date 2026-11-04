@@ -46,13 +46,13 @@ pub async fn run(agent: Shared) {
                             _ => false,
                         };
                         if missed && let Err(e) = runner::start_backup(&agent, &job.id, Trigger::CatchUp) {
-                            eprintln!("catch-up '{}': {e}", job.name);
+                            crate::logs::error("schedule", format!("catch-up '{}': {e}", job.name));
                         }
                     }
                 }
                 Some(t) if now >= t => {
                     if let Err(e) = runner::start_backup(&agent, &job.id, Trigger::Schedule) {
-                        eprintln!("schedule '{}': {e}", job.name);
+                        crate::logs::error("schedule", format!("'{}': {e}", job.name));
                     }
                     if let Some(n) = schedule::next_after(&job.schedule.cron, &tz, now) {
                         next.insert(job.id.clone(), (job.schedule.cron.clone(), n));

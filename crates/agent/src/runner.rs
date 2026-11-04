@@ -62,7 +62,12 @@ impl Run {
 
     pub fn log(&mut self, level: Level, text: impl Into<String>) {
         let text = text.into();
-        eprintln!("[{}] {:?} {}", self.record.summary.id, level, text);
+        let line = format!("{} {}", self.record.summary.id, text);
+        match level {
+            Level::Error => crate::logs::error("run", line),
+            Level::Warn => crate::logs::warn("run", line),
+            _ => crate::logs::info("run", line),
+        }
         self.record.log.push(LogLine {
             at: Utc::now(),
             level,
@@ -200,7 +205,7 @@ pub fn alert(agent: &Shared, m: Message) {
             if notify::wants(&n, &m)
                 && let Err(e) = notify::send(&agent.http, &n, &m).await
             {
-                eprintln!("alert '{}' failed: {e}", n.name);
+                crate::logs::error("alert", format!("'{}' failed: {e}", n.name));
             }
         }
     });

@@ -2,6 +2,7 @@ import { Button, Spinner, Switch } from "@fluentui/react-components";
 import { ArrowDownload16Regular, ArrowSync16Regular, Copy16Regular, Folder16Regular, KeyMultiple16Regular, Open16Regular } from "@fluentui/react-icons";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Diagnostics } from "../components/Diagnostics";
 import { LanguagePicker } from "../components/LanguagePicker";
 import { Confirm, Logo, PageHead, useAction } from "../components/ui";
 import { api } from "../lib/api";
@@ -134,6 +135,8 @@ export function SettingsPage() {
           </Row>
         </div>
       </section>
+
+      <Diagnostics />
 
       <section className="block">
         <div className="block-head">

@@ -56,7 +56,7 @@ pub async fn auto(agent: &Shared) {
         return;
     }
     if let Err(e) = install(agent, &v).await {
-        eprintln!("update to {v}: {e}");
+        crate::logs::error("update", format!("to {v}: {e}"));
     }
 }
 

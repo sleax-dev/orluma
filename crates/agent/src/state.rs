@@ -127,7 +127,10 @@ impl Agent {
 fn load_config(paths: &Paths) -> AgentConfig {
     match std::fs::read(paths.config()) {
         Ok(bytes) => serde_json::from_slice(&bytes).unwrap_or_else(|e| {
-            eprintln!("config: {e}; starting with an empty one (the file is kept as agent.json.broken)");
+            crate::logs::error(
+                "config",
+                format!("{e}; starting with an empty one (the file is kept as agent.json.broken)"),
+            );
             let _ = std::fs::copy(paths.config(), paths.config().with_extension("json.broken"));
             AgentConfig {
                 version: CONFIG_VERSION,

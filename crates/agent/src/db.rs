@@ -75,7 +75,7 @@ impl Db {
             ],
         );
         if let Err(e) = res {
-            eprintln!("history: {e}");
+            crate::logs::error("history", e);
         }
         if s.finished.is_some() {
             let _ = self.c().execute(

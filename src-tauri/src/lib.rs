@@ -2,6 +2,7 @@
 //! repository on this PC that servers copy into, shows alerts as desktop notifications, and updates itself
 //! from signed releases.
 
+mod applog;
 mod install;
 mod lan;
 mod pcrepo;
@@ -66,9 +67,33 @@ impl Inner {
         }
         let s = self.server(id)?;
         let key = Arc::new(self.store.ssh_key().map_err(|e| e.to_string())?);
+        let t = std::time::Instant::now();
         let c = ssh::connect(&s.host, s.port, &s.user, Auth::Key(key), Some(s.host_key.clone()))
             .await
-            .map_err(|e| e.0)?;
+            .map_err(|e| {
+                applog::error(
+                    "ssh",
+                    format!(
+                        "{} ({}:{}) connect failed after {}ms: {}",
+                        s.name,
+                        s.host,
+                        s.port,
+                        t.elapsed().as_millis(),
+                        e.0
+                    ),
+                );
+                e.0
+            })?;
+        applog::info(
+            "ssh",
+            format!(
+                "{} ({}:{}) connected in {}ms",
+                s.name,
+                s.host,
+                s.port,
+                t.elapsed().as_millis()
+            ),
+        );
         let c = Arc::new(c);
         conns.insert(id.into(), c.clone());
         Ok(c)
@@ -82,6 +107,20 @@ impl Inner {
 
     /// POST to the agent; on a dropped connection, one retry on a fresh one.
     async fn call(&self, id: &str, path: &str, body: &Value) -> Res<Value> {
+        let t = std::time::Instant::now();
+        let r = self.call_once(id, path, body).await;
+        let ms = t.elapsed().as_millis();
+        let routine = matches!(path, "status" | "logs");
+        match &r {
+            Err(e) => applog::error("agent", format!("{id} {path} failed after {ms}ms: {e}")),
+            Ok(_) if ms >= 3000 => applog::warn("agent", format!("{id} {path} was slow: {ms}ms")),
+            Ok(_) if !routine => applog::info("agent", format!("{id} {path} {ms}ms")),
+            _ => {}
+        }
+        r
+    }
+
+    async fn call_once(&self, id: &str, path: &str, body: &Value) -> Res<Value> {
         let bytes = serde_json::to_vec(body).map_err(|e| e.to_string())?;
         let mut last = String::new();
         for attempt in 0..2 {
@@ -309,6 +348,42 @@ async fn authorize_on_server(s: State<'_, AppState>, server: String, public_key:
     }
     let c = s.0.conn(&server).await?;
     install::authorize_key(&c, &public_key).await.map_err(|e| e.0)
+}
+
+/// The interface's own log lines (caught errors, failed actions) go to the same file as the Rust side's.
+#[tauri::command]
+fn log_event(level: String, area: String, msg: String) {
+    let level = match level.as_str() {
+        "error" => "ERROR",
+        "warn" => "WARN",
+        _ => "INFO",
+    };
+    applog::write(level, &format!("ui:{}", area.chars().take(8).collect::<String>()), &msg);
+}
+
+#[tauri::command]
+fn log_tail(lines: usize) -> Vec<String> {
+    applog::tail(lines.clamp(1, 5000))
+}
+
+/// Applies the same masking as the log files to text built by the interface (a diagnostics report).
+#[tauri::command]
+fn log_redact(text: String) -> String {
+    orluma_core::log::redact(&text)
+}
+
+/// Saves a diagnostics report in the Downloads folder and shows it there.
+#[tauri::command]
+fn log_export(app: AppHandle, text: String) -> Res<String> {
+    let dir = app
+        .path()
+        .download_dir()
+        .or_else(|_| app.path().app_data_dir())
+        .map_err(|e| e.to_string())?;
+    let file = dir.join(format!("orluma-diagnostics-{}.txt", Utc::now().format("%Y%m%d-%H%M%S")));
+    std::fs::write(&file, orluma_core::log::redact(&text)).map_err(|e| e.to_string())?;
+    let _ = tauri_plugin_opener::reveal_item_in_dir(&file);
+    Ok(file.display().to_string())
 }
 
 /// Any agent call: `path` is the part after /v1/ (status, config/get, jobs/run, ...).
@@ -1100,6 +1175,16 @@ pub fn run() {
         ))
         .setup(move |app| {
             let dir = app.path().app_data_dir()?;
+            applog::init(dir.join("logs").join("orluma.log"));
+            applog::info(
+                "app",
+                format!(
+                    "Orluma {} started on {} {}",
+                    env!("CARGO_PKG_VERSION"),
+                    std::env::consts::OS,
+                    std::env::consts::ARCH
+                ),
+            );
             let store = Store::new(dir);
             let settings = store.settings();
             let servers = store.servers();
@@ -1140,6 +1225,10 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             get_settings,
             set_settings,
+            log_event,
+            log_tail,
+            log_redact,
+            log_export,
             app_info,
             minimize_window,
             close_window,

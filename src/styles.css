@@ -344,6 +344,8 @@ button.card:active { transform: scale(0.995); }
 .dialog-wide { width: min(760px, calc(100vw - 48px)) !important; max-width: none !important; }
 .dialog-xl { width: min(900px, calc(100vw - 48px)) !important; max-width: none !important; }
 .dialog-scroll { max-height: min(62vh, 560px); overflow-y: auto; padding-inline-end: 4px; }
+/* children keep their height and the box scrolls; without this the overflow:hidden lists shrank and cut their rows */
+.dialog-scroll > * { flex-shrink: 0; }
 .type-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
 .type-btn {
   display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border);
@@ -389,6 +391,8 @@ button.card:active { transform: scale(0.995); }
 .file.dir > svg { color: var(--accent); }
 
 /* ---- activity log */
+.logline.ERROR { color: var(--bad); }
+.logline.WARN { color: var(--warn); }
 .logview { margin: 0; padding: 12px 14px; max-height: 360px; overflow: auto; background: #08080a; border: 1px solid var(--border); border-radius: 10px; font-family: "Cascadia Mono", Consolas, monospace; font-size: 12px; line-height: 1.6; user-select: text; }
 .logview .w { color: var(--warn); }
 .logview .e { color: var(--bad); }

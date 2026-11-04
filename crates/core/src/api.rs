@@ -316,6 +316,26 @@ pub struct FoundPath {
     pub bytes: u64,
     /// why it is suggested: config, home, web, data, docker-volume
     pub hint: String,
+    /// the size is not measured yet: ask `size` for it (measuring a big folder takes long, so the list comes first)
+    #[serde(default)]
+    pub pending: bool,
+}
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+pub struct LogsRequest {
+    pub lines: usize,
+}
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+pub struct PathSizeRequest {
+    pub path: String,
+}
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+pub struct PathSize {
+    pub bytes: u64,
+    /// false when measuring took longer than the limit: the folder is too big to size quickly
+    pub complete: bool,
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]

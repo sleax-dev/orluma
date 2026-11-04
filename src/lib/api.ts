@@ -25,10 +25,27 @@ import type {
 /** In a browser (vite dev, screenshots) there is no Rust side: everything is answered by the demo data in mock.ts. */
 export const isTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 
+/** Writes a line to the app's log file (the one the Diagnostics page shows). Never throws. */
+export function logEvent(level: "info" | "warn" | "error", area: string, msg: string) {
+  if (!isTauri) return;
+  void import("@tauri-apps/api/core").then(({ invoke }) => invoke("log_event", { level, area, msg }).catch(() => {})).catch(() => {});
+}
+
+const QUIET = new Set(["log_event", "log_tail", "log_redact", "log_export", "get_settings", "list_servers", "app_info", "update_status"]);
+
 async function call<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
   if (!isTauri) return mock(cmd, args) as Promise<T>;
   const { invoke } = await import("@tauri-apps/api/core");
-  return invoke<T>(cmd, args);
+  const t = performance.now();
+  try {
+    const r = await invoke<T>(cmd, args);
+    const ms = Math.round(performance.now() - t);
+    if (ms >= 3000 && !QUIET.has(cmd)) logEvent("warn", "ui", `${cmd}${args?.path ? " " + String(args.path) : ""} took ${ms}ms`);
+    return r;
+  } catch (e) {
+    if (!QUIET.has(cmd)) logEvent("error", "ui", `${cmd}${args?.path ? " " + String(args.path) : ""} failed after ${Math.round(performance.now() - t)}ms: ${errText(e)}`);
+    throw e;
+  }
 }
 
 /** Error text from a failed command, without the "Error: " decoration. */
@@ -113,6 +130,11 @@ export const api = {
   lanScan: () => call<{ name: string; addr: string }[]>("lan_scan"),
   lanReceive: (addr: string, code: string) => call<string[]>("lan_receive", { addr, code }),
   discover: (s: string) => agent<Discovery>(s, "discover"),
+  pathSize: (s: string, path: string) => agent<{ bytes: number; complete: boolean }>(s, "discover/size", { path }),
+  agentLogs: (s: string, lines: number) => agent<string[]>(s, "logs", { lines }),
+  appLogs: (lines: number) => call<string[]>("log_tail", { lines }),
+  redact: (text: string) => call<string>("log_redact", { text }),
+  exportReport: (text: string) => call<string>("log_export", { text }),
   testNotifier: (s: string, n: Notifier) => agent<TestResult>(s, "notifiers/test", n),
   agentUpdateCheck: (s: string) => agent<string>(s, "agent/update-check"),
   agentUpdate: (s: string) => agent<null>(s, "agent/update", { version: "" }),

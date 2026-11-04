@@ -10,7 +10,7 @@ import { useApp } from "../state";
 /** "What should we back up?": the agent's discovery, ticked by default, turned into a destination and a job. */
 export function FirstBackup({ server, open, onClose }: { server: string; open: boolean; onClose: () => void }) {
   const { t } = useTranslation();
-  const { loadConfig, saveConfig, toast, setPage } = useApp();
+  const { loadConfig, saveConfig, toast, setPage, live } = useApp();
   const [found, setFound] = useState<Discovery | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [dbs, setDbs] = useState<Set<number>>(new Set());
@@ -20,11 +20,15 @@ export function FirstBackup({ server, open, onClose }: { server: string; open: b
   const [existing, setExisting] = useState("");
   const [destinations, setDestinations] = useState<{ id: string; name: string }[]>([]);
   const [busy, setBusy] = useState(false);
+  // folder -> measured size; measuring a big folder takes long, so the list shows first and sizes fill in
+  const [sizes, setSizes] = useState<Record<string, { bytes: number; complete: boolean }>>({});
 
   useEffect(() => {
     if (!open) return;
     setFound(null);
+    setSizes({});
     setError(null);
+    let alive = true;
     void loadConfig(server, true).then((c) => {
       const d = c?.destinations.map((x) => ({ id: x.id, name: x.name })) ?? [];
       setDestinations(d);
@@ -33,14 +37,30 @@ export function FirstBackup({ server, open, onClose }: { server: string; open: b
     api
       .discover(server)
       .then((d) => {
+        if (!alive) return;
         setFound(d);
         setDbs(new Set(d.databases.map((_, i) => i)));
-        setPaths(new Set(d.paths.filter((p) => ["config", "web", "home", "data"].includes(p.hint) && p.bytes < 50e9).map((p) => p.path)));
+        // settings and websites by default; home folders and app data are often caches and can be huge, so they are opt-in
+        setPaths(new Set(d.paths.filter((p) => ["config", "web"].includes(p.hint)).map((p) => p.path)));
+        for (const p of d.paths.filter((p) => p.pending)) {
+          api
+            .pathSize(server, p.path)
+            .then((s) => alive && setSizes((x) => ({ ...x, [p.path]: s })))
+            .catch(() => alive && setSizes((x) => ({ ...x, [p.path]: { bytes: 0, complete: false } })));
+        }
       })
-      .catch((e) => setError(errText(e)));
+      .catch((e) => alive && setError(errText(e)));
+    return () => {
+      alive = false;
+    };
     // loadConfig changes whenever configs does, so listing it here re-ran the discovery after every config read
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, server]);
+
+  // what is ticked, against the free space of the disk the backup folder is on (the longest mount that contains it)
+  const need = (found?.paths ?? []).filter((p) => paths.has(p.path)).reduce((a, p) => a + (p.pending ? (sizes[p.path]?.bytes ?? 0) : p.bytes), 0);
+  const disk = (live[server]?.status?.disks ?? []).filter((d) => localPath.startsWith(d.mount)).sort((a, b) => b.mount.length - a.mount.length)[0];
+  const free = disk?.available ?? 0;
 
   const toSource = (d: FoundDatabase): Source => {
     const conn = { host: d.host, port: d.port, user: d.user, password: d.password, container: d.container, os_user: d.os_user };
@@ -125,7 +145,9 @@ export function FirstBackup({ server, open, onClose }: { server: string; open: b
                           onChange={(_, c) => setPaths((s) => { const n = new Set(s); if (c.checked) n.add(p.path); else n.delete(p.path); return n; })}
                           label={<><span className="mono">{p.path}</span> <span className="tag">{t(`first.hint.${p.hint}`)}</span></>}
                         />
-                        <span className="size">{bytes(p.bytes)}</span>
+                        <span className="size">
+                          {!p.pending ? bytes(p.bytes) : !sizes[p.path] ? <Spinner size="extra-tiny" /> : sizes[p.path].complete ? bytes(sizes[p.path].bytes) : t("first.tooBig")}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -143,6 +165,7 @@ export function FirstBackup({ server, open, onClose }: { server: string; open: b
                       {destinations.map((d) => <Radio key={d.id} value={d.id} label={d.name} />)}
                     </RadioGroup>
                   )}
+                  {where === "local" && need > free && free > 0 && <p className="bad-text small" style={{ margin: 0 }}>{t("first.noSpace", { need: bytes(need), free: bytes(free) })}</p>}
                   <p className="muted small" style={{ margin: 0 }}>{t("first.defaults")}</p>
                 </>
               )}

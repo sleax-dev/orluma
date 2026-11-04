@@ -159,9 +159,9 @@ const discovery: Discovery = {
   ],
   paths: [
     { path: "/etc", bytes: 18e6, hint: "config" },
-    { path: "/root", bytes: 420e6, hint: "home" },
+    { path: "/root", bytes: 30 * GB, hint: "home", pending: true },
     { path: "/home", bytes: 2.1 * GB, hint: "home" },
-    { path: "/var/www", bytes: 14.2 * GB, hint: "web" },
+    { path: "/var/www", bytes: 14.2 * GB, hint: "web", pending: true },
     { path: "/opt", bytes: 1.4 * GB, hint: "data" },
     { path: "/var/lib/docker/volumes/uploads/_data", bytes: 3.3 * GB, hint: "docker-volume" },
   ],
@@ -220,6 +220,10 @@ function agentCall(server: string, path: string, body: Record<string, unknown>):
       return { ok: true, message: "A repository is there and the password opens it" };
     case "discover":
       return discovery;
+    case "discover/size":
+      return { bytes: (discovery.paths.find((p) => p.path === body.path)?.bytes ?? 0), complete: true };
+    case "logs":
+      return mockLog("agent");
     case "notifiers/test":
       return { ok: true, message: "Sent" };
     case "agent/update-check":
@@ -229,9 +233,25 @@ function agentCall(server: string, path: string, body: Record<string, unknown>):
   }
 }
 
+const mockLog = (who: string) => [
+  `2026-11-04T01:19:45.101Z INFO  agent    orluma-agent 0.1.4 listening on /run/orluma/agent.sock`,
+  `2026-11-04T01:20:12.480Z INFO  api      POST /v1/discover 200 2310ms`,
+  `2026-11-04T01:30:00.012Z INFO  run      r_41 backup started (${who})`,
+  `2026-11-04T01:30:41.920Z WARN  run      r_41 pg_dump: some tables were skipped`,
+  `2026-11-04T01:31:02.331Z ERROR alert    'Discord' failed: webhook returned 404`,
+];
+
 export async function mock(cmd: string, args: Record<string, unknown> = {}): Promise<unknown> {
   await wait();
   switch (cmd) {
+    case "log_tail":
+      return mockLog("app");
+    case "log_redact":
+      return String(args.text ?? "");
+    case "log_export":
+      return "C:\\Users\\you\\Downloads\\orluma-diagnostics.txt";
+    case "log_event":
+      return null;
     case "get_settings":
       return structuredClone(settings);
     case "set_settings":

@@ -229,7 +229,7 @@ export interface FoundDatabase {
 
 export interface Discovery {
   databases: FoundDatabase[];
-  paths: { path: string; bytes: number; hint: string }[];
+  paths: { path: string; bytes: number; hint: string; pending?: boolean }[];
   tools: { name: string; version: string }[];
 }
 

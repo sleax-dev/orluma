@@ -94,6 +94,7 @@ pub(crate) async fn query(argv: &[String], env: &[(String, String)]) -> Result<S
     let o = Command::new(&argv[0])
         .args(&argv[1..])
         .envs(env.iter().map(|(k, v)| (k.as_str(), v.as_str())))
+        .kill_on_drop(true)
         .output()
         .await?;
     if !o.status.success() {

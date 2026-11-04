@@ -20,3 +20,4 @@ pub fn new_id(prefix: &str) -> String {
 /// The minisign key (base64, as Tauri's updater takes it) that signs every release: the desktop app checks
 /// its own updates with it, and the agent checks a new agent binary with it before replacing itself.
 pub const UPDATE_PUBKEY: &str = "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDMyMTU0RTkxNEFDRjI1RDYKUldUV0pjOUtrVTRWTWc2aGM0NXVkWlFJM3RHQ0FiazM5VTA1anVoRStVdlR2ZlpDdFdaN1ovZzgK";
+pub mod log;
