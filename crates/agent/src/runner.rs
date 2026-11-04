@@ -60,8 +60,10 @@ impl Run {
         }
     }
 
+    /// A line of the run's log. It is shown in Activity and can end up in an alert, and tools print their own
+    /// connection strings when they fail (mongodump does), so secrets are masked here, for every kind of run.
     pub fn log(&mut self, level: Level, text: impl Into<String>) {
-        let text = text.into();
+        let text = orluma_core::log::redact(&text.into());
         let line = format!("{} {}", self.record.summary.id, text);
         match level {
             Level::Error => crate::logs::error("run", line),
@@ -101,7 +103,7 @@ impl Run {
 
     fn finish(mut self, status: RunStatus, error: Option<String>) -> RunSummary {
         self.record.summary.status = status;
-        self.record.summary.error = error;
+        self.record.summary.error = error.map(|e| orluma_core::log::redact(&e));
         self.record.summary.finished = Some(Utc::now());
         self.agent.db.save_run(&self.record);
         lock(&self.agent.running).remove(&self.record.summary.id);

@@ -1,4 +1,4 @@
-import type { Destination, DestKind, DestType, Job, Notifier, NotifierKind, NotifierType, Source, SourceType } from "./types";
+import type { Destination, DestKind, DestType, FoundDatabase, Job, Notifier, NotifierKind, NotifierType, Source, SourceType } from "./types";
 import { DEFAULT_EVENTS } from "./types";
 
 export function newId(prefix: string): string {
@@ -76,11 +76,14 @@ export function newDestKind(type: DestType): DestKind {
     case "rest":
       return { type, url: "https://", username: "", password: "" };
     default:
-      return { type: "rclone", remote: "", path: "orluma" };
+      return { type: "rclone", remote: "", path: "orluma", provider: "" };
   }
 }
 
 export const DEST_TYPES: DestType[] = ["local", "sftp", "s3", "b2", "azure", "gcs", "rest", "rclone"];
+
+/** Cloud drives Orluma connects by itself (sign-in in the browser, rclone on the server). */
+export const CLOUD_DRIVES = ["drive", "onedrive", "dropbox"] as const;
 
 /** S3-compatible providers: the endpoint (with {region}/{account} filled in by hand) and region rules. */
 export const S3_PROVIDERS: { id: string; name: string; endpoint: string; region: string }[] = [
@@ -148,6 +151,27 @@ export function destSummary(k: DestKind): string {
   }
 }
 
+/** A database the agent found, as a backup source. Also how Restore reaches a database on another server. */
+export function sourceFromFound(d: FoundDatabase): Source {
+  const conn = { host: d.host, port: d.port, user: d.user, password: d.password, container: d.container, os_user: d.os_user };
+  const id = newId("src");
+  switch (d.kind) {
+    case "postgres":
+      return { type: "postgres", id, databases: d.databases, globals: true, ...conn };
+    case "mysql":
+      return { type: "mysql", id, databases: d.databases, ...conn };
+    case "redis":
+      return { type: "redis", id, ...conn };
+    case "clickhouse":
+      return { type: "clickhouse", id, databases: d.databases, ...conn };
+    default: {
+      const auth = d.user ? `${encodeURIComponent(d.user)}:${encodeURIComponent(d.password)}@` : "";
+      // inside a container 127.0.0.1 is the container itself; without a user the URI would add nothing there
+      return { type: "mongo", id, uri: d.container && !auth ? "" : `mongodb://${auth}127.0.0.1:27017/?authSource=admin`, container: d.container };
+    }
+  }
+}
+
 /** Two destinations pointing at one place would hold two passwords for one repository: only the first opens it. */
 export function sameLocation(a: DestKind, b: DestKind): boolean {
   const key = (k: DestKind) => `${k.type}|${destSummary(k).trim().replace(/\/+$/, "")}`;
@@ -165,7 +189,7 @@ export const DEFAULT_EXCLUDES = [
   ".nvm/versions", ".pyenv/versions", ".rbenv/versions", ".sdkman", "miniconda3", "anaconda3", ".conda",
   ".next", ".nuxt", ".svelte-kit", ".turbo", ".vite", ".astro", ".expo", ".parcel-cache", ".angular/cache", ".sass-cache", ".eslintcache", ".dart_tool", ".terraform",
   "target/debug", "target/release",
-  ".vscode-server", ".cursor-server", ".Trash", ".local/share/Trash",
+  ".vscode-server", ".cursor-server", ".local/share/Trash", // not ".Trash": that is also a Maildir's Trash folder, real mail
   "*.tmp", "*.swp", ".DS_Store", "Thumbs.db", "lost+found",
   "/var/lib/docker/overlay2", "/var/lib/containerd", "/proc", "/sys", "/dev", "/run", "/tmp", "/var/tmp", "/var/cache",
 ];

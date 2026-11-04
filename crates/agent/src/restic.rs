@@ -249,7 +249,17 @@ impl Repo {
                     format!("rest:{scheme}://{}:{}@{rest}", urlencode(username), urlencode(password))
                 }
             }
-            DestKind::Rclone { remote, path } => format!("rclone:{remote}:{}", path.trim_start_matches('/')),
+            DestKind::Rclone { remote, path, provider } => {
+                // Remotes Orluma connected live in its own config; ones made by hand stay in rclone's default
+                if !provider.is_empty() {
+                    env.push(("RCLONE_CONFIG".into(), paths.rclone_conf().display().to_string()));
+                    let ours = paths.rclone_bin();
+                    if ours.is_file() {
+                        options.push(format!("rclone.program={}", ours.display()));
+                    }
+                }
+                format!("rclone:{remote}:{}", path.trim_start_matches('/'))
+            }
         };
         if dest.limit_upload_kib > 0 {
             options.push(format!("--limit-upload={}", dest.limit_upload_kib));
@@ -799,12 +809,18 @@ impl Restic {
                 Ok(out)
             }
             code => {
-                let detail = stderr
+                // A dump tool's own words ("requires authentication") say more than restic's "command failed":
+                // they are the last plain line before restic's JSON.
+                let tool = stderr
                     .iter()
                     .rev()
-                    .find(|l| !l.trim().is_empty())
-                    .cloned()
-                    .or_else(|| out.errors.first().cloned());
+                    .find(|l| !l.trim().is_empty() && !l.trim_start().starts_with('{'));
+                let last = stderr.iter().rev().find(|l| !l.trim().is_empty());
+                let detail = match (tool, last) {
+                    (Some(t), Some(l)) if t != l => Some(format!("{}: {l}", t.trim())),
+                    (t, l) => t.or(l).cloned(),
+                }
+                .or_else(|| out.errors.first().cloned());
                 bail!(
                     "{}",
                     detail.unwrap_or_else(|| format!("restic exited with code {}", code.unwrap_or(-1)))

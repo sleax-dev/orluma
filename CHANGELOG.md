@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.9
+
+- **Google Drive, OneDrive and Dropbox in one click.** Storage → Add destination → pick one and press Connect: the sign-in page opens in your browser, and that is all. Orluma installs rclone on the server (a pinned, checksum-verified download, like restic), keeps the sign-in there in a root-only file, and never brings the token to this PC. Backups are encrypted before they reach the account.
+- **Restore a database wherever it is now.** "Restore to database" lists the databases running on the server (services and Docker containers, with their logins) and lets you pick where the backup goes, so a backup moved to a new server loads into that server's database. Before, it could only go back to the database it came from, and MongoDB in Docker could not be restored at all.
+- **MongoDB in Docker is backed up with its login.** "What should I back up?" left the user and password out for MongoDB containers, so the backup failed with "requires authentication". The URI now goes to `mongodump`/`mongorestore` through a config file, never on the command line.
+- **Database passwords are no longer visible in the process list.** For databases in Docker the password used to be part of the `docker exec` command, which every user on the server can read with `ps`. It now travels only in the environment.
+- **Failed dumps say why.** The dump tool's own message ("requires authentication", "access denied") is shown instead of restic's "context canceled", with any password in it masked; run logs and errors are masked the same way before they are stored or sent as alerts.
+- New file backups no longer skip folders named `.Trash`: in a mail server's Maildir that is the mailbox's Trash folder, which is real mail. Only the desktop trash (`.local/share/Trash`) is skipped. Jobs made with 0.1.5 to 0.1.8 have `.Trash` in "Leave out"; remove that line to back those folders up.
+- Releases: the server agent is published even when a macOS build cannot get a GitHub runner, so servers can always install and update to the new version.
+
+Tested end to end on a real server: files (content, owner and permissions), PostgreSQL, MariaDB and MongoDB in Docker were backed up, copied to another server's repository, and restored there into new databases with every row, index and non-ASCII character intact.
+
 ## 0.1.8
 
 - Fixed backups failing at once with "wrong password or no key found" after "What should I back up?" was used twice. Each run made a new destination with a new password in the same folder, so the repository the first run created could not be opened by the second. A second run now reuses the destination that already has that folder, and if the folder holds a backup this app has no password for, it says so before creating anything.

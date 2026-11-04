@@ -121,7 +121,14 @@ pub enum DestKind {
         password: String,
     },
     /// Anything rclone can reach (Google Drive, OneDrive, Dropbox, pCloud, Mega...). Needs rclone installed.
-    Rclone { remote: String, path: String },
+    Rclone {
+        remote: String,
+        path: String,
+        /// Set when Orluma connected the account itself ("drive", "onedrive", "dropbox"): the remote then lives
+        /// in Orluma's own rclone config (`/etc/orluma/rclone.conf`). Empty: a remote set up by hand.
+        #[serde(default)]
+        provider: String,
+    },
 }
 
 fn ssh_port() -> u16 {

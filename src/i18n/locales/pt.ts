@@ -205,6 +205,9 @@ export default {
     deleteTitle: "Remover {{name}}?", deleteText: "O Orluma deixa de usar este destino. Os dados nele não são apagados.",
   },
   dest: {
+    cloud: { drive: "Google Drive", onedrive: "OneDrive", dropbox: "Dropbox" },
+    cloudAbout: { drive: "Seu Google Drive, com login no navegador", onedrive: "OneDrive pessoal ou do trabalho", dropbox: "Seu Dropbox" },
+    connect: "Conectar {{name}}", reconnect: "Conectar outra conta", connected: "Conectado", connecting: "Entre na janela do navegador que abriu e volte aqui. Aguarda até dez minutos.", cloudHint: "O Orluma instala o rclone no servidor e guarda o login lá, num arquivo só do root. Os backups são criptografados antes de chegar à conta.", folder: "Pasta na conta", connectedToast: "{{name}} conectado",
     sameLocation: "{{name}} já usa este local. Dois destinos no mesmo local teriam duas senhas para um repositório: use {{name}}.",
     newTitle: "Novo destino", editTitle: "Editar {{name}}",
     type: { local: "Disco do servidor", sftp: "Outro servidor (SFTP)", s3: "Compatível com S3", b2: "Backblaze B2", azure: "Azure Blob", gcs: "Google Cloud Storage", rest: "Servidor REST", rclone: "Remoto do rclone" },
@@ -216,7 +219,7 @@ export default {
       azure: "Conta de armazenamento do Azure",
       gcs: "Um bucket com conta de serviço",
       rest: "O rest-server do restic",
-      rclone: "Drive, OneDrive, Dropbox e mais 70",
+      rclone: "pCloud, Mega, Box e mais 70, configurados no servidor",
     },
     name: "Nome", path: "Caminho", localHint: "Se puder, não o mesmo disco que está sendo copiado.",
     host: "Host", port: "Porta", user: "Usuário", password: "Senha",
@@ -266,6 +269,7 @@ export default {
     forgetText: "O snapshot {{id}} de {{when}} é removido. O espaço é liberado na próxima limpeza.",
     forgotten: "Snapshot excluído",
     db: {
+      target: "Em", targetOriginal: "O banco de onde o backup foi feito", looking: "Procurando bancos de dados neste servidor…", noTarget: "Nenhum {{kind}} em execução foi encontrado neste servidor. Inicie-o (ou seu contêiner) e abra isto de novo.",
       button: "Restaurar para um banco de dados",
       title: "Restaurar {{name}} para um banco de dados",
       text: "Carrega este backup em {{where}}. Por padrão vai para um banco novo, então nada que já existe é tocado.",

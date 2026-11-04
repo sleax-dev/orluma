@@ -44,6 +44,13 @@ impl Paths {
     pub fn restic_bin(&self) -> PathBuf {
         self.data.join("bin").join("restic")
     }
+    pub fn rclone_bin(&self) -> PathBuf {
+        self.data.join("bin").join("rclone")
+    }
+    /// The remotes Orluma connected (Google Drive and the like), with their tokens. Root only.
+    pub fn rclone_conf(&self) -> PathBuf {
+        self.etc.join("rclone.conf")
+    }
     pub fn secret_file(&self, name: &str) -> PathBuf {
         self.etc.join(name)
     }

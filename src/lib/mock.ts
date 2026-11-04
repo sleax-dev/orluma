@@ -259,6 +259,11 @@ export async function mock(cmd: string, args: Record<string, unknown> = {}): Pro
       return mockLog("app");
     case "log_redact":
       return String(args.text ?? "");
+    case "cloud_connect":
+      await new Promise((r) => setTimeout(r, 1500));
+      return `orluma-${String(args.provider)}-1a2b3c4d`;
+    case "cloud_cancel":
+      return null;
     case "log_export":
       return "C:\\Users\\you\\Downloads\\orluma-diagnostics.txt";
     case "log_event":

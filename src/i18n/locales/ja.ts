@@ -205,6 +205,9 @@ export default {
     deleteTitle: "{{name}} を外しますか？", deleteText: "Orluma はこの保存先を使わなくなります。中のデータは削除されません。",
   },
   dest: {
+    cloud: { drive: "Google Drive", onedrive: "OneDrive", dropbox: "Dropbox" },
+    cloudAbout: { drive: "Google ドライブ（ブラウザーでサインイン）", onedrive: "個人用または職場の OneDrive", dropbox: "Dropbox" },
+    connect: "{{name}} に接続", reconnect: "別のアカウントを接続", connected: "接続済み", connecting: "開いたブラウザーでサインインし、ここに戻ってください。最大 10 分待ちます。", cloudHint: "Orluma はサーバーに rclone をインストールし、サインイン情報を root だけが読めるファイルとしてサーバーに保存します。バックアップはアカウントに届く前に暗号化されます。", folder: "アカウント内のフォルダー", connectedToast: "{{name}} を接続しました",
     sameLocation: "{{name}} がすでにこの場所を使っています。同じ場所に保存先が2つあると1つのリポジトリにパスワードが2つになります。{{name}} を使ってください。",
     newTitle: "新しい保存先", editTitle: "{{name}} を編集",
     type: { local: "サーバーのディスク", sftp: "別のサーバー（SFTP）", s3: "S3 互換", b2: "Backblaze B2", azure: "Azure Blob", gcs: "Google Cloud Storage", rest: "REST サーバー", rclone: "rclone リモート" },
@@ -216,7 +219,7 @@ export default {
       azure: "Azure ストレージアカウント",
       gcs: "サービスアカウントを使うバケット",
       rest: "restic の rest-server",
-      rclone: "Drive、OneDrive、Dropbox ほか 70 以上",
+      rclone: "pCloud、Mega、Box ほか 70 以上（サーバーで設定）",
     },
     name: "名前", path: "パス", localHint: "できればバックアップ対象とは別のディスクに。",
     host: "ホスト", port: "ポート", user: "ユーザー", password: "パスワード",
@@ -266,6 +269,7 @@ export default {
     forgetText: "{{when}} のスナップショット {{id}} を削除します。領域は次回のクリーンアップで解放されます。",
     forgotten: "スナップショットを削除しました",
     db: {
+      target: "復元先", targetOriginal: "バックアップ元のデータベース", looking: "このサーバーのデータベースを探しています…", noTarget: "このサーバーで動いている {{kind}} が見つかりません。起動して（またはそのコンテナーを起動して）もう一度開いてください。",
       button: "データベースに復元",
       title: "{{name}} をデータベースに復元",
       text: "このバックアップを {{where}} に読み込みます。既定では新しいデータベースに入るため、既存のものには触れません。",

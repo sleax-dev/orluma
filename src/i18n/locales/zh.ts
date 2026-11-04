@@ -205,6 +205,9 @@ export default {
     deleteTitle: "移除 {{name}}？", deleteText: "Orluma 将不再使用此目标，其中的数据不会被删除。",
   },
   dest: {
+    cloud: { drive: "Google Drive", onedrive: "OneDrive", dropbox: "Dropbox" },
+    cloudAbout: { drive: "你的 Google 云端硬盘，在浏览器中登录", onedrive: "个人或工作 OneDrive", dropbox: "你的 Dropbox" },
+    connect: "连接 {{name}}", reconnect: "连接其他账户", connected: "已连接", connecting: "请在打开的浏览器窗口中登录，然后回到这里。最多等待十分钟。", cloudHint: "Orluma 会在服务器上安装 rclone，并把登录信息保存在那里一个仅 root 可读的文件中。备份在到达账户之前就已加密。", folder: "账户中的文件夹", connectedToast: "{{name}} 已连接",
     sameLocation: "{{name}} 已在使用此位置。同一位置的两个目标意味着一个仓库有两个密码：请改用 {{name}}。",
     newTitle: "新建目标", editTitle: "编辑 {{name}}",
     type: { local: "服务器磁盘", sftp: "另一台服务器（SFTP）", s3: "S3 兼容", b2: "Backblaze B2", azure: "Azure Blob", gcs: "Google Cloud Storage", rest: "REST 服务器", rclone: "rclone 远程" },
@@ -216,7 +219,7 @@ export default {
       azure: "Azure 存储账户",
       gcs: "使用服务账号的存储桶",
       rest: "restic 的 rest-server",
-      rclone: "Drive、OneDrive、Dropbox 等 70 多种",
+      rclone: "pCloud、Mega、Box 等 70 多种，在服务器上设置",
     },
     name: "名称", path: "路径", localHint: "尽量不要与被备份的磁盘相同。",
     host: "主机", port: "端口", user: "用户", password: "密码",
@@ -266,6 +269,7 @@ export default {
     forgetText: "将删除 {{when}} 的快照 {{id}}。其空间会在下次清理时释放。",
     forgotten: "快照已删除",
     db: {
+      target: "目标", targetOriginal: "备份来源的数据库", looking: "正在查找此服务器上的数据库…", noTarget: "此服务器上没有正在运行的 {{kind}}。请启动它（或其容器）后再打开。",
       button: "恢复到数据库",
       title: "将 {{name}} 恢复到数据库",
       text: "把这份备份载入 {{where}}。默认载入一个新数据库，因此不会改动任何现有数据。",

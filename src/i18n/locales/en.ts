@@ -204,6 +204,9 @@ const en = {
     deleteTitle: "Remove {{name}}?", deleteText: "Orluma stops using this destination. The data in it is not deleted.",
   },
   dest: {
+    cloud: { drive: "Google Drive", onedrive: "OneDrive", dropbox: "Dropbox" },
+    cloudAbout: { drive: "Your Google Drive, signed in from the browser", onedrive: "Personal or work OneDrive", dropbox: "Your Dropbox" },
+    connect: "Connect {{name}}", reconnect: "Connect another account", connected: "Connected", connecting: "Sign in in the browser window that opened, then come back here. It waits up to ten minutes.", cloudHint: "Orluma installs rclone on the server and keeps the sign-in there, in a root-only file. Backups are encrypted before they reach the account.", folder: "Folder in the account", connectedToast: "{{name}} connected",
     sameLocation: "{{name}} already uses this place. Two destinations in one place would have two passwords for one repository: use {{name}} instead.",
     newTitle: "New destination", editTitle: "Edit {{name}}",
     type: { local: "Server disk", sftp: "Another server (SFTP)", s3: "S3-compatible", b2: "Backblaze B2", azure: "Azure Blob", gcs: "Google Cloud Storage", rest: "REST server", rclone: "rclone remote" },
@@ -215,7 +218,7 @@ const en = {
       azure: "Azure storage account",
       gcs: "A bucket with a service account",
       rest: "restic's rest-server",
-      rclone: "Drive, OneDrive, Dropbox and 70 more",
+      rclone: "pCloud, Mega, Box and 70 more, set up on the server",
     },
     name: "Name", path: "Path", localHint: "Not the disk being backed up, if you can help it.",
     host: "Host", port: "Port", user: "User", password: "Password",
@@ -265,6 +268,7 @@ const en = {
     forgetText: "Snapshot {{id}} from {{when}} is removed. Its data is freed at the next prune.",
     forgotten: "Snapshot deleted",
     db: {
+      target: "Into", targetOriginal: "The database it was backed up from", looking: "Looking for databases on this server…", noTarget: "No {{kind}} was found running on this server. Start it (or its container) and open this again.",
       button: "Restore to database",
       title: "Restore {{name}} into a database",
       text: "Loads this backup into {{where}}. It goes into a new database by default, so nothing that exists is touched.",

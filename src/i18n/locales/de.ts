@@ -205,6 +205,9 @@ export default {
     deleteTitle: "{{name}} entfernen?", deleteText: "Orluma nutzt dieses Ziel nicht mehr. Die Daten darin werden nicht gelöscht.",
   },
   dest: {
+    cloud: { drive: "Google Drive", onedrive: "OneDrive", dropbox: "Dropbox" },
+    cloudAbout: { drive: "Dein Google Drive, Anmeldung im Browser", onedrive: "Privates oder geschäftliches OneDrive", dropbox: "Deine Dropbox" },
+    connect: "{{name}} verbinden", reconnect: "Anderes Konto verbinden", connected: "Verbunden", connecting: "Melde dich im geöffneten Browserfenster an und komm dann hierher zurück. Es wird bis zu zehn Minuten gewartet.", cloudHint: "Orluma installiert rclone auf dem Server und behält die Anmeldung dort, in einer Datei nur für root. Sicherungen werden verschlüsselt, bevor sie das Konto erreichen.", folder: "Ordner im Konto", connectedToast: "{{name}} verbunden",
     sameLocation: "{{name}} nutzt diesen Ort bereits. Zwei Ziele am selben Ort hätten zwei Passwörter für ein Repository: verwende stattdessen {{name}}.",
     newTitle: "Neues Ziel", editTitle: "{{name}} bearbeiten",
     type: { local: "Serverplatte", sftp: "Anderer Server (SFTP)", s3: "S3-kompatibel", b2: "Backblaze B2", azure: "Azure Blob", gcs: "Google Cloud Storage", rest: "REST-Server", rclone: "rclone-Remote" },
@@ -216,7 +219,7 @@ export default {
       azure: "Azure-Speicherkonto",
       gcs: "Ein Bucket mit Dienstkonto",
       rest: "restics rest-server",
-      rclone: "Drive, OneDrive, Dropbox und 70 weitere",
+      rclone: "pCloud, Mega, Box und 70 weitere, auf dem Server eingerichtet",
     },
     name: "Name", path: "Pfad", localHint: "Möglichst nicht die Platte, die gesichert wird.",
     host: "Host", port: "Port", user: "Benutzer", password: "Passwort",
@@ -266,6 +269,7 @@ export default {
     forgetText: "Snapshot {{id}} vom {{when}} wird entfernt. Sein Platz wird beim nächsten Aufräumen frei.",
     forgotten: "Snapshot gelöscht",
     db: {
+      target: "Wohin", targetOriginal: "Die Datenbank, aus der gesichert wurde", looking: "Suche Datenbanken auf diesem Server…", noTarget: "Auf diesem Server läuft kein {{kind}}. Starte es (oder seinen Container) und öffne dies erneut.",
       button: "In Datenbank wiederherstellen",
       title: "{{name}} in eine Datenbank wiederherstellen",
       text: "Lädt dieses Backup in {{where}}. Standardmäßig landet es in einer neuen Datenbank, sodass nichts Vorhandenes angefasst wird.",

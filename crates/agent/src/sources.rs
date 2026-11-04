@@ -38,10 +38,12 @@ pub(crate) fn wrap(
     env: Vec<(String, String)>,
 ) -> (Vec<String>, Vec<(String, String)>) {
     if !conn.container.is_empty() {
+        // `-e NAME` without a value: docker takes the value from its own environment, so a password never
+        // appears in a command line (which `ps` shows to every user on the server).
         let mut a = vec!["docker".to_string(), "exec".into(), "-i".into()];
-        for (k, v) in &env {
+        for (k, _) in &env {
             a.push("-e".into());
-            a.push(format!("{k}={v}"));
+            a.push(k.clone());
         }
         if !conn.os_user.is_empty() {
             a.push("-u".into());
@@ -62,7 +64,7 @@ pub(crate) fn wrap(
             }
             _ => a.extend(argv),
         }
-        return (a, Vec::new());
+        return (a, env);
     }
     if !conn.os_user.is_empty() {
         let mut a = vec!["runuser".to_string(), "-u".into(), conn.os_user.clone(), "--".into()];
@@ -70,6 +72,22 @@ pub(crate) fn wrap(
         return (a, env);
     }
     (argv, env)
+}
+
+/// mongodump or mongorestore. A URI with a password goes into a config file the tool reads (`--config`), made
+/// with mode 600 where the tool runs and removed after, never onto the command line.
+pub(crate) fn mongo_tool(tool: &str, uri: &str, args: &[&str]) -> (Vec<String>, Vec<(String, String)>) {
+    if uri.is_empty() {
+        let mut a = vec![s(tool)];
+        a.extend(args.iter().map(|x| s(x)));
+        return (a, Vec::new());
+    }
+    let script = format!(
+        "f=$(mktemp) || exit 1; trap 'rm -f \"$f\"' EXIT; printf 'uri: \"%s\"\\n' \"$ORLUMA_MONGO_URI\" > \"$f\"; {tool} --config \"$f\" \"$@\""
+    );
+    let mut a = vec![s("sh"), s("-c"), script, s("sh")];
+    a.extend(args.iter().map(|x| s(x)));
+    (a, vec![(s("ORLUMA_MONGO_URI"), uri.to_string())])
 }
 
 pub(crate) fn s(v: &str) -> String {
@@ -340,11 +358,9 @@ pub async fn plan(src: &Source) -> Result<Vec<Planned>> {
                 container: container.clone(),
                 ..Default::default()
             };
-            let mut argv = vec![s("mongodump"), s("--archive"), s("--quiet")];
-            if !uri.is_empty() {
-                argv.push(format!("--uri={uri}"));
-            }
-            let (argv, env) = wrap(&conn, argv, Vec::new());
+            // not --quiet: it also hides the reason a dump fails ("requires authentication")
+            let (argv, env) = mongo_tool("mongodump", uri, &["--archive"]);
+            let (argv, env) = wrap(&conn, argv, env);
             one(
                 "mongodb".into(),
                 Unit::Stdin {
@@ -479,7 +495,7 @@ mod tests {
                 "exec",
                 "-i",
                 "-e",
-                "PGPASSWORD=x",
+                "PGPASSWORD",
                 "-u",
                 "postgres",
                 "db",
@@ -487,7 +503,14 @@ mod tests {
                 "app"
             ]
         );
-        assert!(env.is_empty());
+        assert_eq!(
+            env,
+            [(s("PGPASSWORD"), s("x"))],
+            "the value travels in the environment only"
+        );
+        let (argv, env) = mongo_tool("mongodump", "mongodb://u:secret@127.0.0.1/", &["--archive"]);
+        assert!(argv.iter().all(|a| !a.contains("secret")), "{argv:?}");
+        assert_eq!(env[0].1, "mongodb://u:secret@127.0.0.1/");
         let c = DbConn {
             os_user: "postgres".into(),
             ..Default::default()

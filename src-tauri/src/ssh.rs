@@ -279,6 +279,33 @@ impl Conn {
         Ok(port)
     }
 
+    /// Listens on 127.0.0.1:`port` on this PC and carries each connection to 127.0.0.1:`port` on the server
+    /// (an SSH direct-tcpip channel), until the returned task is aborted. Used while a cloud sign-in page sends
+    /// the browser back to rclone on the server.
+    pub async fn local_forward(self: &Arc<Self>, port: u16) -> Result<tokio::task::JoinHandle<()>> {
+        let listener = tokio::net::TcpListener::bind(("127.0.0.1", port)).await.map_err(|e| {
+            Error(format!(
+                "port {port} on this PC is in use ({e}); close what uses it and try again"
+            ))
+        })?;
+        let conn = self.clone();
+        Ok(tokio::spawn(async move {
+            while let Ok((mut tcp, _)) = listener.accept().await {
+                let conn = conn.clone();
+                tokio::spawn(async move {
+                    if let Ok(ch) = conn
+                        .handle
+                        .channel_open_direct_tcpip("127.0.0.1", u32::from(port), "127.0.0.1", 0)
+                        .await
+                    {
+                        let mut remote = ch.into_stream();
+                        let _ = tokio::io::copy_bidirectional(&mut tcp, &mut remote).await;
+                    }
+                });
+            }
+        }))
+    }
+
     pub async fn close(&self) {
         let _ = self.handle.disconnect(russh::Disconnect::ByApplication, "", "en").await;
     }

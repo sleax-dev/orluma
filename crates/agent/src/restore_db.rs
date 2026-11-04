@@ -217,18 +217,16 @@ pub async fn run(restic: &Restic, repo: &Repo, r: &RestoreDbRequest) -> Result<S
             Ok(format!("sqlite: restored into {target}"))
         }
         "mongo" => {
-            let mut argv = vec!["mongorestore".to_string(), "--archive".into(), "--quiet".into()];
+            let mut args = vec!["--archive"];
             if r.replace {
-                argv.push("--drop".into());
+                args.push("--drop");
             }
-            if !r.uri.is_empty() {
-                argv.push(format!("--uri={}", r.uri));
-            }
+            let (argv, env) = crate::sources::mongo_tool("mongorestore", &r.uri, &args);
             let conn = orluma_core::model::DbConn {
                 container: r.conn.container.clone(),
                 ..Default::default()
             };
-            let (argv, env) = wrap(&conn, argv, Vec::new());
+            let (argv, env) = wrap(&conn, argv, env);
             pipe(dump(), tool(&argv, &env), None).await?;
             Ok(format!(
                 "mongodb: restored every database in the archive{}",

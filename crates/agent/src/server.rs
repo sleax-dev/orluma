@@ -343,7 +343,9 @@ async fn trace(req: axum::extract::Request, next: axum::middleware::Next) -> Res
     let ms = t.elapsed().as_millis();
     let code = res.status().as_u16();
     let routine = path == "/v1/status" || path == "/v1/logs" || path == "/v1/events";
-    if ms >= 3000 {
+    // waiting for someone to sign in (cloud/finish) or a stream is slow by design
+    let waits = path == "/v1/cloud/finish" || path == "/v1/events" || path == "/v1/dump";
+    if ms >= 3000 && !waits {
         crate::logs::warn("api", format!("slow {method} {path} {code} {ms}ms"));
     } else if code >= 400 {
         crate::logs::warn("api", format!("{method} {path} {code} {ms}ms"));
@@ -359,6 +361,34 @@ async fn fs_list(Json(r): Json<orluma_core::api::PathRequest>) -> R<Vec<orluma_c
 
 async fn path_size(Json(r): Json<orluma_core::api::SizeRequest>) -> R<orluma_core::api::PathSize> {
     Ok(Json(crate::discover::path_size(&r.path, &r.excludes).await))
+}
+
+async fn cloud_connect(
+    State(a): State<Shared>,
+    Json(r): Json<orluma_core::api::CloudRequest>,
+) -> R<orluma_core::api::CloudAnswer> {
+    let url = crate::rclone::start(&a.paths, &a.http, &r.provider).await?;
+    Ok(Json(orluma_core::api::CloudAnswer {
+        url,
+        port: crate::rclone::AUTH_PORT,
+        ..Default::default()
+    }))
+}
+
+async fn cloud_finish(
+    State(a): State<Shared>,
+    Json(r): Json<orluma_core::api::CloudRequest>,
+) -> R<orluma_core::api::CloudAnswer> {
+    let remote = crate::rclone::finish(&a.paths, &a.http, &r.provider).await?;
+    Ok(Json(orluma_core::api::CloudAnswer {
+        remote,
+        ..Default::default()
+    }))
+}
+
+async fn cloud_cancel() -> R<()> {
+    crate::rclone::cancel().await;
+    Ok(Json(()))
 }
 
 async fn discover() -> R<Discovery> {
@@ -421,6 +451,9 @@ pub fn router(agent: Shared) -> axum::Router {
         .route("/v1/restore-db", post(restore_db))
         .route("/v1/destinations/attach", post(attach))
         .route("/v1/dump", get(dump))
+        .route("/v1/cloud/connect", post(cloud_connect))
+        .route("/v1/cloud/finish", post(cloud_finish))
+        .route("/v1/cloud/cancel", post(cloud_cancel))
         .route("/v1/discover", post(discover))
         .route("/v1/discover/size", post(path_size))
         .route("/v1/discover/ls", post(fs_list))

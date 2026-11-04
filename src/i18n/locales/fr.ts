@@ -205,6 +205,9 @@ export default {
     deleteTitle: "Retirer {{name}} ?", deleteText: "Orluma n'utilise plus cette destination. Ses données ne sont pas supprimées.",
   },
   dest: {
+    cloud: { drive: "Google Drive", onedrive: "OneDrive", dropbox: "Dropbox" },
+    cloudAbout: { drive: "Votre Google Drive, connexion dans le navigateur", onedrive: "OneDrive personnel ou professionnel", dropbox: "Votre Dropbox" },
+    connect: "Connecter {{name}}", reconnect: "Connecter un autre compte", connected: "Connecté", connecting: "Connectez-vous dans la fenêtre du navigateur qui s'est ouverte, puis revenez ici. L'attente dure jusqu'à dix minutes.", cloudHint: "Orluma installe rclone sur le serveur et y garde la connexion, dans un fichier réservé à root. Les sauvegardes sont chiffrées avant d'atteindre le compte.", folder: "Dossier dans le compte", connectedToast: "{{name}} connecté",
     sameLocation: "{{name}} utilise déjà cet emplacement. Deux destinations au même endroit auraient deux mots de passe pour un dépôt : utilisez {{name}}.",
     newTitle: "Nouvelle destination", editTitle: "Modifier {{name}}",
     type: { local: "Disque du serveur", sftp: "Autre serveur (SFTP)", s3: "Compatible S3", b2: "Backblaze B2", azure: "Azure Blob", gcs: "Google Cloud Storage", rest: "Serveur REST", rclone: "Remote rclone" },
@@ -216,7 +219,7 @@ export default {
       azure: "Compte de stockage Azure",
       gcs: "Un bucket avec un compte de service",
       rest: "Le rest-server de restic",
-      rclone: "Drive, OneDrive, Dropbox et 70 autres",
+      rclone: "pCloud, Mega, Box et 70 autres, configurés sur le serveur",
     },
     name: "Nom", path: "Chemin", localHint: "Si possible, pas le disque sauvegardé.",
     host: "Hôte", port: "Port", user: "Utilisateur", password: "Mot de passe",
@@ -266,6 +269,7 @@ export default {
     forgetText: "L'instantané {{id}} du {{when}} est supprimé. Son espace est libéré au prochain nettoyage.",
     forgotten: "Instantané supprimé",
     db: {
+      target: "Dans", targetOriginal: "La base d'où vient la sauvegarde", looking: "Recherche des bases de données sur ce serveur…", noTarget: "Aucun {{kind}} ne tourne sur ce serveur. Démarrez-le (ou son conteneur) puis rouvrez ceci.",
       button: "Restaurer dans une base de données",
       title: "Restaurer {{name}} dans une base de données",
       text: "Charge cette sauvegarde dans {{where}}. Par défaut elle va dans une nouvelle base, donc rien d'existant n'est touché.",

@@ -29,7 +29,7 @@ Storage is [restic](https://restic.net): deduplicated, compressed, encrypted, an
 - **It shows what to back up, you choose.** The agent finds running databases (services and Docker containers, with the credentials their containers were started with) and the usual folders. A page in three steps (databases, folders, where to) makes a daily backup of what you tick; nothing is ticked for you. Folders open as a tree, so you can pick single folders or files inside `/root` or `/var/www`, and their sizes leave out what the backup skips.
 - **Files and databases, consistently.** Folders, PostgreSQL, MySQL/MariaDB, MongoDB, Redis, SQLite, ClickHouse, or the output of any command. Databases are dumped straight into the repository: no temporary copy on the disk, and a failing dump fails the snapshot instead of saving half a file.
 - **Leaves out what can be rebuilt.** File backups skip `node_modules`, package stores, build output and caches at any depth, Python virtualenvs whatever their name (by their `pyvenv.cfg`), folders marked with `CACHEDIR.TAG` or a `.nobackup` file, and system folders such as `/proc` and `/tmp`. The list stays editable in each job.
-- **Anywhere to send it.** A disk or share on the server, another server over SFTP, S3-compatible storage (AWS, Cloudflare R2, Wasabi, Hetzner, DigitalOcean, Scaleway, iDrive e2, MinIO), Backblaze B2, Azure, Google Cloud Storage, a restic REST server, or any of the 70 clouds rclone reaches. A job can write to one place and copy to others after each good run: the 3-2-1 rule without scripts.
+- **Anywhere to send it.** Google Drive, OneDrive and Dropbox with one sign-in in the browser, a disk or share on the server, another server over SFTP, S3-compatible storage (AWS, Cloudflare R2, Wasabi, Hetzner, DigitalOcean, Scaleway, iDrive e2, MinIO), Backblaze B2, Azure, Google Cloud Storage, a restic REST server, or any of the 70 clouds rclone reaches. A job can write to one place and copy to others after each good run: the 3-2-1 rule without scripts.
 - **A copy on your own PC, with no open port.** Servers push their backups through the SSH connection into a repository inside the app, on a schedule you set, while Orluma runs.
 - **Schedules that survive downtime.** Presets or cron, in the server's time zone, with catch-up if the server was off when a run was due.
 - **Retention you can read.** Keep the latest N, hourly, daily, weekly, monthly and yearly snapshots; space is freed on its own schedule because that is the slow part.
@@ -37,7 +37,7 @@ Storage is [restic](https://restic.net): deduplicated, compressed, encrypted, an
 - **Restore without a terminal.** Browse any snapshot like a folder, download a file or a whole folder as a zip to this PC, or restore to the server into a folder you choose. Never over live files unless you say so.
 - **Alerts that come from the server.** Discord, Telegram, Slack, Microsoft Teams, email (SMTP), ntfy, Gotify, Pushover and signed webhooks, per job and per event, plus health-check pings (healthchecks.io, Uptime Kuma, Cronitor) that also catch a backup that stopped running at all. Desktop notifications on top.
 - **Hooks.** Commands before and after a backup, for stopping a service or taking a snapshot of something Orluma does not know about.
-- **Restore into a database.** A database backup loads straight into a running PostgreSQL, MySQL/MariaDB, SQLite, MongoDB or ClickHouse, into a new database by default.
+- **Restore into a database.** A database backup loads straight into a running PostgreSQL, MySQL/MariaDB, SQLite, MongoDB or ClickHouse, into a new database by default. Pick any database the server runs, in Docker or not, so a backup moved to a new server goes into that server's database.
 - **Move backups anywhere.** Copy between servers and clouds, put a backup kept on this PC onto a server, or send backups to another PC on the same Wi-Fi with a one-time code. Nothing leaves your network.
 - **A recovery kit.** One file with every server, destination and password, so you can restore with restic alone even if the servers and this PC are gone.
 - **Diagnostics you can send.** Settings → Diagnostics shows the app's log and each server's agent log, warnings and errors first, and copies or saves both as one report. Passwords, keys, tokens and webhook secrets are removed before anything is written.
@@ -82,6 +82,8 @@ export RESTIC_PASSWORD='…the repository password…'
 restic -r s3:https://<endpoint>/<bucket>/<prefix> snapshots
 restic -r … restore latest --target /srv/restore
 ```
+
+For Google Drive, OneDrive or Dropbox, the account is in `/etc/orluma/rclone.conf` on the server: `RCLONE_CONFIG=/etc/orluma/rclone.conf restic -r rclone:<remote>:<folder> snapshots` (or connect the same account with your own `rclone config`).
 
 Databases are stored as `postgres/<db>.dump` (`pg_restore`), `mysql/<db>.sql`, `mongo/all.archive` (`mongorestore --archive`), `redis/dump.rdb`, `sqlite/<name>.sql`, and ClickHouse tables as `clickhouse/<db>/<table>.native`. The recovery kit lists the passwords and URLs.
 

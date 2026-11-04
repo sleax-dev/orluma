@@ -205,6 +205,9 @@ export default {
     deleteTitle: "¿Quitar {{name}}?", deleteText: "Orluma deja de usar este destino. Sus datos no se borran.",
   },
   dest: {
+    cloud: { drive: "Google Drive", onedrive: "OneDrive", dropbox: "Dropbox" },
+    cloudAbout: { drive: "Tu Google Drive, con inicio de sesión en el navegador", onedrive: "OneDrive personal o de trabajo", dropbox: "Tu Dropbox" },
+    connect: "Conectar {{name}}", reconnect: "Conectar otra cuenta", connected: "Conectado", connecting: "Inicia sesión en la ventana del navegador que se abrió y vuelve aquí. Espera hasta diez minutos.", cloudHint: "Orluma instala rclone en el servidor y guarda el inicio de sesión allí, en un archivo solo para root. Las copias se cifran antes de llegar a la cuenta.", folder: "Carpeta en la cuenta", connectedToast: "{{name}} conectado",
     sameLocation: "{{name}} ya usa este lugar. Dos destinos en un mismo lugar tendrían dos contraseñas para un repositorio: usa {{name}}.",
     newTitle: "Nuevo destino", editTitle: "Editar {{name}}",
     type: { local: "Disco del servidor", sftp: "Otro servidor (SFTP)", s3: "Compatible con S3", b2: "Backblaze B2", azure: "Azure Blob", gcs: "Google Cloud Storage", rest: "Servidor REST", rclone: "Remoto de rclone" },
@@ -216,7 +219,7 @@ export default {
       azure: "Cuenta de almacenamiento de Azure",
       gcs: "Un bucket con cuenta de servicio",
       rest: "rest-server de restic",
-      rclone: "Drive, OneDrive, Dropbox y 70 más",
+      rclone: "pCloud, Mega, Box y 70 más, configurados en el servidor",
     },
     name: "Nombre", path: "Ruta", localHint: "A ser posible, no el mismo disco que se copia.",
     host: "Host", port: "Puerto", user: "Usuario", password: "Contraseña",
@@ -266,6 +269,7 @@ export default {
     forgetText: "Se elimina la instantánea {{id}} del {{when}}. Su espacio se libera en la siguiente limpieza.",
     forgotten: "Instantánea eliminada",
     db: {
+      target: "En", targetOriginal: "La base de datos de la que se hizo la copia", looking: "Buscando bases de datos en este servidor…", noTarget: "No se encontró ningún {{kind}} en marcha en este servidor. Inícialo (o su contenedor) y vuelve a abrir esto.",
       button: "Restaurar en una base de datos",
       title: "Restaurar {{name}} en una base de datos",
       text: "Carga esta copia en {{where}}. Por defecto va a una base de datos nueva, así que no se toca nada de lo que ya existe.",

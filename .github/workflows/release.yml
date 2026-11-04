@@ -94,9 +94,11 @@ jobs:
 
   # The server agent, signed with the same key as the desktop updates. Built on the oldest runner image that
   # is still maintained so the binary runs on older distributions (glibc 2.35 or newer).
+  # Waits for the desktop jobs only so the release exists, not for all of them to succeed: a macOS runner that
+  # never starts (GitHub capacity) must not leave a release without the agents servers install and update to.
   agent:
     needs: desktop
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: ${{ !cancelled() && startsWith(github.ref, 'refs/tags/v') }}
     strategy:
       fail-fast: false
       matrix:

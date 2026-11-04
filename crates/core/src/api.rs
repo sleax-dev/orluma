@@ -321,6 +321,25 @@ pub struct FoundPath {
     pub pending: bool,
 }
 
+/// Connecting a cloud account (Google Drive, OneDrive, Dropbox) through rclone on the server.
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+pub struct CloudRequest {
+    pub provider: String,
+}
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+pub struct CloudAnswer {
+    /// `connect`: the sign-in page to open in the browser (on the PC, through a forwarded port).
+    #[serde(default)]
+    pub url: String,
+    /// `connect`: the server port the sign-in page sends the browser back to.
+    #[serde(default)]
+    pub port: u16,
+    /// `finish`: the rclone remote now holding the account.
+    #[serde(default)]
+    pub remote: String,
+}
+
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct LogsRequest {
     pub lines: usize,

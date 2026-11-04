@@ -20,7 +20,7 @@ for (const f of sources) {
 // so adding a type to the code without text for it shows up here.
 const dynamic = {
   "activity.kind.": 5, "activity.trigger.": 3, "advanced.comp.": 3, "alert.event.": 6, "alert.eventShort.": 6, "alert.hint.": 4,
-  "alert.type.": 9, "dest.about.": 8, "dest.type.": 8, "errors.": 6, "first.": 3, "first.hint.": 5, "guide.purpose.": 7, "start.": 7, "job.tab.": 6, "nav.": 9, "nav.group.": 2,
+  "alert.type.": 9, "dest.about.": 8, "dest.type.": 8, "dest.cloud.": 3, "dest.cloudAbout.": 3, "errors.": 6, "first.": 3, "first.hint.": 5, "guide.purpose.": 7, "start.": 7, "job.tab.": 6, "nav.": 9, "nav.group.": 2,
   "retention.": 9, "retention.preset.": 4, "schedule.kind.": 6, "schedule.weekday.": 7, "setup.need.": 3, "setup.promise.": 4, "setup.steps.": 3,
   "source.about.": 8, "source.type.": 8, "status.": 7,
 };

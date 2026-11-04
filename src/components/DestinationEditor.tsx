@@ -3,7 +3,7 @@ import { CheckmarkCircle16Filled, Copy16Regular, DismissCircle16Filled, Eye16Reg
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api, errText } from "../lib/api";
-import { DEST_TYPES, newDestKind, S3_PROVIDERS, sameLocation } from "../lib/defaults";
+import { CLOUD_DRIVES, DEST_TYPES, newDestKind, S3_PROVIDERS, sameLocation } from "../lib/defaults";
 import type { Destination, DestKind, TestResult } from "../lib/types";
 import { useApp } from "../state";
 import { TextField } from "./ui";
@@ -21,6 +21,21 @@ export function DestinationEditor({ open, server, initial, onClose, onSave }: { 
   const setK = (p: Partial<DestKind>) => setD({ ...d, kind: { ...k, ...p } as DestKind });
   const agentKey = live[server]?.status?.ssh_public_key ?? "";
   const twin = configs[server]?.destinations.find((o) => o.id !== d.id && sameLocation(o.kind, d.kind));
+
+  const [connecting, setConnecting] = useState(false);
+  const connect = async (provider: string) => {
+    setConnecting(true);
+    setTest(null);
+    try {
+      const remote = await api.cloudConnect(server, provider);
+      setD((x) => (x.kind.type === "rclone" ? { ...x, kind: { ...x.kind, remote } } : x));
+      toast("success", t("dest.connectedToast", { name: t(`dest.cloud.${provider}`) }));
+    } catch (e) {
+      setTest({ ok: false, message: errText(e) });
+    } finally {
+      setConnecting(false);
+    }
+  };
 
   const runTest = async () => {
     setTesting(true);
@@ -42,8 +57,22 @@ export function DestinationEditor({ open, server, initial, onClose, onSave }: { 
           <DialogContent>
             <div className="stack dialog-scroll">
               <div className="type-grid">
+                {CLOUD_DRIVES.map((p) => (
+                  <button
+                    key={p}
+                    className={`type-btn${k.type === "rclone" && k.provider === p ? " on" : ""}`}
+                    onClick={() => {
+                      const host = servers.find((x) => x.id === server)?.name ?? "server";
+                      setD({ ...d, kind: { type: "rclone", remote: "", path: `orluma/${host.replace(/[^\w.-]+/g, "-")}`, provider: p }, name: t(`dest.cloud.${p}`) });
+                      setTest(null);
+                    }}
+                  >
+                    <b>{t(`dest.cloud.${p}`)}</b>
+                    <small>{t(`dest.cloudAbout.${p}`)}</small>
+                  </button>
+                ))}
                 {DEST_TYPES.map((x) => (
-                  <button key={x} className={`type-btn${k.type === x ? " on" : ""}`} onClick={() => { setD({ ...d, kind: newDestKind(x), name: d.name === t(`dest.type.${k.type}`) || !d.name ? t(`dest.type.${x}`) : d.name }); setTest(null); }}>
+                  <button key={x} className={`type-btn${k.type === x && !(x === "rclone" && k.type === "rclone" && k.provider) ? " on" : ""}`} onClick={() => { setD({ ...d, kind: newDestKind(x), name: d.name === t(`dest.type.${k.type}`) || !d.name ? t(`dest.type.${x}`) : d.name }); setTest(null); }}>
                     <b>{t(`dest.type.${x}`)}</b>
                     <small>{t(`dest.about.${x}`)}</small>
                   </button>
@@ -150,7 +179,24 @@ export function DestinationEditor({ open, server, initial, onClose, onSave }: { 
                     <TextField label={t("dest.password")} type="password" value={k.password} onChange={(v) => setK({ password: v })} />
                   </>
                 )}
-                {k.type === "rclone" && (
+                {k.type === "rclone" && k.provider && (
+                  <div className="full stack" style={{ gap: 8 }}>
+                    <div className="gap-s" style={{ flexWrap: "wrap" }}>
+                      <Button appearance={k.remote ? "secondary" : "primary"} disabled={connecting} onClick={() => void connect(k.provider!)}>
+                        {connecting ? <Spinner size="tiny" /> : k.remote ? t("dest.reconnect") : t("dest.connect", { name: t(`dest.cloud.${k.provider}`) })}
+                      </Button>
+                      {connecting && <Button onClick={() => void api.cloudCancel(server)}>{t("common.cancel")}</Button>}
+                      {k.remote && !connecting && (
+                        <span className="ok-line small">
+                          <CheckmarkCircle16Filled /> {t("dest.connected")}
+                        </span>
+                      )}
+                    </div>
+                    <span className="small muted">{connecting ? t("dest.connecting") : t("dest.cloudHint")}</span>
+                    <TextField label={t("dest.folder")} value={k.path} onChange={(v) => setK({ path: v })} />
+                  </div>
+                )}
+                {k.type === "rclone" && !k.provider && (
                   <>
                     <TextField label={t("dest.remote")} value={k.remote} onChange={(v) => setK({ remote: v })} placeholder="gdrive" />
                     <TextField label={t("dest.path")} value={k.path} onChange={(v) => setK({ path: v })} />
@@ -189,7 +235,7 @@ export function DestinationEditor({ open, server, initial, onClose, onSave }: { 
             <Button disabled={testing} onClick={() => void runTest()}>
               {testing ? <Spinner size="tiny" /> : t("dest.test")}
             </Button>
-            <Button appearance="primary" disabled={!d.name.trim() || d.password.length < 8 || !!twin} onClick={() => void onSave({ ...d, name: d.name.trim() })}>
+            <Button appearance="primary" disabled={!d.name.trim() || d.password.length < 8 || !!twin || connecting || (k.type === "rclone" && !k.remote)} onClick={() => void onSave({ ...d, name: d.name.trim() })}>
               {t("common.save")}
             </Button>
           </DialogActions>

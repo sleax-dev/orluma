@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api, errText } from "../lib/api";
 import { bytes } from "../lib/format";
-import { DEFAULT_EXCLUDES, newId, newJob, randomPassword, sameLocation } from "../lib/defaults";
-import type { Discovery, FoundDatabase, Source } from "../lib/types";
+import { DEFAULT_EXCLUDES, newId, newJob, randomPassword, sameLocation, sourceFromFound } from "../lib/defaults";
+import type { Discovery, Source } from "../lib/types";
 import { useApp } from "../state";
 import { FolderTree, type Sizes } from "../components/FolderTree";
 import { Info, NoServer } from "../components/guide";
@@ -95,23 +95,6 @@ export function BackupWizard() {
   const disk = ((server ? live[server] : undefined)?.status?.disks ?? []).filter((d) => localPath.startsWith(d.mount)).sort((a, b) => b.mount.length - a.mount.length)[0];
   const free = disk?.available ?? 0;
 
-  const toSource = (d: FoundDatabase): Source => {
-    const conn = { host: d.host, port: d.port, user: d.user, password: d.password, container: d.container, os_user: d.os_user };
-    switch (d.kind) {
-      case "postgres":
-        return { type: "postgres", id: newId("src"), databases: d.databases, globals: true, ...conn };
-      case "mysql":
-        return { type: "mysql", id: newId("src"), databases: d.databases, ...conn };
-      case "redis":
-        return { type: "redis", id: newId("src"), ...conn };
-      case "clickhouse":
-        return { type: "clickhouse", id: newId("src"), databases: d.databases, ...conn };
-      default: {
-        const auth = d.user ? `${encodeURIComponent(d.user)}:${encodeURIComponent(d.password)}@` : "";
-        return { type: "mongo", id: newId("src"), uri: d.container ? "" : `mongodb://${auth}127.0.0.1:27017/?authSource=admin`, container: d.container };
-      }
-    }
-  };
 
   const create = async () => {
     if (!server) return;
@@ -139,7 +122,7 @@ export function BackupWizard() {
       }
       const sources: Source[] = [];
       if (paths.size > 0) sources.push({ type: "paths", id: newId("src"), paths: [...paths], excludes: [...DEFAULT_EXCLUDES], one_file_system: false });
-      found.databases.forEach((d, i) => dbs.has(i) && sources.push(toSource(d)));
+      found.databases.forEach((d, i) => dbs.has(i) && sources.push(sourceFromFound(d)));
       if (sources.length === 0) {
         toast("error", t("first.nothing"));
         return;

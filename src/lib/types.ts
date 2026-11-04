@@ -8,7 +8,7 @@ export type DestKind =
   | { type: "azure"; account_name: string; account_key: string; container: string; path: string }
   | { type: "gcs"; project_id: string; bucket: string; path: string; credentials_json: string }
   | { type: "rest"; url: string; username: string; password: string }
-  | { type: "rclone"; remote: string; path: string };
+  | { type: "rclone"; remote: string; path: string; provider?: string };
 
 export type DestType = DestKind["type"];
 

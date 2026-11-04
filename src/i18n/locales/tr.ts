@@ -205,6 +205,9 @@ export default {
     deleteTitle: "{{name}} kaldırılsın mı?", deleteText: "Orluma bu hedefi kullanmayı bırakır. İçindeki veri silinmez.",
   },
   dest: {
+    cloud: { drive: "Google Drive", onedrive: "OneDrive", dropbox: "Dropbox" },
+    cloudAbout: { drive: "Google Drive hesabın, tarayıcıdan giriş yapılır", onedrive: "Kişisel ya da iş OneDrive'ı", dropbox: "Dropbox hesabın" },
+    connect: "{{name}} bağla", reconnect: "Başka bir hesap bağla", connected: "Bağlandı", connecting: "Açılan tarayıcı penceresinde giriş yap, sonra buraya dön. On dakikaya kadar bekler.", cloudHint: "Orluma sunucuya rclone kurar ve girişi orada, yalnızca root'un okuyabildiği bir dosyada tutar. Yedekler hesaba ulaşmadan şifrelenir.", folder: "Hesaptaki klasör", connectedToast: "{{name}} bağlandı",
     sameLocation: "{{name}} zaten bu yeri kullanıyor. Aynı yerde iki hedef, tek depo için iki farklı şifre demek: bunun yerine {{name}} hedefini kullan.",
     newTitle: "Yeni hedef", editTitle: "{{name}} düzenle",
     type: { local: "Sunucu diski", sftp: "Başka bir sunucu (SFTP)", s3: "S3 uyumlu", b2: "Backblaze B2", azure: "Azure Blob", gcs: "Google Cloud Storage", rest: "REST sunucusu", rclone: "rclone remote" },
@@ -216,7 +219,7 @@ export default {
       azure: "Azure depolama hesabı",
       gcs: "Servis hesabıyla bir bucket",
       rest: "restic'in rest-server'ı",
-      rclone: "Drive, OneDrive, Dropbox ve 70'ten fazlası",
+      rclone: "pCloud, Mega, Box ve 70'ten fazlası, sunucuda kurulur",
     },
     name: "Ad", path: "Yol", localHint: "Mümkünse yedeklenen diskle aynı olmasın.",
     host: "Sunucu", port: "Port", user: "Kullanıcı", password: "Şifre",
@@ -266,6 +269,7 @@ export default {
     forgetText: "{{when}} tarihli {{id}} snapshot'ı kaldırılır. Verisi bir sonraki temizlikte boşaltılır.",
     forgotten: "Snapshot silindi",
     db: {
+      target: "Nereye", targetOriginal: "Yedeğin alındığı veritabanı", looking: "Bu sunucudaki veritabanlarına bakılıyor…", noTarget: "Bu sunucuda çalışan bir {{kind}} bulunamadı. Onu (ya da konteynerini) başlatıp bunu yeniden aç.",
       button: "Veritabanına yükle",
       title: "{{name}} veritabanına yüklensin",
       text: "Bu yedeği {{where}} üzerine yükler. Varsayılan olarak yeni bir veritabanına gider, yani var olan hiçbir şeye dokunulmaz.",

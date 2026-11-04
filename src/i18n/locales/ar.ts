@@ -207,6 +207,9 @@ export default {
     deleteTitle: "إزالة {{name}}؟", deleteText: "يتوقف Orluma عن استخدام هذه الوجهة. لا تُحذف البيانات الموجودة فيها.",
   },
   dest: {
+    cloud: { drive: "Google Drive", onedrive: "OneDrive", dropbox: "Dropbox" },
+    cloudAbout: { drive: "Google Drive الخاص بك، بتسجيل الدخول من المتصفح", onedrive: "OneDrive الشخصي أو للعمل", dropbox: "Dropbox الخاص بك" },
+    connect: "ربط {{name}}", reconnect: "ربط حساب آخر", connected: "متصل", connecting: "سجّل الدخول في نافذة المتصفح التي فُتحت ثم عد إلى هنا. ينتظر حتى عشر دقائق.", cloudHint: "يثبّت Orluma أداة rclone على الخادم ويحفظ تسجيل الدخول هناك في ملف لا يقرؤه إلا root. تُشفَّر النسخ قبل وصولها إلى الحساب.", folder: "المجلد في الحساب", connectedToast: "تم ربط {{name}}",
     sameLocation: "{{name}} تستخدم هذا المكان بالفعل. وجهتان في مكان واحد تعني كلمتي مرور لمستودع واحد: استخدم {{name}} بدلًا من ذلك.",
     newTitle: "وجهة جديدة", editTitle: "تعديل {{name}}",
     type: { local: "قرص الخادم", sftp: "خادم آخر (SFTP)", s3: "متوافق مع S3", b2: "Backblaze B2", azure: "Azure Blob", gcs: "Google Cloud Storage", rest: "خادم REST", rclone: "وجهة rclone" },
@@ -218,7 +221,7 @@ export default {
       azure: "حساب تخزين Azure",
       gcs: "حاوية بحساب خدمة",
       rest: "rest-server من restic",
-      rclone: "Drive وOneDrive وDropbox و70 غيرها",
+      rclone: "pCloud وMega وBox و70 غيرها، تُعدّ على الخادم",
     },
     name: "الاسم", path: "المسار", localHint: "يُفضَّل ألا يكون القرص نفسه الذي يُنسخ.",
     host: "المضيف", port: "المنفذ", user: "المستخدم", password: "كلمة المرور",
@@ -268,6 +271,7 @@ export default {
     forgetText: "ستُحذف اللقطة {{id}} من {{when}}. تُحرَّر مساحتها في التنظيف التالي.",
     forgotten: "حُذفت اللقطة",
     db: {
+      target: "إلى", targetOriginal: "قاعدة البيانات التي أُخذت منها النسخة", looking: "جارٍ البحث عن قواعد البيانات على هذا الخادم…", noTarget: "لم يُعثر على {{kind}} يعمل على هذا الخادم. شغّله (أو حاويته) ثم افتح هذا مجددًا.",
       button: "استعادة إلى قاعدة بيانات",
       title: "استعادة {{name}} إلى قاعدة بيانات",
       text: "يحمّل هذه النسخة إلى {{where}}. تذهب افتراضيًا إلى قاعدة بيانات جديدة، فلا يُمَسّ أي شيء موجود.",

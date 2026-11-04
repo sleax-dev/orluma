@@ -386,6 +386,45 @@ fn log_export(app: AppHandle, text: String) -> Res<String> {
     Ok(file.display().to_string())
 }
 
+/// Connects a Google Drive, OneDrive or Dropbox account to a server: the agent starts rclone's sign-in there, this
+/// PC forwards rclone's port over SSH and opens the sign-in page in the browser, and the agent stores the token
+/// in its own rclone config. The token never comes to this PC. Returns the rclone remote's name.
+#[tauri::command]
+async fn cloud_connect(s: State<'_, AppState>, server: String, provider: String) -> Res<String> {
+    let body = serde_json::json!({ "provider": provider });
+    let start = s.0.call(&server, "cloud/connect", &body).await?;
+    let url = start.get("url").and_then(Value::as_str).unwrap_or_default().to_string();
+    let port = start.get("port").and_then(Value::as_u64).unwrap_or(53682) as u16;
+    // only rclone's own local sign-in page is ever opened from here
+    if !url.starts_with(&format!("http://127.0.0.1:{port}/")) {
+        let _ = s.0.call(&server, "cloud/cancel", &serde_json::json!({})).await;
+        return Err(format!("unexpected sign-in address from the server: {url}"));
+    }
+    let conn = s.0.conn(&server).await?;
+    let forward = match conn.local_forward(port).await {
+        Ok(f) => f,
+        Err(e) => {
+            let _ = s.0.call(&server, "cloud/cancel", &serde_json::json!({})).await;
+            return Err(e.0);
+        }
+    };
+    let _ = tauri_plugin_opener::open_url(&url, None::<&str>);
+    let done = s.0.call(&server, "cloud/finish", &body).await;
+    forward.abort();
+    done?
+        .get("remote")
+        .and_then(Value::as_str)
+        .map(str::to_string)
+        .ok_or_else(|| "no remote came back".to_string())
+}
+
+#[tauri::command]
+async fn cloud_cancel(s: State<'_, AppState>, server: String) -> Res<()> {
+    s.0.call(&server, "cloud/cancel", &serde_json::json!({}))
+        .await
+        .map(|_| ())
+}
+
 /// Any agent call: `path` is the part after /v1/ (status, config/get, jobs/run, ...).
 #[tauri::command]
 async fn agent(s: State<'_, AppState>, server: String, path: String, body: Option<Value>) -> Res<Value> {
@@ -1233,6 +1272,8 @@ pub fn run() {
             log_tail,
             log_redact,
             log_export,
+            cloud_connect,
+            cloud_cancel,
             app_info,
             minimize_window,
             close_window,

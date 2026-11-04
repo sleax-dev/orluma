@@ -205,6 +205,9 @@ export default {
     deleteTitle: "Убрать {{name}}?", deleteText: "Orluma перестанет использовать это хранилище. Данные в нём не удаляются.",
   },
   dest: {
+    cloud: { drive: "Google Drive", onedrive: "OneDrive", dropbox: "Dropbox" },
+    cloudAbout: { drive: "Ваш Google Диск, вход через браузер", onedrive: "Личный или рабочий OneDrive", dropbox: "Ваш Dropbox" },
+    connect: "Подключить {{name}}", reconnect: "Подключить другой аккаунт", connected: "Подключено", connecting: "Войдите в открывшемся окне браузера и вернитесь сюда. Ожидание — до десяти минут.", cloudHint: "Orluma устанавливает rclone на сервер и хранит вход там, в файле только для root. Копии шифруются до того, как попадут в аккаунт.", folder: "Папка в аккаунте", connectedToast: "{{name}} подключён",
     sameLocation: "{{name}} уже использует это место. Два хранилища в одном месте — два пароля для одного репозитория: используйте {{name}}.",
     newTitle: "Новое хранилище", editTitle: "Изменить {{name}}",
     type: { local: "Диск сервера", sftp: "Другой сервер (SFTP)", s3: "Совместимое с S3", b2: "Backblaze B2", azure: "Azure Blob", gcs: "Google Cloud Storage", rest: "REST-сервер", rclone: "Remote rclone" },
@@ -216,7 +219,7 @@ export default {
       azure: "Учётная запись хранения Azure",
       gcs: "Бакет с сервисным аккаунтом",
       rest: "rest-server от restic",
-      rclone: "Drive, OneDrive, Dropbox и ещё 70",
+      rclone: "pCloud, Mega, Box и ещё 70, настраиваются на сервере",
     },
     name: "Название", path: "Путь", localHint: "По возможности не тот диск, который копируется.",
     host: "Хост", port: "Порт", user: "Пользователь", password: "Пароль",
@@ -266,6 +269,7 @@ export default {
     forgetText: "Снимок {{id}} от {{when}} будет удалён. Место освободится при следующей очистке.",
     forgotten: "Снимок удалён",
     db: {
+      target: "Куда", targetOriginal: "База, из которой сделана копия", looking: "Ищем базы данных на этом сервере…", noTarget: "На этом сервере не найден работающий {{kind}}. Запустите его (или его контейнер) и откройте это снова.",
       button: "Восстановить в базу данных",
       title: "Восстановить {{name}} в базу данных",
       text: "Загружает эту копию в {{where}}. По умолчанию она попадает в новую базу, поэтому существующее не затрагивается.",
