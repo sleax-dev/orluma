@@ -7,10 +7,13 @@ use tokio::process::Command;
 
 async fn out(cmd: &str, args: &[&str]) -> Option<String> {
     // kill_on_drop: a command that outlives the timeout (du on a huge tree) must not keep running
-    let o = tokio::time::timeout(Duration::from_secs(15), Command::new(cmd).args(args).kill_on_drop(true).output())
-        .await
-        .ok()?
-        .ok()?;
+    let o = tokio::time::timeout(
+        Duration::from_secs(15),
+        Command::new(cmd).args(args).kill_on_drop(true).output(),
+    )
+    .await
+    .ok()?
+    .ok()?;
     o.status
         .success()
         .then(|| String::from_utf8_lossy(&o.stdout).into_owned())
