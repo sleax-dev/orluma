@@ -20,9 +20,9 @@ npm run check:i18n
 
 | Path | What |
 |---|---|
-| `crates/core` | The model the app and the agent share: config, API types, cron schedules |
-| `crates/agent` | The server agent: restic, sources, scheduler, alerts, self-update |
-| `src-tauri` | The desktop side: SSH, installing the agent, the PC repository, tray, updates |
+| `crates/core` | What the app and the agent share: config, API types, cron schedules, logging with secrets masked |
+| `crates/agent` | The server agent: restic, sources, discovery, scheduler, alerts, logs, self-update |
+| `src-tauri` | The desktop side: SSH, installing the agent, the PC repository, PC-to-PC transfer, the app log, tray, updates |
 | `src` | The interface (React, Fluent UI); `src/i18n/locales` has one file per language |
 | `docs/ARCHITECTURE.md` | How the pieces talk to each other |
 
@@ -35,6 +35,10 @@ curl -s --unix-socket /tmp/orluma/run/orluma/agent.sock -X POST http://agent/v1/
 ```
 
 `ORLUMA_ROOT` moves `/etc`, `/var` and `/run` under a directory. To test the desktop app against an agent you built, set `ORLUMA_AGENT_BINARY` to the file and "Add server" uploads it instead of downloading a release.
+
+## When something goes wrong
+
+Settings → Diagnostics in the app shows both logs and copies them as one report; attach it to an issue. On a server, `journalctl -u orluma-agent` or `/var/lib/orluma/agent.log` has the same lines as the agent's part of it.
 
 ## Translations
 

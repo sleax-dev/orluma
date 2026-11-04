@@ -13,6 +13,8 @@ Please do not open a public issue for a security problem. Use GitHub's private r
 - **Updates are verified** with a minisign signature before anything is installed. The release key must be kept private; losing it means no more updates, leaking it means anyone could ship one.
 - **The PC repository** is a local REST server bound to 127.0.0.1 on a random port with random credentials, reachable by a server only through the SSH tunnel Orluma opens.
 - **Recovery kits contain every password in plain text.** Keep them offline.
+- **Logs and diagnostics reports** mask passwords, keys, tokens, URL credentials and webhook secrets before anything is written, so a report can be shared as it is. They still name servers, paths and databases. The agent's log is in `/var/lib/orluma` (root only).
+- **Discovery reads Docker containers' environment** to find the database credentials they were started with. The values go to the app only to fill in the backup you create and are not logged.
 
 ## Supported versions
 

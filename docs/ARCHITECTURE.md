@@ -20,9 +20,11 @@
 
 `orluma-agent` is one static-ish binary run by systemd (`orluma-agent install` writes the unit). It owns everything that has to happen whether or not a PC is connected.
 
-- **State.** `/etc/orluma/agent.json` (config, mode 600), `/var/lib/orluma/history.db` (SQLite: run history, last prune and verify dates), `/var/cache/orluma` (restic's cache).
+- **State.** `/etc/orluma/agent.json` (config, mode 600), `/var/lib/orluma/history.db` (SQLite: run history, last prune and verify dates), `/var/lib/orluma/agent.log` (the log, also in journald, rotated at 2 MiB), `/var/cache/orluma` (restic's cache).
 - **API.** `POST /v1/<name>` with JSON on `/run/orluma/agent.sock`, plus `GET /v1/events` (server-sent events) and `GET /v1/dump` (streams a file or a zip out of a snapshot). Types are in `crates/core/src/api.rs`.
 - **A run** (`runner.rs`): before-hooks, one snapshot per source (`sources.rs` turns databases into dumps piped into `restic backup --stdin-from-command`, so a failing dump fails the snapshot), retention (`forget`), prune and verify when due, copies to the job's other destinations, after-hooks, a health-check ping, and the alert. Everything goes into the run's log.
+- **Discovery** (`discover.rs`): what a server holds, for "What should I back up?". `discover` lists databases (running services, Docker containers and the credentials they were started with) and the usual folders without measuring them, so the answer comes at once; `discover/ls` lists one folder for the tree, and `discover/size` measures one folder with `nice du`, two at a time, given up after 25 seconds, leaving out the backup's exclude patterns. Only one discovery runs at a time, and a command that outlives its limit is killed.
+- **Logs** (`logs.rs`, `crates/core/src/log.rs`): one line per request, run, alert and update; slow (3 s or more) and failed requests are warnings. Secrets (`password=`, tokens, URL credentials, webhook and bot tokens) are masked before a line is kept. `POST /v1/logs` returns the tail for the app's diagnostics page.
 - **Scheduler** (`scheduler.rs`): cron in the configured zone, catch-up of one missed run after downtime, disk alerts, and update checks every six hours.
 - **restic** (`restic.rs`): used from the system if it is 0.17 or newer, otherwise a pinned version is downloaded and checked against a SHA-256 in the source.
 - **Self-update** (`update.rs`): a release's agent binary and its `.sig` are fetched, the minisign signature is checked against the key compiled into the agent, and only then is the file replaced; systemd restarts it. Nothing is replaced while a run is going.
@@ -32,6 +34,8 @@
 - **SSH** (`ssh.rs`, russh): one connection per server, kept alive. It carries the agent's API (a `direct-streamlocal` channel to the socket, spoken to with HTTP/1.1), commands during setup, and the reverse tunnel.
 - **Adding a server** (`install.rs`): read the host key, show the fingerprint, log in with the password, append the app's public key to `authorized_keys`, upload the signed agent over the SSH channel, run `orluma-agent install`, and wait for the socket to answer. The password never touches the disk.
 - **This PC as a destination** (`pcrepo.rs`): a small restic REST server (`axum`) on `127.0.0.1:<random>` with random basic-auth credentials. The server's agent runs `restic copy` into `rest:http://…@127.0.0.1:<port>/<server>/`, where the port is the far end of a reverse tunnel back to this server. Objects are named by their SHA-256 and checked on upload.
+- **Logs** (`applog.rs`): `<app data>/logs/orluma.log`, rotated and masked the same way as the agent's. Every agent call is logged with its time, together with the interface's own errors, and the diagnostics page puts both logs, the servers' states and their last runs into one report.
+- **PC to PC** (`lan.rs`): the sending PC advertises itself over mDNS; the receiver types the code it shows, both sides run SPAKE2 on it, and the restic files move over a channel encrypted with the key they agreed on. Three wrong codes close the offer.
 - **Events.** Each server's event stream is followed for as long as the server is in the list, reconnecting with backoff. Finished runs become desktop notifications.
 
 ## Why restic

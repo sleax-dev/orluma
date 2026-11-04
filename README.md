@@ -25,9 +25,10 @@ Storage is [restic](https://restic.net): deduplicated, compressed, encrypted, an
 
 ## What it does
 
-- **One control room for every server.** Add a server with its address and a root login; Orluma installs the agent, then logs in with its own key. The password is used once and never stored.
-- **It tells you what to back up.** The agent finds running databases (services and Docker containers, with the credentials their containers were started with), the usual folders and their sizes. One click makes a daily backup of what you tick.
+- **One control room for every server.** Add a server with its address and a root login; Orluma installs the agent, then logs in with its own key. The password is used once and never stored. For servers that only accept keys, add the one line Orluma shows to `authorized_keys` instead.
+- **It shows what to back up, you choose.** The agent finds running databases (services and Docker containers, with the credentials their containers were started with) and the usual folders. A page in three steps (databases, folders, where to) makes a daily backup of what you tick; nothing is ticked for you. Folders open as a tree, so you can pick single folders or files inside `/root` or `/var/www`, and their sizes leave out what the backup skips.
 - **Files and databases, consistently.** Folders, PostgreSQL, MySQL/MariaDB, MongoDB, Redis, SQLite, ClickHouse, or the output of any command. Databases are dumped straight into the repository: no temporary copy on the disk, and a failing dump fails the snapshot instead of saving half a file.
+- **Leaves out what can be rebuilt.** File backups skip `node_modules`, package stores, build output and caches at any depth, Python virtualenvs whatever their name (by their `pyvenv.cfg`), folders marked with `CACHEDIR.TAG` or a `.nobackup` file, and system folders such as `/proc` and `/tmp`. The list stays editable in each job.
 - **Anywhere to send it.** A disk or share on the server, another server over SFTP, S3-compatible storage (AWS, Cloudflare R2, Wasabi, Hetzner, DigitalOcean, Scaleway, iDrive e2, MinIO), Backblaze B2, Azure, Google Cloud Storage, a restic REST server, or any of the 70 clouds rclone reaches. A job can write to one place and copy to others after each good run: the 3-2-1 rule without scripts.
 - **A copy on your own PC, with no open port.** Servers push their backups through the SSH connection into a repository inside the app, on a schedule you set, while Orluma runs.
 - **Schedules that survive downtime.** Presets or cron, in the server's time zone, with catch-up if the server was off when a run was due.
@@ -39,6 +40,7 @@ Storage is [restic](https://restic.net): deduplicated, compressed, encrypted, an
 - **Restore into a database.** A database backup loads straight into a running PostgreSQL, MySQL/MariaDB, SQLite, MongoDB or ClickHouse, into a new database by default.
 - **Move backups anywhere.** Copy between servers and clouds, put a backup kept on this PC onto a server, or send backups to another PC on the same Wi-Fi with a one-time code. Nothing leaves your network.
 - **A recovery kit.** One file with every server, destination and password, so you can restore with restic alone even if the servers and this PC are gone.
+- **Diagnostics you can send.** Settings → Diagnostics shows the app's log and each server's agent log, warnings and errors first, and copies or saves both as one report. Passwords, keys, tokens and webhook secrets are removed before anything is written.
 - **Updates itself.** The desktop app and the agents install signed releases from GitHub; the signature is checked before anything is replaced.
 - **Ten languages**, right-to-left included.
 
@@ -57,7 +59,7 @@ Storage is [restic](https://restic.net): deduplicated, compressed, encrypted, an
 
 **Desktop.** Download the installer for your system from [Releases](https://github.com/sleax-dev/orluma/releases/latest): `*-setup.exe` (Windows), `.dmg` (macOS), `.deb` or `.AppImage` (Linux). The installers are not code-signed yet, so SmartScreen or Gatekeeper may warn on first run.
 
-**Servers.** Nothing to download: in the app choose **Add server**, enter the address and a root login, confirm the fingerprint, and Orluma installs the agent. A server needs Linux (x86-64 or ARM64), systemd, and root access over SSH. restic is downloaded by the agent when the server has none, checked against a pinned hash.
+**Servers.** Nothing to download: in the app choose **Add server**, enter the address and a root login (or tick that Orluma's key is already authorized, for key-only servers), confirm the fingerprint, and Orluma installs the agent. A server needs Linux (x86-64 or ARM64), systemd, and root access over SSH. restic is downloaded by the agent when the server has none, checked against a pinned hash.
 
 ## How it keeps your data safe
 
@@ -66,6 +68,7 @@ Storage is [restic](https://restic.net): deduplicated, compressed, encrypted, an
 - **Host keys are pinned.** The fingerprint is shown when you add a server and checked on every connection afterwards; a changed key stops the connection before any credential is sent.
 - **Signed everything.** Agent binaries and desktop updates are signed with the same minisign key, built into both, and verified before installation.
 - **Restores never write over live files by accident.** The target folder must be empty unless you tick the box that says otherwise.
+- **One destination per place.** Two destinations pointing at the same folder or bucket would mean two passwords for one repository, so Orluma does not save the second one.
 - **No telemetry.** Orluma contacts GitHub (updates) and your own servers and destinations. Nothing else.
 
 The passwords live in `/etc/orluma/agent.json` on each server (root only, mode 600) and in the app's data folder on your PC. Details and limits are in [SECURITY.md](SECURITY.md).
